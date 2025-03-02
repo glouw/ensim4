@@ -8,5 +8,6 @@ all:
 	objdump -d -M intel $(BIN) > ensim4.asm
 
 clean:
-	rm visualize/*.txt
-	rm $(BIN)
+	rm -f visualize/*.txt
+	rm -f $(BIN)
+	rm -f $(BIN).asm
