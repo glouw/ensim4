@@ -1,3 +1,6 @@
+constexpr size_t max_edges_per_node = 16;
+constexpr size_t cache_line_bytes = 128;
+
 enum tag_t
 {
     is_chamber, is_piston,

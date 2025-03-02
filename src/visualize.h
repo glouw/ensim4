@@ -1,5 +1,5 @@
 static void
-visualize_gamma(void)
+visualize_gamma()
 {
     FILE* file = fopen("visualize/gamma.txt", "w");
     for(double static_temperature_k = 0; static_temperature_k < 6'000; static_temperature_k += 100.0)
@@ -69,7 +69,7 @@ visualize_gamma(void)
 }
 
 static void
-visualize_chamber_t(void)
+visualize_chamber_t()
 {
     struct chamber_t x = {
         .gas = {

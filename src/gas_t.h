@@ -1,3 +1,10 @@
+constexpr double molar_mass_kg_per_mol_c8h18 = 0.1142285200;
+constexpr double molar_mass_kg_per_mol_o2 = 0.0319988000;
+constexpr double molar_mass_kg_per_mol_n2 = 0.0280134000;
+constexpr double molar_mass_kg_per_mol_ar = 0.0399480000;
+constexpr double molar_mass_kg_per_mol_co2 = 0.0440095000;
+constexpr double molar_mass_kg_per_mol_h2o = 0.0180152800;
+
 struct gas_t
 {
     double mol_ratio_c8h18;
@@ -10,13 +17,6 @@ struct gas_t
     double mass_kg;
     double momentum_kg_m_per_s;
 };
-
-constexpr double molar_mass_kg_per_mol_c8h18 = 0.1142285200;
-constexpr double molar_mass_kg_per_mol_o2 = 0.0319988000;
-constexpr double molar_mass_kg_per_mol_n2 = 0.0280134000;
-constexpr double molar_mass_kg_per_mol_ar = 0.0399480000;
-constexpr double molar_mass_kg_per_mol_co2 = 0.0440095000;
-constexpr double molar_mass_kg_per_mol_h2o = 0.0180152800;
 
 static double
 calc_mixed_molar_mass_kg_per_mol(const struct gas_t* self)

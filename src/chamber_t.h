@@ -65,8 +65,6 @@ calc_total_temperature_k(const struct chamber_t* self)
 static double
 calc_nozzle_mach(const struct chamber_t* self, const struct chamber_t* other)
 {
-    double y = calc_mixed_gamma(&self->gas);
-    double Ps = calc_static_pressure_pa(other);
     double Pt0 = calc_total_pressure_pa(self);
     double Pt1 = calc_total_pressure_pa(other);
     double total_pressure_hysteresis_pa = 10.0;
@@ -76,6 +74,8 @@ calc_nozzle_mach(const struct chamber_t* self, const struct chamber_t* other)
     }
     else
     {
+        double y = calc_mixed_gamma(&self->gas);
+        double Ps = calc_static_pressure_pa(other);
         double M = sqrt((2.0 / (y - 1.0)) * (pow(Pt0 / Ps, (y - 1.0) / y) - 1.0));
         return clamp(M, 0.0, 1.0);
     }
@@ -85,8 +85,8 @@ calc_nozzle_mach(const struct chamber_t* self, const struct chamber_t* other)
  *                     ____
  * .    A * Pt        / y                    M
  * m = -------- * _  / ---- * (-------------------------------)
- *    _  ____      \/   Rs                            y + 1
- *     \/ Tt                                       -----------
+ *     _  ____     \/   Rs                            y + 1
+ *      \/ Tt                                      -----------
  *                                                 2 * (y - 1)
  *                                   (y - 1)    2
  *                             [ 1 + ------- * M ]
