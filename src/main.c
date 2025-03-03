@@ -13,8 +13,13 @@
 void
 help()
 {
+    size_t estimated_l1_cache_bytes = 32768;
+    size_t node_bytes = sizeof(struct node_t);
+    size_t estimated_nodes_per_l1 = estimated_l1_cache_bytes / node_bytes;
     printf("cache line size (bytes): %lu\n", cache_line_bytes);
-    printf("node size (bytes): %lu\n", sizeof(struct node_t));
+    printf("estimated l1 cache size (bytes): %lu\n", estimated_l1_cache_bytes);
+    printf("node size (bytes): %lu\n", node_bytes);
+    printf("estimated nodes per L1: %lu\n", estimated_nodes_per_l1);
 }
 
 int
