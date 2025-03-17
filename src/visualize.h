@@ -94,8 +94,15 @@ visualize_chamber_t()
     };
     FILE* file_mix = fopen("visualize/chamber_t_mix.txt", "w");
     FILE* file_flow = fopen("visualize/chamber_t_flow.txt", "w");
-    for(size_t cycle = 0; cycle < 5'000; cycle++)
+    for(size_t cycle = 0; cycle < 3'000; cycle++)
     {
+        double nozzle_flow_area_m2 = calc_nozzle_flow_area_m2(&x); /* convention, regardless of flow direction */
+        struct chamber_t* upper = calc_total_pressure_pa(&x) > calc_total_pressure_pa(&y) ? &x : &y;
+        struct chamber_t* lower = upper == &x ? &y : &x;
+        double direction = &x == upper ? 1.0 : -1.0;
+        double nozzle_mach = direction * calc_nozzle_mach(upper, lower);
+        double nozzle_mass_flow_rate_kg_per_s = direction * calc_nozzle_mass_flow_rate_kg_per_s(upper, lower, nozzle_flow_area_m2);
+        double nozzle_flow_velocity_m_per_s = direction * calc_nozzle_flow_velocity_m_per_s(upper, lower);
         fprintf(
             file_mix,
             "%f " /*  1 */
@@ -115,6 +122,9 @@ visualize_chamber_t()
             "%f " /* 15 */
             "%f " /* 16 */
             "%f " /* 17 */
+            "%f " /* 18 */
+            "%f " /* 19 */
+            "%f " /* 20 */
             "\n"
             , /*  1 */ dt_s * cycle
             , /*  2 */ calc_mixed_cp_j_per_mol_k(&x.gas)
@@ -133,33 +143,54 @@ visualize_chamber_t()
             , /* 15 */ calc_mixed_gamma(&y.gas)
             , /* 16 */ calc_specific_gas_constant_j_per_kg_k(&x.gas)
             , /* 17 */ calc_specific_gas_constant_j_per_kg_k(&y.gas)
+            , /* 18 */ nozzle_mach
+            , /* 19 */ nozzle_mass_flow_rate_kg_per_s
+            , /* 20 */ nozzle_flow_velocity_m_per_s
         );
-
-        calc_bulk_flow_velocity_m_per_s(&x.gas);
-        calc_bulk_flow_velocity_m_per_s(&y.gas);
-        calc_bulk_speed_of_sound_m_per_s(&x.gas);
-        calc_bulk_speed_of_sound_m_per_s(&y.gas);
-        calc_bulk_mach(&x.gas);
-        calc_bulk_mach(&y.gas);
-        calc_max_bulk_momentum_kg_m_per_s(&x.gas);
-        calc_max_bulk_momentum_kg_m_per_s(&y.gas);
-        calc_static_pressure_pa(&x);
-        calc_static_pressure_pa(&y);
-        calc_total_pressure_pa(&x);
-        calc_total_pressure_pa(&y);
-        calc_total_temperature_k(&x);
-        calc_total_temperature_k(&y);
-
-        //double nozzle_flow_area_m2 = calc_nozzle_flow_area_m2(x); /* convention, regardless of flow direction */
-        //struct chamber_t* upper = calc_total_pressure_pa(&x) > calc_total_pressure_pa(&y) ? &x : &y;
-        //struct chamber_t* lower = upper == &x ? &y : &x;
-
-        ///* direction, to make graph pretty */
-        //double direction = x == upper ? 1.0 : -1.0;
-        //direction * calc_nozzle_mach(upper, lower);
-        //direction * calc_nozzle_mass_flow_rate_kg_per_s(upper, lower, nozzle_flow_area_m2);
-        //direction * calc_nozzle_flow_velocity_m_per_s(upper, lower);
-
+        fprintf(
+            file_flow,
+            "%f " /*  1 */
+            "%f " /*  2 */
+            "%f " /*  3 */
+            "%f " /*  4 */
+            "%f " /*  5 */
+            "%f " /*  6 */
+            "%f " /*  7 */
+            "%f " /*  8 */
+            "%f " /*  9 */
+            "%f " /* 10 */
+            "%f " /* 11 */
+            "%f " /* 12 */
+            "%f " /* 13 */
+            "%f " /* 14 */
+            "%f " /* 15 */
+            "%f " /* 16 */
+            "%f " /* 17 */
+            "%f " /* 18 */
+            "%f " /* 19 */
+            "%f " /* 20 */
+            "\n"
+            , /*  1 */ dt_s * cycle
+            , /*  2 */ calc_bulk_flow_velocity_m_per_s(&x.gas)
+            , /*  3 */ calc_bulk_flow_velocity_m_per_s(&y.gas)
+            , /*  4 */ calc_bulk_speed_of_sound_m_per_s(&x.gas)
+            , /*  5 */ calc_bulk_speed_of_sound_m_per_s(&y.gas)
+            , /*  6 */ calc_bulk_mach(&x.gas)
+            , /*  7 */ calc_bulk_mach(&y.gas)
+            , /*  8 */ calc_max_bulk_momentum_kg_m_per_s(&x.gas)
+            , /*  9 */ calc_max_bulk_momentum_kg_m_per_s(&y.gas)
+            , /* 10 */ x.gas.momentum_kg_m_per_s
+            , /* 11 */ y.gas.momentum_kg_m_per_s
+            , /* 12 */ calc_static_pressure_pa(&x)
+            , /* 13 */ calc_static_pressure_pa(&y)
+            , /* 14 */ calc_total_pressure_pa(&x)
+            , /* 15 */ calc_total_pressure_pa(&y)
+            , /* 16 */ calc_total_temperature_k(&x)
+            , /* 17 */ calc_total_temperature_k(&y)
+            , /* 18 */ nozzle_mach
+            , /* 19 */ nozzle_mass_flow_rate_kg_per_s
+            , /* 20 */ nozzle_flow_velocity_m_per_s
+        );
         flow(&x, &y);
     }
     fclose(file_mix);
