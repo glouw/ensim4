@@ -22,6 +22,22 @@ calc_static_pressure_pa(const struct chamber_t* self)
     return m * Rs * Ts / V;
 }
 
+/*
+ *     Ps * V
+ * m = -------
+ *     Rs * Ts
+ */
+
+static double
+calc_mass_kg(const struct chamber_t* self)
+{
+    double Ps = calc_static_pressure_pa(self);
+    double V = self->volume_m3;
+    double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
+    double Ts = self->gas.static_temperature_k;
+    return Ps * V / (Rs * Ts);
+}
+
 /*                                y
  *                              -----
  *                (y - 1)    2 (y - 1)
@@ -94,10 +110,10 @@ calc_nozzle_mach(const struct chamber_t* self, const struct chamber_t* other)
  */
 
 static double
-calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_t* self, const struct chamber_t* other, double nozzle_flow_area_m2)
+calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_t* self, double nozzle_flow_area_m2, double nozzle_mach)
 {
     double y = calc_mixed_gamma(&self->gas);
-    double M = calc_nozzle_mach(self, other);
+    double M = nozzle_mach;
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
     double Tt = calc_total_temperature_k(self);
     double Pt = calc_total_pressure_pa(self);
@@ -115,10 +131,10 @@ calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_t* self, const struct c
  */
 
 static double
-calc_nozzle_flow_velocity_m_per_s(const struct chamber_t* self, const struct chamber_t* other)
+calc_nozzle_flow_velocity_m_per_s(const struct chamber_t* self, const struct chamber_t* other, double nozzle_mach)
 {
     double y = calc_mixed_gamma(&self->gas);
-    double M = calc_nozzle_mach(self, other);
+    double M = nozzle_mach;
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
     double Tt = calc_total_temperature_k(self);
     double Ps = calc_static_pressure_pa(other);
@@ -160,36 +176,8 @@ remove_gas(struct chamber_t* self, const struct gas_t* mail)
 }
 
 static void
-flow(struct chamber_t* x, struct chamber_t* y)
+normalize_chamber(struct chamber_t* self)
 {
-    double nozzle_flow_area_m2 = calc_nozzle_flow_area_m2(x);
-    if(nozzle_flow_area_m2 > 0.0)
-    {
-        /* always flows from chamber x to chamber y */
-        if(calc_total_pressure_pa(x) < calc_total_pressure_pa(y))
-        {
-            struct chamber_t* copy = x;
-            x = y;
-            y = copy;
-        }
-        double nozzle_flow_velocity_m_per_s = calc_nozzle_flow_velocity_m_per_s(x, y);
-        double nozzle_mass_flow_rate_kg_per_s = calc_nozzle_mass_flow_rate_kg_per_s(x, y, nozzle_flow_area_m2);
-        double mass_flowed_kg = nozzle_mass_flow_rate_kg_per_s * dt_s;
-        double momentum_transferred_kg = mass_flowed_kg * nozzle_flow_velocity_m_per_s;
-        struct gas_t mail = {
-            .mol_ratio_c8h18 = x->gas.mol_ratio_c8h18,
-            .mol_ratio_o2 = x->gas.mol_ratio_o2,
-            .mol_ratio_n2 = x->gas.mol_ratio_n2,
-            .mol_ratio_ar = x->gas.mol_ratio_ar,
-            .mol_ratio_co2 = x->gas.mol_ratio_co2,
-            .mol_ratio_h2o = x->gas.mol_ratio_h2o,
-            .static_temperature_k = x->gas.static_temperature_k,
-            .mass_kg = mass_flowed_kg,
-            .momentum_kg_m_per_s = momentum_transferred_kg,
-        };
-        remove_gas(x, &mail);
-        mix_in_gas(&y->gas, &mail);
-        clamp_momentum(&x->gas);
-        clamp_momentum(&y->gas);
-    }
+    self->gas.static_temperature_k = ambient_static_temperature_k;
+    self->gas.mass_kg = calc_mass_kg(self);
 }

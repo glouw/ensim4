@@ -5,27 +5,15 @@
 #include "gamma.h"
 #include "gas_t.h"
 #include "chamber_t.h"
+#include "nozzle_flow_t.h"
 #include "piston_t.h"
-#include "node_t.h"
-#include "engine_t.h"
+#include "node_s.h"
 #include "visualize.h"
-
-void
-help()
-{
-    size_t estimated_l1_cache_bytes = 32768;
-    size_t node_bytes = sizeof(struct node_t);
-    size_t estimated_nodes_per_l1 = estimated_l1_cache_bytes / node_bytes;
-    printf("cache line size (bytes): %lu\n", cache_line_bytes);
-    printf("estimated l1 cache size (bytes): %lu\n", estimated_l1_cache_bytes);
-    printf("node size (bytes): %lu\n", node_bytes);
-    printf("estimated nodes per L1: %lu\n", estimated_nodes_per_l1);
-}
 
 int
 main()
 {
-    help();
+    printf("%lu\n", sizeof(debug_pipeline));
     visualize_gamma();
     visualize_chamber_t();
 }

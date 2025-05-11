@@ -29,24 +29,28 @@ set multiplot layout 6,2
     plot "visualize/chamber_t_flow.txt" using 1:12 with lines linewidth 2 title "Chamber x", \
          "visualize/chamber_t_flow.txt" using 1:13 with lines linewidth 2 title "Chamber y"
 
-    set ylabel "Total Pressure (Pa)"
+    set ylabel "Static Temperature (K)"
     plot "visualize/chamber_t_flow.txt" using 1:14 with lines linewidth 2 title "Chamber x", \
          "visualize/chamber_t_flow.txt" using 1:15 with lines linewidth 2 title "Chamber y"
 
-    set ylabel "Total Temperature (K)"
+    set ylabel "Total Pressure (Pa)"
     plot "visualize/chamber_t_flow.txt" using 1:16 with lines linewidth 2 title "Chamber x", \
          "visualize/chamber_t_flow.txt" using 1:17 with lines linewidth 2 title "Chamber y"
+
+    set ylabel "Total Temperature (K)"
+    plot "visualize/chamber_t_flow.txt" using 1:18 with lines linewidth 2 title "Chamber x", \
+         "visualize/chamber_t_flow.txt" using 1:19 with lines linewidth 2 title "Chamber y"
 
     set xlabel "Time (seconds)"
 
     set ylabel "Mach number"
-    plot "visualize/chamber_t_flow.txt" using 1:18 with lines linewidth 2 title "Nozzle"
+    plot "visualize/chamber_t_flow.txt" using 1:20 with lines linewidth 2 title "Nozzle"
 
     set ylabel "Mass flow kg/s"
-    plot "visualize/chamber_t_flow.txt" using 1:19 with lines linewidth 2 title "Nozzle"
+    plot "visualize/chamber_t_flow.txt" using 1:21 with lines linewidth 2 title "Nozzle"
 
     set ylabel "Velocity m/s"
-    plot "visualize/chamber_t_flow.txt" using 1:20 with lines linewidth 2 title "Nozzle"
+    plot "visualize/chamber_t_flow.txt" using 1:22 with lines linewidth 2 title "Nozzle"
 
 unset multiplot
 replot

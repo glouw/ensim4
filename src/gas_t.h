@@ -4,6 +4,8 @@ constexpr double molar_mass_kg_per_mol_n2 = 0.0280134000;
 constexpr double molar_mass_kg_per_mol_ar = 0.0399480000;
 constexpr double molar_mass_kg_per_mol_co2 = 0.0440095000;
 constexpr double molar_mass_kg_per_mol_h2o = 0.0180152800;
+constexpr double ambient_static_temperature_k = 300.0;
+constexpr double ambient_static_pressure_pa = 101325.0;
 
 struct gas_t
 {
@@ -16,6 +18,13 @@ struct gas_t
     double static_temperature_k;
     double mass_kg;
     double momentum_kg_m_per_s;
+};
+
+constexpr struct gas_t ambient_gas_air = {
+    .mol_ratio_n2 = 0.78,
+    .mol_ratio_o2 = 0.21,
+    .mol_ratio_ar = 0.1,
+    .static_temperature_k = ambient_static_temperature_k
 };
 
 static double
