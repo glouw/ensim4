@@ -75,7 +75,7 @@ visualize_chamber_t()
         .gas = {
             .mol_ratio_co2 = 0.97,
             .mol_ratio_h2o = 0.03,
-            .static_temperature_k = 500.0,
+            .static_temperature_k = 300.0,
             .mass_kg = 1.0
         },
         .volume_m3 = 0.1,
@@ -119,6 +119,7 @@ visualize_chamber_t()
             "%f " /* 18 */
             "%f " /* 19 */
             "%f " /* 20 */
+            "%f " /* 21 */
             "\n"
             , /*  1 */ dt_s * cycle
             , /*  2 */ calc_mixed_cp_j_per_mol_k(&x.gas)
@@ -140,6 +141,7 @@ visualize_chamber_t()
             , /* 18 */ nozzle_flow.mach
             , /* 19 */ nozzle_flow.mass_flow_rate_kg_per_s
             , /* 20 */ nozzle_flow.velocity_m_per_s
+            , /* 21 */ nozzle_flow.speed_of_sound_m_per_s
         );
         fprintf(
             file_flow,
@@ -165,6 +167,7 @@ visualize_chamber_t()
             "%f " /* 20 */
             "%f " /* 21 */
             "%f " /* 22 */
+            "%f " /* 23 */
             "\n"
             , /*  1 */ dt_s * cycle
             , /*  2 */ calc_bulk_flow_velocity_m_per_s(&x.gas)
@@ -188,6 +191,7 @@ visualize_chamber_t()
             , /* 20 */ nozzle_flow.mach
             , /* 21 */ nozzle_flow.mass_flow_rate_kg_per_s
             , /* 22 */ nozzle_flow.velocity_m_per_s
+            , /* 23 */ nozzle_flow.speed_of_sound_m_per_s
         );
     }
     fclose(file_mix);

@@ -83,7 +83,7 @@ calc_nozzle_mach(const struct chamber_t* self, const struct chamber_t* other)
 {
     double Pt0 = calc_total_pressure_pa(self);
     double Pt1 = calc_total_pressure_pa(other);
-    double total_pressure_hysteresis_pa = 10.0;
+    double total_pressure_hysteresis_pa = 5.0;
     if(Pt0 - Pt1 < total_pressure_hysteresis_pa)
     {
         return 0.0;
@@ -110,10 +110,10 @@ calc_nozzle_mach(const struct chamber_t* self, const struct chamber_t* other)
  */
 
 static double
-calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_t* self, double nozzle_flow_area_m2, double nozzle_mach)
+calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_t* self, const struct chamber_t* other, double nozzle_flow_area_m2)
 {
     double y = calc_mixed_gamma(&self->gas);
-    double M = nozzle_mach;
+    double M = calc_nozzle_mach(self, other);
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
     double Tt = calc_total_temperature_k(self);
     double Pt = calc_total_pressure_pa(self);
@@ -131,15 +131,38 @@ calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_t* self, double nozzle_
  */
 
 static double
-calc_nozzle_flow_velocity_m_per_s(const struct chamber_t* self, const struct chamber_t* other, double nozzle_mach)
+calc_nozzle_flow_velocity_m_per_s(const struct chamber_t* self, const struct chamber_t* other)
 {
     double y = calc_mixed_gamma(&self->gas);
-    double M = nozzle_mach;
+    double M = calc_nozzle_mach(self, other);
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
     double Tt = calc_total_temperature_k(self);
     double Ps = calc_static_pressure_pa(other);
     double Pt = calc_total_pressure_pa(self);
     return M * sqrt(y * Rs * Tt * pow(Ps / Pt, (y - 1.0) / y));
+}
+
+/*
+ *      u
+ * a = ---
+ *      M
+ */
+
+static double
+calc_nozzle_speed_of_sound_m_per_s(const struct chamber_t* self, const struct chamber_t* other)
+{
+    double u = calc_nozzle_flow_velocity_m_per_s(self, other);
+    double M = calc_nozzle_mach(self, other);
+    if(M == 0.0)
+        return calc_bulk_speed_of_sound_m_per_s(&self->gas);
+    else
+        return u / M;
+}
+
+static double
+calc_nozzle_flow_area_m2(const struct chamber_t* self)
+{
+    return self->nozzle_max_flow_area_m2 * self->nozzle_open_ratio;
 }
 
 /*                   y - 1
@@ -158,12 +181,6 @@ calc_new_adiabatic_static_temperature_k(const struct chamber_t* self, double old
     double Ps2 = calc_static_pressure_pa(self);
     double y = calc_mixed_gamma(&self->gas);
     return pow(Ps2 / Ps1, (y - 1.0) / y);
-}
-
-static double
-calc_nozzle_flow_area_m2(const struct chamber_t* self)
-{
-    return self->nozzle_max_flow_area_m2 * self->nozzle_open_ratio;
 }
 
 static void

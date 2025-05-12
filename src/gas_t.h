@@ -23,7 +23,7 @@ struct gas_t
 constexpr struct gas_t ambient_gas_air = {
     .mol_ratio_n2 = 0.78,
     .mol_ratio_o2 = 0.21,
-    .mol_ratio_ar = 0.1,
+    .mol_ratio_ar = 0.01,
     .static_temperature_k = ambient_static_temperature_k
 };
 

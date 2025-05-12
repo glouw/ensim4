@@ -48,6 +48,9 @@ set multiplot layout 6,2
     set ylabel "Velocity m/s"
     plot "visualize/chamber_t_mix.txt" using 1:20 with lines linewidth 2 title "Nozzle"
 
+    set ylabel "Speed of Sound m/s"
+    plot "visualize/chamber_t_mix.txt" using 1:21 with lines linewidth 2 title "Nozzle"
+
 unset multiplot
 replot
 pause mouse close
