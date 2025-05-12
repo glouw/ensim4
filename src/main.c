@@ -3,10 +3,10 @@
 #include <math.h>
 #include "util.h"
 #include "gamma.h"
-#include "gas_t.h"
-#include "chamber_t.h"
-#include "nozzle_flow_t.h"
-#include "piston_t.h"
+#include "gas_s.h"
+#include "chamber_s.h"
+#include "nozzle_flow_s.h"
+#include "piston_s.h"
 #include "node_s.h"
 #include "visualize.h"
 
@@ -15,7 +15,7 @@ main()
 {
     printf("%lu\n", sizeof(debug_pipeline));
     visualize_gamma();
-    visualize_chamber_t();
+    visualize_chamber_s();
 }
 
 /* [1] B. Mcbride, M. Zehe, and S. Gordon, “NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species”, 2002.

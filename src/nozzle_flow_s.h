@@ -1,4 +1,4 @@
-struct nozzle_flow_t
+struct nozzle_flow_s
 {
     double area_m2;
     double mach;
@@ -7,8 +7,8 @@ struct nozzle_flow_t
     double speed_of_sound_m_per_s;
 };
 
-static struct nozzle_flow_t
-flow(struct chamber_t* x, struct chamber_t* y)
+static struct nozzle_flow_s
+flow(struct chamber_s* x, struct chamber_s* y)
 {
     double nozzle_flow_area_m2 = calc_nozzle_flow_area_m2(x);
     if(nozzle_flow_area_m2 > 0.0)
@@ -16,7 +16,7 @@ flow(struct chamber_t* x, struct chamber_t* y)
         double direction = 1.0;
         if(calc_total_pressure_pa(x) < calc_total_pressure_pa(y))
         {
-            struct chamber_t* copy = x;
+            struct chamber_s* copy = x;
             x = y;
             y = copy;
             direction = -1.0;
@@ -27,7 +27,7 @@ flow(struct chamber_t* x, struct chamber_t* y)
         double nozzle_speed_of_sound_m_per_s = calc_nozzle_speed_of_sound_m_per_s(x, y);
         double mass_flowed_kg = nozzle_mass_flow_rate_kg_per_s * dt_s;
         double momentum_transferred_kg = mass_flowed_kg * nozzle_flow_velocity_m_per_s;
-        struct gas_t mail = {
+        struct gas_s mail = {
             .mol_ratio_c8h18 = x->gas.mol_ratio_c8h18,
             .mol_ratio_o2 = x->gas.mol_ratio_o2,
             .mol_ratio_n2 = x->gas.mol_ratio_n2,
@@ -42,7 +42,7 @@ flow(struct chamber_t* x, struct chamber_t* y)
         mix_in_gas(&y->gas, &mail);
         clamp_momentum(&x->gas);
         clamp_momentum(&y->gas);
-        return (struct nozzle_flow_t) {
+        return (struct nozzle_flow_s) {
             .area_m2 = nozzle_flow_area_m2,
             .mach = direction * nozzle_mach,
             .velocity_m_per_s = direction * nozzle_flow_velocity_m_per_s,
@@ -50,5 +50,5 @@ flow(struct chamber_t* x, struct chamber_t* y)
             .speed_of_sound_m_per_s = nozzle_speed_of_sound_m_per_s,
         };
     }
-    return (struct nozzle_flow_t) {};
+    return (struct nozzle_flow_s) {};
 }

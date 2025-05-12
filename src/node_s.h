@@ -15,8 +15,8 @@ struct node_s
         enum tag_e tag;
         union
         {
-            struct chamber_t chamber;
-            struct piston_t piston;
+            struct chamber_s chamber;
+            struct piston_s piston;
         }
         as;
         uint8_t connects_to[max_edges_per_node];

@@ -69,9 +69,9 @@ visualize_gamma()
 }
 
 static void
-visualize_chamber_t()
+visualize_chamber_s()
 {
-    struct chamber_t x = {
+    struct chamber_s x = {
         .gas = {
             .mol_ratio_co2 = 0.97,
             .mol_ratio_h2o = 0.03,
@@ -82,7 +82,7 @@ visualize_chamber_t()
         .nozzle_max_flow_area_m2 = 0.02,
         .nozzle_open_ratio = 1.0
     };
-    struct chamber_t y = {
+    struct chamber_s y = {
         .gas = {
             .mol_ratio_n2 = 0.78,
             .mol_ratio_o2 = 0.21,
@@ -92,11 +92,11 @@ visualize_chamber_t()
         },
         .volume_m3 = 1.0,
     };
-    FILE* file_mix = fopen("visualize/chamber_t_mix.txt", "w");
-    FILE* file_flow = fopen("visualize/chamber_t_flow.txt", "w");
+    FILE* file_mix = fopen("visualize/chamber_s_mix.txt", "w");
+    FILE* file_flow = fopen("visualize/chamber_s_flow.txt", "w");
     for(size_t cycle = 0; cycle < 3'000; cycle++)
     {
-        struct nozzle_flow_t nozzle_flow = flow(&x, &y);
+        struct nozzle_flow_s nozzle_flow = flow(&x, &y);
         fprintf(
             file_mix,
             "%f " /*  1 */
