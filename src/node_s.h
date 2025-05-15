@@ -1,6 +1,6 @@
 constexpr size_t max_edges_per_node = 16;
 
-enum tag_e
+enum type_e
 {
     is_nothing,
     is_chamber,
@@ -9,23 +9,19 @@ enum tag_e
 
 struct node_s
 {
-    alignas(cache_line_bytes)
-    struct
+    enum type_e type;
+    union
     {
-        enum tag_e tag;
-        union
-        {
-            struct chamber_s chamber;
-            struct piston_s piston;
-        }
-        as;
-        uint8_t connects_to[max_edges_per_node];
-    };
+        struct chamber_s chamber;
+        struct piston_s piston;
+    }
+    as;
+    uint8_t connects_to[max_edges_per_node];
 };
 
 struct node_s debug_pipeline[] = {
     [0] = {
-        .tag = is_chamber,
+        .type = is_chamber,
         .as.chamber = {
             .gas = ambient_gas_air,
             .volume_m3 = 1.0,
@@ -34,7 +30,7 @@ struct node_s debug_pipeline[] = {
         .connects_to = {1, 2, 3, 4}
     },
     [1] = {
-        .tag = is_chamber,
+        .type = is_chamber,
         .as.chamber = {
             .gas = ambient_gas_air,
             .volume_m3 = 1.0,
@@ -42,7 +38,7 @@ struct node_s debug_pipeline[] = {
         },
     },
     [2] = {
-        .tag = is_chamber,
+        .type = is_chamber,
         .as.chamber = {
             .gas = ambient_gas_air,
             .volume_m3 = 1.0,
@@ -50,7 +46,7 @@ struct node_s debug_pipeline[] = {
         },
     },
     [3] = {
-        .tag = is_chamber,
+        .type = is_chamber,
         .as.chamber = {
             .gas = ambient_gas_air,
             .volume_m3 = 1.0,
@@ -58,7 +54,7 @@ struct node_s debug_pipeline[] = {
         },
     },
     [4] = {
-        .tag = is_chamber,
+        .type = is_chamber,
         .as.chamber = {
             .gas = ambient_gas_air,
             .volume_m3 = 1.0,
@@ -66,7 +62,7 @@ struct node_s debug_pipeline[] = {
         },
     },
     [5] = {
-        .tag = is_nothing
+        .type = is_nothing
     }
 };
 
@@ -79,6 +75,6 @@ normalize_node(struct node_s* self)
 static void
 normalize_nodes(struct node_s* self)
 {
-    for(struct node_s* node = self; node->tag != is_nothing; node++)
+    for(struct node_s* node = self; node->type != is_nothing; node++)
         normalize_node(node);
 }
