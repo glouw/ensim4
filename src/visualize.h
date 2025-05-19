@@ -121,7 +121,7 @@ visualize_chamber_s()
             "%f " /* 20 */
             "%f " /* 21 */
             "\n"
-            , /*  1 */ dt_s * cycle
+            , /*  1 */ std_dt_s * cycle
             , /*  2 */ calc_mixed_cp_j_per_mol_k(&x.gas)
             , /*  3 */ calc_mixed_cp_j_per_mol_k(&y.gas)
             , /*  4 */ calc_mixed_cv_j_per_mol_k(&x.gas)
@@ -169,7 +169,7 @@ visualize_chamber_s()
             "%f " /* 22 */
             "%f " /* 23 */
             "\n"
-            , /*  1 */ dt_s * cycle
+            , /*  1 */ std_dt_s * cycle
             , /*  2 */ calc_bulk_flow_velocity_m_per_s(&x.gas)
             , /*  3 */ calc_bulk_flow_velocity_m_per_s(&y.gas)
             , /*  4 */ calc_bulk_speed_of_sound_m_per_s(&x.gas)

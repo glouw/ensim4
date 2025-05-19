@@ -25,7 +25,7 @@ flow(struct chamber_s* x, struct chamber_s* y)
         double nozzle_flow_velocity_m_per_s = calc_nozzle_flow_velocity_m_per_s(x, y);
         double nozzle_mass_flow_rate_kg_per_s = calc_nozzle_mass_flow_rate_kg_per_s(x, y, nozzle_flow_area_m2);
         double nozzle_speed_of_sound_m_per_s = calc_nozzle_speed_of_sound_m_per_s(x, y);
-        double mass_flowed_kg = nozzle_mass_flow_rate_kg_per_s * dt_s;
+        double mass_flowed_kg = nozzle_mass_flow_rate_kg_per_s * std_dt_s;
         double momentum_transferred_kg = mass_flowed_kg * nozzle_flow_velocity_m_per_s;
         struct gas_s mail = {
             .mol_ratio_c8h18 = x->gas.mol_ratio_c8h18,

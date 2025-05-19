@@ -1,9 +1,9 @@
-static constexpr size_t plot_channels = 8;
-static constexpr size_t plot_samples = (size_t) audio_sample_rate_hz;
+static constexpr size_t sample_max_channels = 8;
+static constexpr size_t sample_max_samples = (size_t) std_audio_sample_rate_hz;
 
 struct sample_s
 {
     float static_pressure_pa;
 };
 
-struct sample_s plot_g[plot_channels][plot_samples];
+struct sample_s sample_log[sample_max_channels][sample_max_samples];

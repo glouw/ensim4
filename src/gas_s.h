@@ -1,11 +1,11 @@
-static constexpr double molar_mass_kg_per_mol_c8h18 = 0.1142285200;
-static constexpr double molar_mass_kg_per_mol_o2 = 0.0319988000;
-static constexpr double molar_mass_kg_per_mol_n2 = 0.0280134000;
-static constexpr double molar_mass_kg_per_mol_ar = 0.0399480000;
-static constexpr double molar_mass_kg_per_mol_co2 = 0.0440095000;
-static constexpr double molar_mass_kg_per_mol_h2o = 0.0180152800;
-static constexpr double ambient_static_temperature_k = 300.0;
-static constexpr double ambient_static_pressure_pa = 101325.0;
+static constexpr double chamber_molar_mass_kg_per_mol_c8h18 = 0.1142285200;
+static constexpr double chamber_molar_mass_kg_per_mol_o2 = 0.0319988000;
+static constexpr double chamber_molar_mass_kg_per_mol_n2 = 0.0280134000;
+static constexpr double chamber_molar_mass_kg_per_mol_ar = 0.0399480000;
+static constexpr double chamber_molar_mass_kg_per_mol_co2 = 0.0440095000;
+static constexpr double chamber_molar_mass_kg_per_mol_h2o = 0.0180152800;
+static constexpr double chamber_ambient_static_temperature_k = 300.0;
+static constexpr double chamber_ambient_static_pressure_pa = 101325.0;
 
 struct gas_s
 {
@@ -24,18 +24,18 @@ static constexpr struct gas_s ambient_gas_air = {
     .mol_ratio_n2 = 0.78,
     .mol_ratio_o2 = 0.21,
     .mol_ratio_ar = 0.01,
-    .static_temperature_k = ambient_static_temperature_k
+    .static_temperature_k = chamber_ambient_static_temperature_k
 };
 
 static double
 calc_mixed_molar_mass_kg_per_mol(const struct gas_s* self)
 {
-    return self->mol_ratio_c8h18 * molar_mass_kg_per_mol_c8h18
-         + self->mol_ratio_o2 * molar_mass_kg_per_mol_o2
-         + self->mol_ratio_n2 * molar_mass_kg_per_mol_n2
-         + self->mol_ratio_ar * molar_mass_kg_per_mol_ar
-         + self->mol_ratio_co2 * molar_mass_kg_per_mol_co2
-         + self->mol_ratio_h2o * molar_mass_kg_per_mol_h2o;
+    return self->mol_ratio_c8h18 * chamber_molar_mass_kg_per_mol_c8h18
+         + self->mol_ratio_o2 * chamber_molar_mass_kg_per_mol_o2
+         + self->mol_ratio_n2 * chamber_molar_mass_kg_per_mol_n2
+         + self->mol_ratio_ar * chamber_molar_mass_kg_per_mol_ar
+         + self->mol_ratio_co2 * chamber_molar_mass_kg_per_mol_co2
+         + self->mol_ratio_h2o * chamber_molar_mass_kg_per_mol_h2o;
 }
 
 static double
@@ -96,7 +96,7 @@ calc_total_cv_j_per_k(const struct gas_s* self)
 static double
 calc_specific_gas_constant_j_per_kg_k(const struct gas_s* self)
 {
-    double R = universal_gas_constant_j_per_mol_k;
+    double R = gamma_universal_gas_constant_j_per_mol_k;
     double M = calc_mixed_molar_mass_kg_per_mol(self);
     return R / M;
 }

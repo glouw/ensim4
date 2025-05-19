@@ -1,5 +1,3 @@
-static constexpr size_t edges_per_node = 16;
-
 #define TYPES   \
     X(chamber)  \
     X(source)   \
@@ -36,7 +34,7 @@ struct node_s
         #undef X
     }
     as;
-    uint8_t next[edges_per_node];
+    uint8_t next[16];
 };
 
 #undef TYPES

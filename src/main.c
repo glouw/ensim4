@@ -1,7 +1,7 @@
 #include <SDL3/SDL.h>
 #include <stdio.h>
 #include <math.h>
-#include "common.h"
+#include "std.h"
 #include "gamma.h"
 #include "gas_s.h"
 #include "chamber_s.h"

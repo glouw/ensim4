@@ -199,6 +199,6 @@ remove_gas(struct chamber_s* self, const struct gas_s* mail)
 static void
 normalize_chamber(struct chamber_s* self)
 {
-    self->gas.static_temperature_k = ambient_static_temperature_k;
+    self->gas.static_temperature_k = chamber_ambient_static_temperature_k;
     self->gas.mass_kg = calc_mass_kg(self);
 }
