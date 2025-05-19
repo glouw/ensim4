@@ -1,9 +1,19 @@
-static constexpr size_t sample_max_channels = 8;
-static constexpr size_t sample_max_samples = (size_t) std_audio_sample_rate_hz;
+#define SAMPLES             \
+    X(static_pressure_pa)   \
+    X(dynamic_pressure_pa)  \
+    X(static_temperature_k) \
 
 struct sample_s
 {
-    float static_pressure_pa;
+    #define X(sample) float sample;
+    SAMPLES
+    #undef X
 };
 
-struct sample_s sample_log[sample_max_channels][sample_max_samples];
+static const char* sample_name[] = {
+    #define X(sample) #sample,
+    SAMPLES
+    #undef X
+};
+
+#undef SAMPLES

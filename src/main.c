@@ -19,18 +19,20 @@
 #include "node_s.h"
 #include "engine_s.h"
 #include "sample_s.h"
+#include "log_t.h"
 #include "visualize.h"
-#include "sdl3.h"
+#include "sdl.h"
 
 int
 main()
 {
-    printf("%lu\n", sizeof(three_cylinder));
-    struct engine_s engine = set_engine(three_cylinder);
+    printf("%lu\n", sizeof(node_three_cylinder));
+    printf("%lu\n", sizeof(log_log));
+    struct engine_s engine = set_engine(node_three_cylinder);
     normalize_engine(&engine);
     visualize_gamma();
     visualize_chamber_s();
-    init_sdl3();
+    init_sdl();
     while(true)
     {
         SDL_Event event;
@@ -43,5 +45,5 @@ main()
         draw_radial_chambers(&engine);
         present();
     }
-    exit_sdl3();
+    exit_sdl();
 }

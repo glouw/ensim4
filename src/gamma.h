@@ -169,7 +169,6 @@ calc_gamma_h2o(double static_temperature_k)
     return calc_gamma(calc_cp_h2o_j_per_mol_k(static_temperature_k));
 }
 
-
 /* [1] B. Mcbride, M. Zehe, and S. Gordon, “NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species”, 2002.
  *     Available: https://ntrs.nasa.gov/api/citations/20020085330/downloads/20020085330.pdf
  *

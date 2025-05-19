@@ -37,9 +37,7 @@ struct node_s
     uint8_t next[16];
 };
 
-#undef TYPES
-
-static struct node_s three_cylinder[] = {
+static struct node_s node_three_cylinder[] = {
     [0] = {
         .type = is_source,
         .as.source = {
@@ -223,3 +221,5 @@ normalize_node(struct node_s* self)
 {
     normalize_chamber(&self->as.chamber);
 }
+
+#undef TYPES
