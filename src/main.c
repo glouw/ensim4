@@ -5,22 +5,42 @@
 #include "gamma.h"
 #include "gas_s.h"
 #include "chamber_s.h"
-#include "nozzle_flow_s.h"
+#include "source_s.h"
+#include "air_filter_box_s.h"
+#include "intake_plenum_s.h"
+#include "throttle_body_s.h"
+#include "intake_runner_s.h"
 #include "piston_s.h"
+#include "exhaust_runner_s.h"
+#include "exhaust_plenum_s.h"
+#include "exhaust_s.h"
+#include "sink_s.h"
+#include "nozzle_flow_s.h"
 #include "node_s.h"
+#include "engine_s.h"
+#include "sample_s.h"
 #include "visualize.h"
-#include "plot_t.h"
+#include "sdl3.h"
 
 int
 main()
 {
-    printf("sizeof(debug_pipeline): %lu\n", sizeof(debug_pipeline));
-    printf("sizeof(plot): %lu\n", sizeof(plot));
+    printf("%lu\n", sizeof(three_cylinder));
+    struct engine_s engine = set_engine(three_cylinder);
     visualize_gamma();
     visualize_chamber_s();
+    init_sdl3();
+    while(true)
+    {
+        SDL_Event event;
+        SDL_PollEvent(&event);
+        if(event.type == SDL_EVENT_QUIT)
+        {
+            break;
+        }
+        clear_screen();
+        draw_radial_chambers(&engine);
+        present();
+    }
+    exit_sdl3();
 }
-
-/* [1] B. Mcbride, M. Zehe, and S. Gordon, “NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species”, 2002.
- *     Available: https://ntrs.nasa.gov/api/citations/20020085330/downloads/20020085330.pdf
- *
- */

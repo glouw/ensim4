@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c23 -O3 -march=native
+CFLAGS = -std=c23 -Ofast -march=native
 WFLAGS = -Wall -Wextra
 LDFLAGS = -lm -lSDL3
 BIN = ensim4

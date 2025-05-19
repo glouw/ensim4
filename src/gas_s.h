@@ -1,11 +1,11 @@
-constexpr double molar_mass_kg_per_mol_c8h18 = 0.1142285200;
-constexpr double molar_mass_kg_per_mol_o2 = 0.0319988000;
-constexpr double molar_mass_kg_per_mol_n2 = 0.0280134000;
-constexpr double molar_mass_kg_per_mol_ar = 0.0399480000;
-constexpr double molar_mass_kg_per_mol_co2 = 0.0440095000;
-constexpr double molar_mass_kg_per_mol_h2o = 0.0180152800;
-constexpr double ambient_static_temperature_k = 300.0;
-constexpr double ambient_static_pressure_pa = 101325.0;
+static constexpr double molar_mass_kg_per_mol_c8h18 = 0.1142285200;
+static constexpr double molar_mass_kg_per_mol_o2 = 0.0319988000;
+static constexpr double molar_mass_kg_per_mol_n2 = 0.0280134000;
+static constexpr double molar_mass_kg_per_mol_ar = 0.0399480000;
+static constexpr double molar_mass_kg_per_mol_co2 = 0.0440095000;
+static constexpr double molar_mass_kg_per_mol_h2o = 0.0180152800;
+static constexpr double ambient_static_temperature_k = 300.0;
+static constexpr double ambient_static_pressure_pa = 101325.0;
 
 struct gas_s
 {
@@ -20,7 +20,7 @@ struct gas_s
     double momentum_kg_m_per_s;
 };
 
-constexpr struct gas_s ambient_gas_air = {
+static constexpr struct gas_s ambient_gas_air = {
     .mol_ratio_n2 = 0.78,
     .mol_ratio_o2 = 0.21,
     .mol_ratio_ar = 0.01,

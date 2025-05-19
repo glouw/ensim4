@@ -154,9 +154,13 @@ calc_nozzle_speed_of_sound_m_per_s(const struct chamber_s* self, const struct ch
     double u = calc_nozzle_flow_velocity_m_per_s(self, other);
     double M = calc_nozzle_mach(self, other);
     if(M == 0.0)
+    {
         return calc_bulk_speed_of_sound_m_per_s(&self->gas);
+    }
     else
+    {
         return u / M;
+    }
 }
 
 static double
