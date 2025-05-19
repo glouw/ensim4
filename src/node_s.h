@@ -39,6 +39,8 @@ struct node_s
     uint8_t next[edges_per_node];
 };
 
+#undef TYPES
+
 static struct node_s three_cylinder[] = {
     [0] = {
         .type = is_source,

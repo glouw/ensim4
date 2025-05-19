@@ -6,13 +6,13 @@
 #include "gas_s.h"
 #include "chamber_s.h"
 #include "source_s.h"
-#include "air_filter_box_s.h"
-#include "intake_plenum_s.h"
-#include "throttle_body_s.h"
-#include "intake_runner_s.h"
+#include "filter_s.h"
+#include "iplenum_s.h"
+#include "throttle_s.h"
+#include "irunner_s.h"
 #include "piston_s.h"
-#include "exhaust_runner_s.h"
-#include "exhaust_plenum_s.h"
+#include "erunner_s.h"
+#include "eplenum_s.h"
 #include "exhaust_s.h"
 #include "sink_s.h"
 #include "nozzle_flow_s.h"
@@ -27,6 +27,7 @@ main()
 {
     printf("%lu\n", sizeof(three_cylinder));
     struct engine_s engine = set_engine(three_cylinder);
+    normalize_engine(&engine);
     visualize_gamma();
     visualize_chamber_s();
     init_sdl3();
