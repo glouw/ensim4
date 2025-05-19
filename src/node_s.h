@@ -18,7 +18,7 @@ enum node_type_e
     #undef X
 };
 
-const char* node_name[] = {
+static constexpr char node_name[][16] = {
     #define X(type) #type,
     TYPES
     #undef X

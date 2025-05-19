@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c23 -Ofast -march=native
-WFLAGS = -Wall -Wextra
+WFLAGS = -Wall -Wextra -Wpedantic
 LDFLAGS = -lm -lSDL3
 BIN = ensim4
 SRC = src/main.c
