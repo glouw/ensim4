@@ -1,5 +1,7 @@
-#include <SDL3/SDL.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <float.h>
 #include <math.h>
 #include "std.h"
 #include "gamma.h"
@@ -17,19 +19,18 @@
 #include "sink_s.h"
 #include "nozzle_flow_s.h"
 #include "node_s.h"
-#include "engine_s.h"
 #include "sample_s.h"
-#include "log_t.h"
+#include "engine_s.h"
 #include "visualize.h"
+#include <SDL3/SDL.h>
 #include "sdl.h"
 
 int
 main()
 {
-    printf("%lu\n", sizeof(node_three_cylinder));
-    printf("%lu\n", sizeof(log_log));
     struct engine_s engine = set_engine(node_three_cylinder);
     normalize_engine(&engine);
+    engine.angular_velocity_r_per_s = 500.0;
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();
@@ -40,11 +41,9 @@ main()
     while(true)
     {
         double t0 = SDL_GetTicksNS();
-        flow_engine_by(&engine, 512);
+        run_engine(&engine);
         double t1 = SDL_GetTicksNS();
-        SDL_Event event;
-        SDL_PollEvent(&event);
-        if(event.type == SDL_EVENT_QUIT)
+        if(handle_input(&engine))
         {
             break;
         }
@@ -54,12 +53,12 @@ main()
         draw_radial_chambers(&engine);
         draw_fps(&engine, sim_time_ms, input_time_ms, draw_time_ms, vsync_time_ms);
         double t3 = SDL_GetTicksNS();
-        present();
+        present(0.0);
         double t4 = SDL_GetTicksNS();
         sim_time_ms = SDL_NS_TO_MS(t1 - t0);
         input_time_ms = SDL_NS_TO_MS(t2 - t1);
         draw_time_ms = SDL_NS_TO_MS(t3 - t2);
-        vsync_time_ms = SDL_NS_TO_MS(t4 - t3);
+        vsync_time_ms = SDL_NS_TO_MS(t4 - t0);
     }
     exit_sdl();
 }

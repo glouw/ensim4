@@ -1,26 +1,48 @@
+static constexpr size_t sample_channels = 16;
+static constexpr size_t sample_samples = std_audio_sample_rate_hz;
+
 #define SAMPLES             \
     X(static_pressure_pa)   \
     X(dynamic_pressure_pa)  \
     X(static_temperature_k) \
-    X(sample_0) \
-    X(sample_1) \
-    X(sample_2) \
-    X(sample_3) \
-    X(sample_4) \
-    X(sample_5) \
-    X(sample_6) \
+    X(volume_m3)            \
+    X(placeholder_0)        \
+    X(placeholder_1)        \
+    X(placeholder_2)        \
+    X(placeholder_3)        \
+    X(placeholder_4)        \
+    X(placeholder_5)        \
+    X(placeholder_6)        \
+    X(placeholder_7)        \
+    X(placeholder_8)        \
+    X(placeholder_9)        \
 
-struct sample_s
+enum sample_e
 {
-    #define X(sample) float sample;
+    #define X(N) N,
     SAMPLES
     #undef X
+    sample_e_size
 };
 
 static const char* sample_name[] = {
-    #define X(sample) #sample,
+    #define X(N) #N,
     SAMPLES
     #undef X
 };
+
+static double sample_front[sample_channels][sample_e_size][sample_samples];
+static double sample_back[sample_channels][sample_e_size][sample_samples];
+static_assert(sizeof(sample_front) == sizeof(sample_back), "sample front and sample back buffer must be equal size");
+
+static size_t sample_index = 0;
+static size_t sample_front_size = 0;
+static size_t sample_front_channels = 0;
+
+static void
+flip_sample_buffers()
+{
+    memcpy(sample_front, sample_back, sizeof(sample_back));
+}
 
 #undef SAMPLES

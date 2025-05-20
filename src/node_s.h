@@ -34,6 +34,7 @@ struct node_s
         #undef X
     }
     as;
+    bool is_selected;
     uint8_t next[16];
 };
 
@@ -47,6 +48,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01,
             },
         },
+        .is_selected = true,
         .next = {1}
     },
     [1] = {
@@ -58,6 +60,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {2}
     },
     [2] = {
@@ -69,6 +72,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {3}
     },
     [3] = {
@@ -80,6 +84,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {4, 5, 6}
     },
     [4] = {
@@ -91,6 +96,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {7}
     },
     [5] = {
@@ -102,6 +108,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {8}
     },
     [6] = {
@@ -113,6 +120,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {9}
     },
     [7] = {
@@ -124,6 +132,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {10}
     },
     [8] = {
@@ -135,6 +144,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {11}
     },
     [9] = {
@@ -146,6 +156,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {12}
     },
     [10] = {
@@ -157,6 +168,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {13}
     },
     [11] = {
@@ -168,6 +180,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {13}
     },
     [12] = {
@@ -179,6 +192,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {13}
     },
     [13] = {
@@ -190,6 +204,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {14}
     },
     [14] = {
@@ -201,6 +216,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {15}
     },
     [15] = {
