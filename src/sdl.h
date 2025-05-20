@@ -14,24 +14,27 @@ static constexpr SDL_FColor sdl_zero_color = { .r = 0.0f, .g = 0.0f, .b = 0.0f, 
 static constexpr SDL_FColor sdl_node_color = { .r = 0.2f, .g = 0.2f, .b = 0.2f, .a = 1.0f };
 static constexpr SDL_FColor sdl_line_color = { .r = 0.4f, .g = 0.4f, .b = 0.4f, .a = 1.0f };
 static constexpr SDL_FColor sdl_name_color = { .r = 0.9f, .g = 0.0f, .b = 0.0f, .a = 1.0f };
-static constexpr SDL_FColor sdl_color[] = {
-    {0.0f, 0.0f, 0.0f, 1.0f},   // Black
-    {1.0f, 1.0f, 1.0f, 1.0f},   // White
-    {0.5f, 0.5f, 0.5f, 1.0f},   // Gray
-    {1.0f, 0.0f, 0.0f, 1.0f},   // Red
-    {0.0f, 1.0f, 0.0f, 1.0f},   // Green
-    {0.0f, 0.0f, 1.0f, 1.0f},   // Blue
-    {1.0f, 1.0f, 0.0f, 1.0f},   // Yellow
-    {1.0f, 0.0f, 1.0f, 1.0f},   // Magenta
-    {0.0f, 1.0f, 1.0f, 1.0f},   // Cyan
-    {0.75f, 0.25f, 0.25f, 1.0f},// Soft Red
-    {0.25f, 0.75f, 0.25f, 1.0f},// Soft Green
-    {0.25f, 0.25f, 0.75f, 1.0f},// Soft Blue
-    {0.9f, 0.6f, 0.0f, 1.0f},   // Orange
-    {0.6f, 0.0f, 0.9f, 1.0f},   // Purple
-    {0.0f, 0.6f, 0.9f, 1.0f},   // Sky Blue
-    {0.3f, 0.2f, 0.1f, 1.0f},   // Brown
+
+static constexpr SDL_FColor sdl_channel_color[] = {
+    {1.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 1.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 1.0f, 1.0f},
+    {1.0f, 1.0f, 0.0f, 1.0f},
+    {1.0f, 0.0f, 1.0f, 1.0f},
+    {0.0f, 1.0f, 1.0f, 1.0f},
+    {1.0f, 0.5f, 0.0f, 1.0f},
+    {0.6f, 0.2f, 0.8f, 1.0f},
+    {0.2f, 0.8f, 0.2f, 1.0f},
+    {0.2f, 0.6f, 1.0f, 1.0f},
+    {1.0f, 0.6f, 0.7f, 1.0f},
+    {0.6f, 1.0f, 0.6f, 1.0f},
+    {0.9f, 0.9f, 0.2f, 1.0f},
+    {0.6f, 0.4f, 0.2f, 1.0f},
+    {0.4f, 0.4f, 1.0f, 1.0f},
+    {0.9f, 0.3f, 0.5f, 1.0f},
 };
+
+static_assert(sample_channels <= len(sdl_channel_color));
 
 static SDL_Window* sdl_window = nullptr;
 static SDL_Renderer* sdl_renderer = nullptr;
@@ -187,7 +190,7 @@ draw_radial_chambers(const struct engine_s* engine)
 static void
 draw_plot_channel(SDL_FRect rects[], size_t channel)
 {
-    set_render_color(sdl_color[channel]);
+    set_render_color(sdl_channel_color[channel]);
     static SDL_FPoint points[sample_channels * sample_samples];
     static double samples[sample_samples];
     size_t runner = 0;

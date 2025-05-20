@@ -228,6 +228,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.01
             },
         },
+        .is_selected = true,
         .next = {}
     },
 };
