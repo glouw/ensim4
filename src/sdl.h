@@ -14,6 +14,24 @@ static constexpr SDL_FColor sdl_zero_color = { .r = 0.0f, .g = 0.0f, .b = 0.0f, 
 static constexpr SDL_FColor sdl_node_color = { .r = 0.2f, .g = 0.2f, .b = 0.2f, .a = 1.0f };
 static constexpr SDL_FColor sdl_line_color = { .r = 0.4f, .g = 0.4f, .b = 0.4f, .a = 1.0f };
 static constexpr SDL_FColor sdl_name_color = { .r = 0.9f, .g = 0.0f, .b = 0.0f, .a = 1.0f };
+static constexpr SDL_FColor sdl_color[] = {
+    {0.0f, 0.0f, 0.0f, 1.0f},   // Black
+    {1.0f, 1.0f, 1.0f, 1.0f},   // White
+    {0.5f, 0.5f, 0.5f, 1.0f},   // Gray
+    {1.0f, 0.0f, 0.0f, 1.0f},   // Red
+    {0.0f, 1.0f, 0.0f, 1.0f},   // Green
+    {0.0f, 0.0f, 1.0f, 1.0f},   // Blue
+    {1.0f, 1.0f, 0.0f, 1.0f},   // Yellow
+    {1.0f, 0.0f, 1.0f, 1.0f},   // Magenta
+    {0.0f, 1.0f, 1.0f, 1.0f},   // Cyan
+    {0.75f, 0.25f, 0.25f, 1.0f},// Soft Red
+    {0.25f, 0.75f, 0.25f, 1.0f},// Soft Green
+    {0.25f, 0.25f, 0.75f, 1.0f},// Soft Blue
+    {0.9f, 0.6f, 0.0f, 1.0f},   // Orange
+    {0.6f, 0.0f, 0.9f, 1.0f},   // Purple
+    {0.0f, 0.6f, 0.9f, 1.0f},   // Sky Blue
+    {0.3f, 0.2f, 0.1f, 1.0f},   // Brown
+};
 
 static SDL_Window* sdl_window = nullptr;
 static SDL_Renderer* sdl_renderer = nullptr;
@@ -167,43 +185,54 @@ draw_radial_chambers(const struct engine_s* engine)
 }
 
 static void
-draw_plot_channel(SDL_FRect rect, size_t channel, enum sample_e index)
+draw_plot_channel(SDL_FRect rects[], size_t channel)
 {
-    set_render_color(sdl_line_color);
+    set_render_color(sdl_color[channel]);
+    static SDL_FPoint points[sample_channels * sample_samples];
     static double samples[sample_samples];
-    double max_value = DBL_MIN;
-    double min_value = DBL_MAX;
-    for(size_t i = 0; i < sample_front_size; i++)
+    size_t runner = 0;
+    for(enum sample_e index = 0; index < sample_e_size; index++)
     {
-        double sample = sample_back[channel][index][i];
-        max_value = max(max_value, sample);
-        min_value = min(min_value, sample);
-        samples[i] = sample;
+        double max_value = DBL_MIN;
+        double min_value = DBL_MAX;
+        for(size_t i = 0; i < sample_size; i++)
+        {
+            double sample = sample_sample[channel][index][i];
+            max_value = max(max_value, sample);
+            min_value = min(min_value, sample);
+            samples[i] = sample;
+        }
+        double range = max_value - min_value;
+        if(range < 1e-9)
+        {
+            continue;
+        }
+        for(size_t i = 0; i < sample_size; i++)
+        {
+            samples[i] = (samples[i] - min_value) / range;
+        }
+        for(size_t i = 0; i < sample_size; i++)
+        {
+            points[runner].x = rects[index].x + (i / (double) (sample_size - 1)) * rects[index].w;
+            points[runner].y = rects[index].y + (1.0 - samples[i]) * rects[index].h;
+            runner += 1;
+        }
     }
-    double range = max_value - min_value;
-    if(range == 0.0)
-    {
-        range = 1.0;
-    }
-    for(size_t i = 0; i < sample_front_size; i++)
-    {
-        samples[i] = (samples[i] - min_value) / range;
-    }
-    static SDL_FPoint points[sample_samples];
-    for(size_t i = 0; i < sample_front_size; i++)
-    {
-        double x = rect.x + (i / (double) (sample_front_size - 1)) * rect.w;
-        double y = rect.y + (1.0 - samples[i]) * rect.h;
-        points[i].x = x;
-        points[i].y = y;
-    }
-    SDL_RenderPoints(sdl_renderer, points, sample_front_size);
+    SDL_RenderPoints(sdl_renderer, points, runner);
 }
 
 static void
-draw_plot(SDL_FRect rect, enum sample_e index)
+draw_plot_channels(SDL_FRect rects[])
 {
-    const char* name = sample_name[index];
+    for(size_t channel = 0; channel < sample_channels; channel++)
+    {
+        draw_plot_channel(rects, channel);
+    }
+}
+
+static void
+draw_plot_container(SDL_FRect rect, const char* name)
+{
     set_render_color(sdl_line_color);
     SDL_RenderRect(sdl_renderer, &rect);
     set_render_color(sdl_name_color);
@@ -212,27 +241,31 @@ draw_plot(SDL_FRect rect, enum sample_e index)
         rect.x + sdl_line_spacing_p,
         rect.y + sdl_line_spacing_p,
         name);
-    for(size_t ch = 0; ch < sample_front_channels; ch++)
+}
+
+static void
+draw_plot_containers(const SDL_FRect rects[])
+{
+    for(enum sample_e index = 0; index < sample_e_size; index++)
     {
-        draw_plot_channel(rect, ch, index);
+        draw_plot_container(rects[index], sample_name[index]);
     }
 }
 
 static void
-draw_plot_column(double x_p, double w_p, double h_p, enum sample_e* index)
+position_plot(double x_p, double w_p, double h_p, enum sample_e* index, SDL_FRect rects[])
 {
     double y_p = 0.0;
     while(y_p < sdl_yres_p)
     {
-        SDL_FRect rect = { x_p, y_p, w_p, h_p };
-        draw_plot(rect, *index);
+        rects[*index] = (SDL_FRect) { x_p, y_p, w_p, h_p };
         y_p += h_p;
         *index += 1;
     }
 }
 
 static void
-draw_plots(const struct engine_s* engine)
+position_plots(const struct engine_s* engine, SDL_FRect rects[])
 {
     enum sample_e index = 0;
     double w_p = compute_plot_column_width_p(engine);
@@ -241,8 +274,17 @@ draw_plots(const struct engine_s* engine)
     double left_h = sdl_yres_p / left_samples;
     double right_samples = samples - left_samples;
     double right_h = sdl_yres_p / right_samples;
-    draw_plot_column(0.0, w_p, left_h, &index);
-    draw_plot_column(sdl_xres_p - w_p, w_p, right_h, &index);
+    position_plot(0.0, w_p, left_h, &index, rects);
+    position_plot(sdl_xres_p - w_p, w_p, right_h, &index, rects);
+}
+
+static void
+draw_plots(const struct engine_s* engine)
+{
+    SDL_FRect rects[sample_e_size];
+    position_plots(engine, rects);
+    draw_plot_containers(rects);
+    draw_plot_channels(rects);
 }
 
 static void
@@ -281,7 +323,7 @@ draw_demo_engine(const struct engine_s* engine)
 }
 
 static bool
-handle_input(const struct engine_s* engine)
+handle_input(struct engine_s* engine)
 {
     SDL_Event event;
     SDL_PollEvent(&event);
@@ -294,6 +336,15 @@ handle_input(const struct engine_s* engine)
         {
         case SDLK_F:
             draw_demo_engine(engine);
+            break;
+        case SDLK_1:
+            engine->angular_velocity_r_per_s = 100.0;
+            break;
+        case SDLK_2:
+            engine->angular_velocity_r_per_s = 500.0;
+            break;
+        case SDLK_3:
+            engine->angular_velocity_r_per_s = 1000.0;
             break;
         }
         break;

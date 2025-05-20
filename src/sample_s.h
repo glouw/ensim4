@@ -31,18 +31,8 @@ static const char* sample_name[] = {
     #undef X
 };
 
-static double sample_front[sample_channels][sample_e_size][sample_samples];
-static double sample_back[sample_channels][sample_e_size][sample_samples];
-static_assert(sizeof(sample_front) == sizeof(sample_back), "sample front and sample back buffer must be equal size");
-
+static double sample_sample[sample_channels][sample_e_size][sample_samples];
+static size_t sample_size = 0;
 static size_t sample_index = 0;
-static size_t sample_front_size = 0;
-static size_t sample_front_channels = 0;
-
-static void
-flip_sample_buffers()
-{
-    memcpy(sample_front, sample_back, sizeof(sample_back));
-}
 
 #undef SAMPLES

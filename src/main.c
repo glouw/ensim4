@@ -30,7 +30,7 @@ main()
 {
     struct engine_s engine = set_engine(node_three_cylinder);
     normalize_engine(&engine);
-    engine.angular_velocity_r_per_s = 500.0;
+    engine.angular_velocity_r_per_s = 100.0;
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();
