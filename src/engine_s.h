@@ -29,7 +29,7 @@ plot_engine(struct engine_s* self)
         if(channel < sample_channels)
         {
             struct node_s* node = &self->node[i];
-            double temp_r = 10.0 * (1.0 - cos(self->theta_r + channel));
+            double temp_r = 1.0 * (1.0 - cos(self->theta_r + channel));
             sample_sample[channel][static_pressure_pa][sample_index] = node->is_selected ? temp_r : 0.0;
             sample_sample[channel][dynamic_pressure_pa][sample_index] = node->is_selected ? temp_r : 0.0;
             sample_sample[channel][static_temperature_k][sample_index] = node->is_selected ? temp_r : 0.0;

@@ -1,3 +1,4 @@
+#include <SDL3/SDL.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -22,7 +23,6 @@
 #include "sample_s.h"
 #include "engine_s.h"
 #include "visualize.h"
-#include <SDL3/SDL.h>
 #include "sdl.h"
 
 int
@@ -30,7 +30,7 @@ main()
 {
     struct engine_s engine = set_engine(node_three_cylinder);
     normalize_engine(&engine);
-    engine.angular_velocity_r_per_s = 100.0;
+    engine.angular_velocity_r_per_s = 500.0;
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();

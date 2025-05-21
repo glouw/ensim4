@@ -10,29 +10,32 @@ static constexpr double sdl_half_char_size_p = sdl_char_size_p / 2.0;
 static constexpr double sdl_line_spacing_p = 1.5 * sdl_char_size_p;
 static constexpr double sdl_radial_spacing = 2.5;
 static constexpr double sdl_demo_delay_ms = 75.0;
-static constexpr SDL_FColor sdl_zero_color = { .r = 0.0f, .g = 0.0f, .b = 0.0f, .a = 0.0f };
-static constexpr SDL_FColor sdl_node_color = { .r = 0.2f, .g = 0.2f, .b = 0.2f, .a = 1.0f };
-static constexpr SDL_FColor sdl_line_color = { .r = 0.4f, .g = 0.4f, .b = 0.4f, .a = 1.0f };
-static constexpr SDL_FColor sdl_name_color = { .r = 0.9f, .g = 0.0f, .b = 0.0f, .a = 1.0f };
+static constexpr double sdl_column_width_ratio = 0.6;
 
 static constexpr SDL_FColor sdl_channel_color[] = {
-    {1.0f, 0.0f, 0.0f, 1.0f},
-    {0.0f, 1.0f, 0.0f, 1.0f},
-    {0.0f, 0.0f, 1.0f, 1.0f},
-    {1.0f, 1.0f, 0.0f, 1.0f},
-    {1.0f, 0.0f, 1.0f, 1.0f},
-    {0.0f, 1.0f, 1.0f, 1.0f},
-    {1.0f, 0.5f, 0.0f, 1.0f},
-    {0.6f, 0.2f, 0.8f, 1.0f},
-    {0.2f, 0.8f, 0.2f, 1.0f},
-    {0.2f, 0.6f, 1.0f, 1.0f},
-    {1.0f, 0.6f, 0.7f, 1.0f},
-    {0.6f, 1.0f, 0.6f, 1.0f},
-    {0.9f, 0.9f, 0.2f, 1.0f},
-    {0.6f, 0.4f, 0.2f, 1.0f},
-    {0.4f, 0.4f, 1.0f, 1.0f},
-    {0.9f, 0.3f, 0.5f, 1.0f},
+    [0]  = {1.00f, 0.00f, 0.00f, 1.0f},
+    [1]  = {0.00f, 1.00f, 0.00f, 1.0f},
+    [2]  = {0.00f, 0.50f, 1.00f, 1.0f},
+    [3]  = {1.00f, 1.00f, 0.00f, 1.0f},
+    [4]  = {1.00f, 0.00f, 1.00f, 1.0f},
+    [5]  = {0.00f, 1.00f, 1.00f, 1.0f},
+    [6]  = {1.00f, 0.65f, 0.00f, 1.0f},
+    [7]  = {0.60f, 0.00f, 1.00f, 1.0f},
+    [8]  = {0.00f, 1.00f, 0.60f, 1.0f},
+    [9]  = {1.00f, 0.40f, 0.70f, 1.0f},
+    [10] = {0.30f, 0.80f, 1.00f, 1.0f},
+    [11] = {0.60f, 1.00f, 0.20f, 1.0f},
+    [12] = {1.00f, 0.85f, 0.00f, 1.0f},
+    [13] = {0.85f, 0.00f, 0.85f, 1.0f},
+    [14] = {0.00f, 0.75f, 1.00f, 1.0f},
+    [15] = {1.00f, 0.30f, 0.30f, 1.0f},
 };
+
+static constexpr SDL_FColor sdl_black_color    = {0.00f, 0.00f, 0.00f, 0.0f};
+static constexpr SDL_FColor sdl_text_color     = {1.00f, 1.00f, 1.00f, 1.0f};
+static constexpr SDL_FColor sdl_line_color     = {0.50f, 0.50f, 0.50f, 1.0f};
+static constexpr SDL_FColor sdl_node_on_color  = {0.50f, 0.00f, 0.00f, 1.0f};
+static constexpr SDL_FColor sdl_node_off_color = {0.15f, 0.15f, 0.15f, 1.0f};
 
 static_assert(sample_channels <= len(sdl_channel_color));
 
@@ -64,7 +67,7 @@ init_sdl()
 static void
 clear_screen()
 {
-    set_render_color(sdl_zero_color);
+    set_render_color(sdl_black_color);
     SDL_RenderClear(sdl_renderer);
 }
 
@@ -101,7 +104,7 @@ compute_radial_diameter_p(const struct engine_s* engine)
 static double
 compute_plot_column_width_p(const struct engine_s* engine)
 {
-    return 0.8 * (sdl_xres_p - compute_radial_diameter_p(engine)) / 2.0;
+    return sdl_column_width_ratio * (sdl_xres_p - compute_radial_diameter_p(engine)) / 2.0;
 }
 
 static void
@@ -117,10 +120,10 @@ compute_radials(const struct engine_s* engine, SDL_FPoint points[])
 }
 
 static void
-draw_node_at(SDL_FPoint point)
+draw_node_at(SDL_FPoint point, bool enabled)
 {
     SDL_FRect rect = { point.x, point.y, sdl_node_w_p, sdl_node_w_p };
-    set_render_color(sdl_node_color);
+    set_render_color(enabled ? sdl_node_on_color : sdl_node_off_color);
     SDL_RenderFillRect(sdl_renderer, &rect);
     set_render_color(sdl_line_color);
     SDL_RenderRect(sdl_renderer, &rect);
@@ -151,7 +154,7 @@ draw_radial_nodes(const struct engine_s* engine, const SDL_FPoint points[])
 {
     for(size_t i = 0; i < engine->size; i++)
     {
-        draw_node_at(points[i]);
+        draw_node_at(points[i], engine->node[i].is_selected);
     }
 }
 
@@ -172,7 +175,7 @@ draw_radial_names(const struct engine_s* engine, const SDL_FPoint points[])
         struct node_s* node = &engine->node[i];
         const char* name = node_name[node->type];
         SDL_FPoint point = center_text(points[i], name);
-        set_render_color(sdl_name_color);
+        set_render_color(sdl_text_color);
         SDL_RenderDebugText(sdl_renderer, point.x, point.y, name);
     }
 }
@@ -216,7 +219,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         }
         for(size_t i = 0; i < sample_size; i++)
         {
-            points[runner].x = rects[index].x + (i / (double) (sample_size - 1)) * rects[index].w;
+            points[runner].x = rects[index].x + (i / (double) (sample_size - 1)) * (rects[index].w - 1);
             points[runner].y = rects[index].y + (1.0 - samples[i]) * rects[index].h;
             runner += 1;
         }
@@ -238,7 +241,7 @@ draw_plot_container(SDL_FRect rect, const char* name)
 {
     set_render_color(sdl_line_color);
     SDL_RenderRect(sdl_renderer, &rect);
-    set_render_color(sdl_name_color);
+    set_render_color(sdl_text_color);
     SDL_RenderDebugText(
         sdl_renderer,
         rect.x + sdl_line_spacing_p,
@@ -286,14 +289,14 @@ draw_plots(const struct engine_s* engine)
 {
     SDL_FRect rects[sample_e_size];
     position_plots(engine, rects);
-    draw_plot_containers(rects);
     draw_plot_channels(rects);
+    draw_plot_containers(rects);
 }
 
 static void
 draw_fps(const struct engine_s* engine, double sim_time_ms, double input_time_ms, double draw_time_ms, double vsync_time_ms)
 {
-    set_render_color(sdl_name_color);
+    set_render_color(sdl_text_color);
     double x_p = compute_plot_column_width_p(engine) + sdl_line_spacing_p;
     double y_p = sdl_line_spacing_p;
     SDL_RenderDebugText(sdl_renderer, x_p, y_p, "ensim4");
@@ -318,8 +321,8 @@ draw_demo_engine(const struct engine_s* engine)
         for(size_t next, j = 0; (next = engine->node[i].next[j]); j++)
         {
             draw_line_by(add(points[i], offset), add(points[next], offset));
-            draw_node_at(points[i]);
-            draw_node_at(points[j]);
+            draw_node_at(points[i], false);
+            draw_node_at(points[j], false);
             present(sdl_demo_delay_ms);
         }
     }
