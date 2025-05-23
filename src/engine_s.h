@@ -21,31 +21,35 @@ normalize_engine(struct engine_s* self)
 }
 
 static void
-plot_engine(struct engine_s* self)
+sample_engine(struct engine_s* self)
 {
     size_t channel = 0;
     for(size_t i = 0; i < self->size; i++)
     {
-        if(channel < sample_channels)
+        struct node_s* node = &self->node[i];
+        double temp_r = 5.0 * (1.0 - cos(self->theta_r + channel));
+        sample_sample[channel][static_pressure_pa][sample_index] = temp_r;
+        sample_sample[channel][dynamic_pressure_pa][sample_index] = temp_r;
+        sample_sample[channel][static_temperature_k][sample_index] = temp_r;
+        sample_sample[channel][volume_m3][sample_index] = temp_r;
+        sample_sample[channel][placeholder_0][sample_index] = temp_r;
+        sample_sample[channel][placeholder_1][sample_index] = temp_r;
+        sample_sample[channel][placeholder_2][sample_index] = temp_r;
+        sample_sample[channel][placeholder_3][sample_index] = temp_r;
+        sample_sample[channel][placeholder_4][sample_index] = temp_r;
+        sample_sample[channel][placeholder_5][sample_index] = temp_r;
+        sample_sample[channel][placeholder_5][sample_index] = temp_r;
+        sample_sample[channel][placeholder_6][sample_index] = temp_r;
+        sample_sample[channel][placeholder_7][sample_index] = temp_r;
+        sample_sample[channel][placeholder_8][sample_index] = temp_r;
+        sample_sample[channel][placeholder_9][sample_index] = temp_r;
+        if(node->is_selected)
         {
-            struct node_s* node = &self->node[i];
-            double temp_r = 1.0 * (1.0 - cos(self->theta_r + channel));
-            sample_sample[channel][static_pressure_pa][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][dynamic_pressure_pa][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][static_temperature_k][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][volume_m3][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_0][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_1][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_2][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_3][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_4][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_5][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_5][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_6][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_7][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_8][sample_index] = node->is_selected ? temp_r : 0.0;
-            sample_sample[channel][placeholder_9][sample_index] = node->is_selected ? temp_r : 0.0;
             channel++;
+        }
+        if(channel == sample_channels)
+        {
+            break;
         }
     }
 }
@@ -86,6 +90,7 @@ move_engine(struct engine_s* self)
         else
         {
             sample_index += 1;
+            sample_index = min(sample_index, sample_samples - 1);
         }
     }
 }
@@ -97,6 +102,6 @@ run_engine(struct engine_s* self)
     {
         flow_engine(self);
         move_engine(self);
-        plot_engine(self);
+        sample_engine(self);
     }
 }

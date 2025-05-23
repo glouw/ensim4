@@ -4,6 +4,7 @@ struct chamber_s
     double volume_m3;
     double nozzle_max_flow_area_m2;
     double nozzle_open_ratio;
+    size_t flow_cycles;
 };
 
 /*

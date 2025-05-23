@@ -34,10 +34,13 @@ main()
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();
-    double sim_time_ms = 0.0;
-    double input_time_ms = 0.0;
-    double draw_time_ms = 0.0;
-    double vsync_time_ms = 0.0;
+    struct sdl_time_panel_sample_s time_panel_sample = {};
+    struct sdl_time_panel_s time_panel = {
+        .min_time_ms = 0.0,
+        .max_time_ms = 32.0,
+        .rect.w = 192,
+        .rect.h = 128,
+    };
     while(true)
     {
         double t0 = SDL_GetTicksNS();
@@ -51,14 +54,16 @@ main()
         clear_screen();
         draw_plots(&engine);
         draw_radial_chambers(&engine);
-        draw_fps(&engine, sim_time_ms, input_time_ms, draw_time_ms, vsync_time_ms);
+        draw_fps(&engine, &time_panel, time_panel_sample);
+        draw_time_panel(&time_panel);
         double t3 = SDL_GetTicksNS();
         present(0.0);
         double t4 = SDL_GetTicksNS();
-        sim_time_ms = SDL_NS_TO_MS(t1 - t0);
-        input_time_ms = SDL_NS_TO_MS(t2 - t1);
-        draw_time_ms = SDL_NS_TO_MS(t3 - t2);
-        vsync_time_ms = SDL_NS_TO_MS(t4 - t0);
+        time_panel_sample.sim_time_ms = SDL_NS_TO_MS(t1 - t0);
+        time_panel_sample.input_time_ms = SDL_NS_TO_MS(t2 - t1);
+        time_panel_sample.draw_time_ms = SDL_NS_TO_MS(t3 - t2);
+        time_panel_sample.vsync_time_ms = SDL_NS_TO_MS(t4 - t0);
+        push_time_panel(&time_panel, time_panel_sample);
     }
     exit_sdl();
 }

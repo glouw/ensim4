@@ -45,10 +45,11 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001,
             },
         },
-        .is_selected = true,
+        .is_selected = false,
         .next = {1}
     },
     [1] = {
@@ -57,10 +58,11 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
+        .is_selected = false,
         .next = {2}
     },
     [2] = {
@@ -69,10 +71,11 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
+        .is_selected = false,
         .next = {3}
     },
     [3] = {
@@ -81,10 +84,11 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
+        .is_selected = false,
         .next = {4, 5, 6}
     },
     [4] = {
@@ -93,10 +97,11 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
+        .is_selected = false,
         .next = {7}
     },
     [5] = {
@@ -105,10 +110,11 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
+        .is_selected = false,
         .next = {8}
     },
     [6] = {
@@ -117,10 +123,11 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
+        .is_selected = false,
         .next = {9}
     },
     [7] = {
@@ -129,7 +136,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,
@@ -141,7 +149,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,
@@ -153,7 +162,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,
@@ -165,7 +175,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,
@@ -177,7 +188,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,
@@ -189,7 +201,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,
@@ -201,7 +214,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,
@@ -213,7 +227,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,
@@ -225,7 +240,8 @@ static struct node_s node_three_cylinder[] = {
             .chamber = {
                 .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
-                .nozzle_max_flow_area_m2 = 0.01
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
             },
         },
         .is_selected = true,

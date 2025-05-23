@@ -1,17 +1,17 @@
-static constexpr char sdl_title[] = "ensim4";
+static constexpr char sdl_title[] = "ENSIM4";
 static constexpr double sdl_xres_p = 1800.0;
 static constexpr double sdl_yres_p = 900.0;
 static constexpr double sdl_mid_x_p = sdl_xres_p / 2.0;
 static constexpr double sdl_mid_y_p = sdl_yres_p / 2.0;
-static constexpr double sdl_node_w_p = 32.0;
+static constexpr double sdl_node_w_p = 24.0;
+static constexpr double sdl_radial_spacing = 2.5;
 static constexpr double sdl_node_half_w_p = sdl_node_w_p / 2.0;
 static constexpr double sdl_char_size_p = SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE;
 static constexpr double sdl_half_char_size_p = sdl_char_size_p / 2.0;
 static constexpr double sdl_line_spacing_p = 1.5 * sdl_char_size_p;
-static constexpr double sdl_radial_spacing = 2.5;
 static constexpr double sdl_demo_delay_ms = 75.0;
-static constexpr double sdl_column_width_ratio = 0.6;
-
+static constexpr double sdl_column_width_ratio = 0.5;
+static constexpr size_t sdl_slide_buffer_size = 128;
 static constexpr SDL_FColor sdl_channel_color[] = {
     [0]  = {1.00f, 0.00f, 0.00f, 1.0f},
     [1]  = {0.00f, 1.00f, 0.00f, 1.0f},
@@ -30,17 +30,103 @@ static constexpr SDL_FColor sdl_channel_color[] = {
     [14] = {0.00f, 0.75f, 1.00f, 1.0f},
     [15] = {1.00f, 0.30f, 0.30f, 1.0f},
 };
-
-static constexpr SDL_FColor sdl_black_color    = {0.00f, 0.00f, 0.00f, 0.0f};
-static constexpr SDL_FColor sdl_text_color     = {1.00f, 1.00f, 1.00f, 1.0f};
-static constexpr SDL_FColor sdl_line_color     = {0.50f, 0.50f, 0.50f, 1.0f};
-static constexpr SDL_FColor sdl_node_on_color  = {0.50f, 0.00f, 0.00f, 1.0f};
-static constexpr SDL_FColor sdl_node_off_color = {0.15f, 0.15f, 0.15f, 1.0f};
-
 static_assert(sample_channels <= len(sdl_channel_color));
+static constexpr SDL_FColor sdl_black_color = {
+    0.00f, 0.00f, 0.00f, 0.0f
+};
+static constexpr SDL_FColor sdl_text_color = {
+    1.00f, 1.00f, 1.00f, 1.0f
+};
+static constexpr SDL_FColor sdl_line_color = {
+    0.50f, 0.50f, 0.50f, 1.0f
+};
+static constexpr SDL_FColor sdl_light_line_color = {
+    0.25f, 0.25f, 0.25f, 1.0f
+};
+static constexpr SDL_FColor sdl_node_on_color = {
+    0.00f, 1.00f, 0.00f, 1.0f
+};
+static constexpr SDL_FColor sdl_node_off_color = {
+    1.00f, 0.00f, 0.00f, 1.0f
+};
+static constexpr SDL_FColor sdl_error_color = {
+    1.00f, 0.00f, 0.00f, 1.0f
+};
 
 static SDL_Window* sdl_window = nullptr;
 static SDL_Renderer* sdl_renderer = nullptr;
+
+typedef double sdl_slide_buffer_t[sdl_slide_buffer_size];
+
+static void
+push_slide_buffer(sdl_slide_buffer_t self, double value)
+{
+    for(size_t i = 0; i < sdl_slide_buffer_size - 1; i++)
+    {
+        self[i] = self[i + 1];
+    }
+    self[sdl_slide_buffer_size - 1] = value;
+}
+
+static void
+set_render_color(SDL_FColor color)
+{
+    SDL_SetRenderDrawColorFloat(sdl_renderer, color.r, color.g, color.b, color.a);
+}
+
+static void
+draw_slide_buffer(sdl_slide_buffer_t self, SDL_FRect rect, SDL_FColor color, double min_val, double max_val)
+{
+    set_render_color(color);
+    SDL_FPoint points[sdl_slide_buffer_size];
+    double range = max_val - min_val;
+    for (size_t i = 0; i < sdl_slide_buffer_size; i++)
+    {
+        points[i].x = rect.x + (rect.w * i) / (sdl_slide_buffer_size - 1);
+        double normalized_val = (self[i] - min_val) / range;
+        points[i].y = rect.y + rect.h * (1.0 - normalized_val);
+    }
+    SDL_RenderLines(sdl_renderer, points, sdl_slide_buffer_size);
+}
+
+struct sdl_time_panel_s
+{
+    SDL_FRect rect;
+    double min_time_ms;
+    double max_time_ms;
+    sdl_slide_buffer_t sim;
+    sdl_slide_buffer_t input;
+    sdl_slide_buffer_t draw;
+    sdl_slide_buffer_t vsync;
+};
+
+static void
+draw_time_panel(struct sdl_time_panel_s* self)
+{
+    set_render_color(sdl_light_line_color);
+    SDL_RenderRect(sdl_renderer, &self->rect);
+    draw_slide_buffer(self->sim, self->rect, sdl_channel_color[0], self->min_time_ms, self->max_time_ms);
+    draw_slide_buffer(self->input, self->rect, sdl_channel_color[1], self->min_time_ms, self->max_time_ms);
+    draw_slide_buffer(self->draw, self->rect, sdl_channel_color[2], self->min_time_ms, self->max_time_ms);
+    draw_slide_buffer(self->vsync, self->rect, sdl_channel_color[3], self->min_time_ms, self->max_time_ms);
+}
+
+struct sdl_time_panel_sample_s
+{
+    double sim_time_ms;
+    double input_time_ms;
+    double draw_time_ms;
+    double vsync_time_ms;
+};
+
+static void
+push_time_panel(struct sdl_time_panel_s* self, struct sdl_time_panel_sample_s sample)
+{
+    push_slide_buffer(self->sim, sample.sim_time_ms);
+    push_slide_buffer(self->input, sample.input_time_ms);
+    push_slide_buffer(self->draw, sample.draw_time_ms);
+    push_slide_buffer(self->vsync, sample.vsync_time_ms);
+}
 
 static SDL_FPoint
 add(SDL_FPoint self, SDL_FPoint other)
@@ -48,12 +134,6 @@ add(SDL_FPoint self, SDL_FPoint other)
     self.x += other.x;
     self.y += other.y;
     return self;
-}
-
-static void
-set_render_color(SDL_FColor color)
-{
-    SDL_SetRenderDrawColorFloat(sdl_renderer, color.r, color.g, color.b, color.a);
 }
 
 static void
@@ -119,45 +199,6 @@ compute_radials(const struct engine_s* engine, SDL_FPoint points[])
     }
 }
 
-static void
-draw_node_at(SDL_FPoint point, bool enabled)
-{
-    SDL_FRect rect = { point.x, point.y, sdl_node_w_p, sdl_node_w_p };
-    set_render_color(enabled ? sdl_node_on_color : sdl_node_off_color);
-    SDL_RenderFillRect(sdl_renderer, &rect);
-    set_render_color(sdl_line_color);
-    SDL_RenderRect(sdl_renderer, &rect);
-}
-
-static void
-draw_line_by(SDL_FPoint a, SDL_FPoint b)
-{
-    set_render_color(sdl_line_color);
-    SDL_RenderLine(sdl_renderer, a.x, a.y, b.x, b.y);
-}
-
-static void
-draw_radial_lines(const struct engine_s* engine, const SDL_FPoint points[])
-{
-    SDL_FPoint offset = { sdl_node_half_w_p, sdl_node_half_w_p };
-    for(size_t i = 0; i < engine->size; i++)
-    {
-        for(size_t next, j = 0; (next = engine->node[i].next[j]); j++)
-        {
-            draw_line_by(add(points[i], offset), add(points[next], offset));
-        }
-    }
-}
-
-static void
-draw_radial_nodes(const struct engine_s* engine, const SDL_FPoint points[])
-{
-    for(size_t i = 0; i < engine->size; i++)
-    {
-        draw_node_at(points[i], engine->node[i].is_selected);
-    }
-}
-
 static SDL_FPoint
 center_text(SDL_FPoint point, const char* text)
 {
@@ -168,13 +209,65 @@ center_text(SDL_FPoint point, const char* text)
 }
 
 static void
+draw_node_at(struct node_s* node, SDL_FPoint point)
+{
+    SDL_FRect rect = { point.x, point.y, sdl_node_w_p, sdl_node_w_p };
+    set_render_color(sdl_black_color);
+    SDL_RenderFillRect(sdl_renderer, &rect);
+    set_render_color(node->is_selected ? sdl_node_on_color : sdl_node_off_color);
+    SDL_RenderRect(sdl_renderer, &rect);
+    static const char* spinner[] = {"|", "/", "-", "\\", "|", "/", "-", "\\"};
+    size_t cycle = node->as.chamber.flow_cycles / 1024;
+    size_t index = cycle % len(spinner);
+    const char* spin = spinner[index];
+    SDL_FPoint mid = point;
+    mid = center_text(mid, spin);
+    SDL_RenderDebugText(sdl_renderer, mid.x, mid.y, spin);
+}
+
+static void
+draw_line_by(SDL_FPoint a, SDL_FPoint b)
+{
+    struct SDL_FPoint shift = { sdl_node_half_w_p, sdl_node_half_w_p};
+    a = add(a, shift);
+    b = add(b, shift);
+    set_render_color(sdl_light_line_color);
+    SDL_RenderLine(sdl_renderer, a.x, a.y, b.x, b.y);
+}
+
+static void
+draw_radial_lines(const struct engine_s* engine, const SDL_FPoint points[])
+{
+    for(size_t i = 0; i < engine->size; i++)
+    {
+        for(size_t next, j = 0; (next = engine->node[i].next[j]); j++)
+        {
+            draw_line_by(points[i], points[next]);
+        }
+    }
+}
+
+static void
+draw_radial_nodes(const struct engine_s* engine, const SDL_FPoint points[])
+{
+    for(size_t i = 0; i < engine->size; i++)
+    {
+        struct node_s* node = &engine->node[i];
+        draw_node_at(node, points[i]);
+    }
+}
+
+static void
 draw_radial_names(const struct engine_s* engine, const SDL_FPoint points[])
 {
     for(size_t i = 0; i < engine->size; i++)
     {
         struct node_s* node = &engine->node[i];
         const char* name = node_name[node->type];
-        SDL_FPoint point = center_text(points[i], name);
+        SDL_FPoint point = points[i];
+        point = center_text(point, name);
+        point.y -= sdl_line_spacing_p;
+        point.y -= sdl_node_half_w_p;
         set_render_color(sdl_text_color);
         SDL_RenderDebugText(sdl_renderer, point.x, point.y, name);
     }
@@ -194,7 +287,7 @@ static void
 draw_plot_channel(SDL_FRect rects[], size_t channel)
 {
     set_render_color(sdl_channel_color[channel]);
-    static SDL_FPoint points[sample_channels * sample_samples];
+    static SDL_FPoint points[sample_e_size * sample_samples];
     static double samples[sample_samples];
     size_t runner = 0;
     for(enum sample_e index = 0; index < sample_e_size; index++)
@@ -294,18 +387,23 @@ draw_plots(const struct engine_s* engine)
 }
 
 static void
-draw_fps(const struct engine_s* engine, double sim_time_ms, double input_time_ms, double draw_time_ms, double vsync_time_ms)
+draw_fps(const struct engine_s* engine, struct sdl_time_panel_s* time_panel, struct sdl_time_panel_sample_s sample)
 {
     set_render_color(sdl_text_color);
     double x_p = compute_plot_column_width_p(engine) + sdl_line_spacing_p;
     double y_p = sdl_line_spacing_p;
-    SDL_RenderDebugText(sdl_renderer, x_p, y_p, "ensim4");
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "\tsim   (ms): %6.3f", sim_time_ms);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "\tinput (ms): %6.3f", input_time_ms);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "\tdraw  (ms): %6.3f", draw_time_ms);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "\ttotal (ms): %6.3f", sim_time_ms + input_time_ms + draw_time_ms);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "\tvsync (ms): %6.3f", vsync_time_ms);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "\tengine size (bytes): %lu", engine->bytes);
+    SDL_RenderDebugText(sdl_renderer, x_p, y_p, sdl_title);
+    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "vsync (ms): %6.3f", sample.vsync_time_ms);
+    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "sim   (ms): %6.3f", sample.sim_time_ms);
+    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "draw  (ms): %6.3f", sample.draw_time_ms);
+    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "input (ms): %6.3f", sample.input_time_ms);
+    y_p += sdl_line_spacing_p;
+    time_panel->rect.x = x_p;
+    time_panel->rect.y = y_p;
+    y_p += time_panel->rect.h;
+    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "engine size (bytes): %lu", engine->bytes);
+    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "trigger min (rad/sec): %.0f", sample_minimum_angular_velocity_r_per_s);
+    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "ang vel (rad/sec): %.0f", engine->angular_velocity_r_per_s);
 }
 
 static void
@@ -315,14 +413,15 @@ draw_demo_engine(const struct engine_s* engine)
     compute_radials(engine, points);
     clear_screen();
     present(sdl_demo_delay_ms);
-    SDL_FPoint offset = { sdl_node_half_w_p, sdl_node_half_w_p };
     for(size_t i = 0; i < engine->size; i++)
     {
         for(size_t next, j = 0; (next = engine->node[i].next[j]); j++)
         {
-            draw_line_by(add(points[i], offset), add(points[next], offset));
-            draw_node_at(points[i], false);
-            draw_node_at(points[j], false);
+            draw_line_by(points[i], points[next]);
+            struct node_s* x = &engine->node[i];
+            struct node_s* y = &engine->node[j];
+            draw_node_at(x, points[i]);
+            draw_node_at(y, points[j]);
             present(sdl_demo_delay_ms);
         }
     }
@@ -344,12 +443,15 @@ handle_input(struct engine_s* engine)
             draw_demo_engine(engine);
             break;
         case SDLK_1:
-            engine->angular_velocity_r_per_s = 100.0;
+            engine->angular_velocity_r_per_s = 20.0;
             break;
         case SDLK_2:
-            engine->angular_velocity_r_per_s = 500.0;
+            engine->angular_velocity_r_per_s = 100.0;
             break;
         case SDLK_3:
+            engine->angular_velocity_r_per_s = 500.0;
+            break;
+        case SDLK_4:
             engine->angular_velocity_r_per_s = 1000.0;
             break;
         }

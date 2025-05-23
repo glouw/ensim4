@@ -1,15 +1,14 @@
 CC = gcc
-CFLAGS = -std=c23 -O3 -march=native
+CFLAGS = -std=c23 -Ofast -march=native
+#CFLAGS+= -fsanitize=address -g
 WFLAGS = -Wall -Wextra -Wpedantic
 LDFLAGS = -lm -lSDL3
 BIN = ensim4
 SRC = src/main.c
 
-all: $(BIN)
-
-$(BIN): $(SRC) $(GCH)
-	$(CC) $(CFLAGS) $(WFLAGS) $(SRC) $(LDFLAGS) -o $@
-	objdump -d -M intel $@ > $@.asm
+all:
+	$(CC) $(CFLAGS) $(WFLAGS) $(SRC) $(LDFLAGS) -o $(BIN)
+	objdump -d -M intel $(BIN) > $(BIN).asm
 
 perf: all
 	perf stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses ./$(BIN)

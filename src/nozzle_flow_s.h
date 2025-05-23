@@ -42,6 +42,7 @@ flow(struct chamber_s* x, struct chamber_s* y)
         mix_in_gas(&y->gas, &mail);
         clamp_momentum(&x->gas);
         clamp_momentum(&y->gas);
+        x->flow_cycles += 1;
         return (struct nozzle_flow_s) {
             .area_m2 = nozzle_flow_area_m2,
             .mach = direction * nozzle_mach,
