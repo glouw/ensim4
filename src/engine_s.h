@@ -84,7 +84,8 @@ move_engine(struct engine_s* self)
         double theta_y_r = fmod(theta_1_r, std_four_pi_r);
         if(theta_y_r < theta_x_r)
         {
-            sample_size = sample_index;
+            sample_front_size = sample_index;
+            memcpy(sample_front, sample_sample, sizeof(sample_front));
             sample_index = 0;
         }
         else

@@ -294,9 +294,9 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
     {
         double max_value = DBL_MIN;
         double min_value = DBL_MAX;
-        for(size_t i = 0; i < sample_size; i++)
+        for(size_t i = 0; i < sample_front_size; i++)
         {
-            double sample = sample_sample[channel][index][i];
+            double sample = sample_front[channel][index][i];
             max_value = max(max_value, sample);
             min_value = min(min_value, sample);
             samples[i] = sample;
@@ -306,13 +306,13 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         {
             continue;
         }
-        for(size_t i = 0; i < sample_size; i++)
+        for(size_t i = 0; i < sample_front_size; i++)
         {
             samples[i] = (samples[i] - min_value) / range;
         }
-        for(size_t i = 0; i < sample_size; i++)
+        for(size_t i = 0; i < sample_front_size; i++)
         {
-            points[runner].x = rects[index].x + (i / (double) (sample_size - 1)) * (rects[index].w - 1);
+            points[runner].x = rects[index].x + (i / (double) (sample_front_size - 1)) * (rects[index].w - 1);
             points[runner].y = rects[index].y + (1.0 - samples[i]) * rects[index].h;
             runner += 1;
         }
@@ -446,13 +446,19 @@ handle_input(struct engine_s* engine)
             engine->angular_velocity_r_per_s = 20.0;
             break;
         case SDLK_2:
-            engine->angular_velocity_r_per_s = 100.0;
+            engine->angular_velocity_r_per_s = 69.0;
             break;
         case SDLK_3:
-            engine->angular_velocity_r_per_s = 500.0;
+            engine->angular_velocity_r_per_s = 100.0;
             break;
         case SDLK_4:
+            engine->angular_velocity_r_per_s = 500.0;
+            break;
+        case SDLK_5:
             engine->angular_velocity_r_per_s = 1000.0;
+            break;
+        case SDLK_6:
+            engine->angular_velocity_r_per_s = 1050.0;
             break;
         }
         break;

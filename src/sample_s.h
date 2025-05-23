@@ -32,8 +32,12 @@ static const char* sample_name[] = {
     #undef X
 };
 
-static float sample_sample[sample_channels][sample_e_size][sample_samples];
-static size_t sample_size = 0;
+typedef float sample_t[sample_channels][sample_e_size][sample_samples];
+
+static sample_t sample_sample;
 static size_t sample_index = 0;
+
+static sample_t sample_front;
+static size_t sample_front_size = 0;
 
 #undef SAMPLES
