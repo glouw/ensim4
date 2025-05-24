@@ -9,6 +9,7 @@ SRC = src/main.c
 all:
 	$(CC) $(CFLAGS) $(WFLAGS) $(SRC) $(LDFLAGS) -o $(BIN)
 	objdump -d -M intel $(BIN) > $(BIN).asm
+	size $(BIN)
 
 perf: all
 	perf stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses ./$(BIN)

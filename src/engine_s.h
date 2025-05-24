@@ -21,35 +21,46 @@ normalize_engine(struct engine_s* self)
 }
 
 static void
+sample_engine_channel_name(enum sample_name_e sample_name, float sample)
+{
+    sample_sample[sample_channel_index][sample_name][sample_index] = sample;
+}
+
+static void
+sample_engine_channel(struct engine_s* self)
+{
+    double temp_r = 1.0 - cos(self->theta_r + sample_channel_index);
+    sample_engine_channel_name(static_pressure_pa, temp_r);
+    sample_engine_channel_name(dynamic_pressure_pa, temp_r);
+    sample_engine_channel_name(static_temperature_k, temp_r);
+    sample_engine_channel_name(volume_m3, temp_r);
+    sample_engine_channel_name(placeholder_0, temp_r);
+    sample_engine_channel_name(placeholder_1, temp_r);
+    sample_engine_channel_name(placeholder_2, temp_r);
+    sample_engine_channel_name(placeholder_3, temp_r);
+    sample_engine_channel_name(placeholder_4, temp_r);
+    sample_engine_channel_name(placeholder_5, temp_r);
+    sample_engine_channel_name(placeholder_5, temp_r);
+    sample_engine_channel_name(placeholder_6, temp_r);
+    sample_engine_channel_name(placeholder_7, temp_r);
+    sample_engine_channel_name(placeholder_8, temp_r);
+    sample_engine_channel_name(placeholder_9, temp_r);
+}
+
+static void
 sample_engine(struct engine_s* self)
 {
-    size_t channel = 0;
+    sample_channel_index = 0;
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
-        double temp_r = 5.0 * (1.0 - cos(self->theta_r + channel));
-        sample_sample[channel][static_pressure_pa][sample_index] = temp_r;
-        sample_sample[channel][dynamic_pressure_pa][sample_index] = temp_r;
-        sample_sample[channel][static_temperature_k][sample_index] = temp_r;
-        sample_sample[channel][volume_m3][sample_index] = temp_r;
-        sample_sample[channel][placeholder_0][sample_index] = temp_r;
-        sample_sample[channel][placeholder_1][sample_index] = temp_r;
-        sample_sample[channel][placeholder_2][sample_index] = temp_r;
-        sample_sample[channel][placeholder_3][sample_index] = temp_r;
-        sample_sample[channel][placeholder_4][sample_index] = temp_r;
-        sample_sample[channel][placeholder_5][sample_index] = temp_r;
-        sample_sample[channel][placeholder_5][sample_index] = temp_r;
-        sample_sample[channel][placeholder_6][sample_index] = temp_r;
-        sample_sample[channel][placeholder_7][sample_index] = temp_r;
-        sample_sample[channel][placeholder_8][sample_index] = temp_r;
-        sample_sample[channel][placeholder_9][sample_index] = temp_r;
         if(node->is_selected)
         {
-            channel++;
-        }
-        if(channel == sample_channels)
-        {
-            break;
+            sample_engine_channel(self);
+            if(++sample_channel_index == sample_channels)
+            {
+                break;
+            }
         }
     }
 }
@@ -84,8 +95,7 @@ move_engine(struct engine_s* self)
         double theta_y_r = fmod(theta_1_r, std_four_pi_r);
         if(theta_y_r < theta_x_r)
         {
-            sample_front_size = sample_index;
-            memcpy(sample_front, sample_sample, sizeof(sample_front));
+            sample_size = sample_index;
             sample_index = 0;
         }
         else

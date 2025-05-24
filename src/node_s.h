@@ -1,3 +1,5 @@
+static constexpr size_t nodes_node_children = 16;
+
 #define TYPES   \
     X(chamber)  \
     X(source)   \
@@ -18,7 +20,7 @@ enum node_type_e
     #undef X
 };
 
-static constexpr char node_name[][16] = {
+static const char* node_name_string[] = {
     #define X(type) #type,
     TYPES
     #undef X
@@ -35,7 +37,7 @@ struct node_s
     }
     as;
     bool is_selected;
-    uint8_t next[16];
+    uint8_t next[nodes_node_children];
 };
 
 static struct node_s node_three_cylinder[] = {
@@ -49,7 +51,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001,
             },
         },
-        .is_selected = false,
+        .is_selected = true,
         .next = {1}
     },
     [1] = {
@@ -62,7 +64,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = false,
+        .is_selected = true,
         .next = {2}
     },
     [2] = {
@@ -75,7 +77,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = false,
+        .is_selected = true,
         .next = {3}
     },
     [3] = {
@@ -88,7 +90,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = false,
+        .is_selected = true,
         .next = {4, 5, 6}
     },
     [4] = {
@@ -101,7 +103,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = false,
         .next = {7}
     },
     [5] = {
@@ -114,7 +115,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = false,
         .next = {8}
     },
     [6] = {
@@ -127,7 +127,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = false,
         .next = {9}
     },
     [7] = {
@@ -140,7 +139,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {10}
     },
     [8] = {
@@ -153,7 +151,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {11}
     },
     [9] = {
@@ -166,7 +163,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {12}
     },
     [10] = {
@@ -179,7 +175,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {13}
     },
     [11] = {
@@ -192,7 +187,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {13}
     },
     [12] = {
@@ -205,7 +199,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {13}
     },
     [13] = {
@@ -218,7 +211,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {14}
     },
     [14] = {
@@ -231,7 +223,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {15}
     },
     [15] = {
@@ -244,7 +235,6 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .is_selected = true,
         .next = {}
     },
 };
