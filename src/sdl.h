@@ -1,4 +1,3 @@
-#define debugf SDL_RenderDebugTextFormat
 static constexpr char sdl_title[] = "ENSIM4";
 static constexpr float sdl_xres_p = 1800.0f;
 static constexpr float sdl_yres_p = 900.0f;
@@ -64,6 +63,8 @@ static const char* sdl_spinner[] = {
     "-",
     "\\"
 };
+
+#define debugf SDL_RenderDebugTextFormat
 
 static SDL_Window* sdl_window = nullptr;
 static SDL_Renderer* sdl_renderer = nullptr;
@@ -424,9 +425,11 @@ struct sdl_scroll_s
 };
 
 static float
-scroll_by(struct sdl_scroll_s* self, float y_p)
+scroll_by(struct sdl_scroll_s* self, float dy_p)
 {
-    return self->y_p += y_p;
+    float y_p = self->y_p;
+    self->y_p += dy_p;
+    return y_p;
 }
 
 static float
@@ -446,10 +449,10 @@ draw_time_panel_info(struct sdl_time_panel_s* time_panel, struct sdl_scroll_s* s
         float sample = time_panel->slide_buffer[i][sdl_slide_buffer_size - 1];
         debugf(sdl_renderer, scroll->x_p, newline(scroll), "%8s (ms): %6.3f", time_panel->labels[i], sample);
     }
-    newline(scroll);
     time_panel->rect.x = scroll->x_p;
     time_panel->rect.y = scroll->y_p;
     draw_time_panel(time_panel);
+    newline(scroll);
     scroll_by(scroll, time_panel->rect.h);
 }
 
@@ -463,13 +466,20 @@ draw_engine_info(const struct engine_s* engine, struct sdl_scroll_s* scroll)
 }
 
 static void
+draw_info_title(struct sdl_scroll_s* scroll)
+{
+    set_render_color(sdl_text_color);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "%s", sdl_title);
+}
+
+static void
 draw_info(const struct engine_s* engine, struct sdl_time_panel_s* loop_time_panel, struct sdl_time_panel_s* engine_time_panel)
 {
     struct sdl_scroll_s scroll = {
         .x_p = compute_plot_column_width_p(engine) + sdl_line_spacing_p,
         .y_p = sdl_line_spacing_p,
     };
-    set_render_color(sdl_text_color);
+    draw_info_title(&scroll);
     draw_time_panel_info(loop_time_panel, &scroll);
     draw_time_panel_info(engine_time_panel, &scroll);
     draw_engine_info(engine, &scroll);
