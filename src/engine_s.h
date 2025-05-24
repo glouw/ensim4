@@ -4,12 +4,18 @@ struct engine_s
 {
     struct node_s* node;
     size_t size;
+    size_t edges;
     size_t bytes;
     double angular_velocity_r_per_s;
     double theta_r;
 };
 
-#define set_engine(nodes) (struct engine_s) { .node = nodes, .size = len(nodes), .bytes = sizeof(nodes) }
+#define set_engine(nodes) (struct engine_s) {          \
+    .node = nodes,                                     \
+    .size = len(nodes),                                \
+    .edges = count_many_node_edges(nodes, len(nodes)), \
+    .bytes = sizeof(nodes)                             \
+}
 
 static void
 normalize_engine(struct engine_s* self)
@@ -66,8 +72,9 @@ sample_engine(struct engine_s* self)
 }
 
 static void
-flow_engine(struct engine_s* self)
+flow_engine(struct engine_s* self, struct gas_mail_s gas_mails[])
 {
+    size_t mail_index = 0;
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* x = &self->node[i];
@@ -75,10 +82,7 @@ flow_engine(struct engine_s* self)
         {
             struct node_s* y = &self->node[next];
             struct nozzle_flow_s nozzle_flow = flow(&x->as.chamber, &y->as.chamber);
-            // sum these three from nozzle_flow_s if a parent has more than 1 child:
-            //   mach
-            //   velocity_m_per_s
-            //   mass_flow_rate_kg_per_s
+            gas_mails[mail_index++] = nozzle_flow.gas_mail;
         }
     }
 }
@@ -107,12 +111,42 @@ move_engine(struct engine_s* self)
 }
 
 static void
+mail_engine(struct engine_s* self, struct gas_mail_s gas_mails[])
+{
+    for(size_t i = 0; i < self->edges; i++)
+    {
+        mail(&gas_mails[i]);
+    }
+}
+
+struct engine_perf_s
+{
+    float flow_time_ms;
+    float mail_time_ms;
+    float move_time_ms;
+    float sample_time_ms;
+};
+
+static struct engine_perf_s
 run_engine(struct engine_s* self)
 {
+    struct engine_perf_s engine_perf = {};
     for(size_t i = 0; i < engine_cycles_per_frame; i++)
     {
-        flow_engine(self);
+        struct gas_mail_s gas_mail[self->edges];
+        double t0 = SDL_GetTicksNS();
+        flow_engine(self, gas_mail);
+        double t1 = SDL_GetTicksNS();
+        mail_engine(self, gas_mail);
+        double t2 = SDL_GetTicksNS();
         move_engine(self);
+        double t3 = SDL_GetTicksNS();
         sample_engine(self);
+        double t4 = SDL_GetTicksNS();
+        engine_perf.flow_time_ms += SDL_NS_TO_MS(t1 - t0);
+        engine_perf.mail_time_ms += SDL_NS_TO_MS(t2 - t1);
+        engine_perf.move_time_ms += SDL_NS_TO_MS(t3 - t2);
+        engine_perf.sample_time_ms += SDL_NS_TO_MS(t4 - t3);
     }
+    return engine_perf;
 }

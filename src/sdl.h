@@ -1,3 +1,4 @@
+#define debugf SDL_RenderDebugTextFormat
 static constexpr char sdl_title[] = "ENSIM4";
 static constexpr float sdl_xres_p = 1800.0f;
 static constexpr float sdl_yres_p = 900.0f;
@@ -12,6 +13,7 @@ static constexpr float sdl_line_spacing_p = 1.5f * sdl_char_size_p;
 static constexpr float sdl_demo_delay_ms = 75.0f;
 static constexpr float sdl_column_width_ratio = 0.5f;
 static constexpr size_t sdl_slide_buffer_size = 128;
+static constexpr size_t sdl_time_panel_size = 4;
 static constexpr SDL_FColor sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
      [1] = {0.00f, 1.00f, 0.00f, 1.0f},
@@ -52,7 +54,16 @@ static constexpr SDL_FColor sdl_node_off_color = {
 static constexpr SDL_FColor sdl_error_color = {
     1.00f, 0.00f, 0.00f, 1.0f
 };
-static const char* sdl_spinner[] = {"|", "/", "-", "\\", "|", "/", "-", "\\"};
+static const char* sdl_spinner[] = {
+    "|",
+    "/",
+    "-",
+    "\\",
+    "|",
+    "/",
+    "-",
+    "\\"
+};
 
 static SDL_Window* sdl_window = nullptr;
 static SDL_Renderer* sdl_renderer = nullptr;
@@ -76,16 +87,15 @@ set_render_color(SDL_FColor color)
 }
 
 static void
-draw_slide_buffer(sdl_slide_buffer_t self, SDL_FRect rect, SDL_FColor color, float min_val, float max_val)
+draw_slide_buffer(sdl_slide_buffer_t self, SDL_FRect rect, float min_val, float max_val)
 {
-    set_render_color(color);
     SDL_FPoint points[sdl_slide_buffer_size];
     float range = max_val - min_val;
     for (size_t i = 0; i < sdl_slide_buffer_size; i++)
     {
         points[i].x = rect.x + (rect.w * i) / (sdl_slide_buffer_size - 1);
         float normalized_val = (self[i] - min_val) / range;
-        points[i].y = rect.y + rect.h * (1.0 - normalized_val);
+        points[i].y = rect.y + rect.h * (1.0f - normalized_val);
     }
     SDL_RenderLines(sdl_renderer, points, sdl_slide_buffer_size);
 }
@@ -95,10 +105,7 @@ struct sdl_time_panel_s
     SDL_FRect rect;
     float min_time_ms;
     float max_time_ms;
-    sdl_slide_buffer_t sim;
-    sdl_slide_buffer_t input;
-    sdl_slide_buffer_t draw;
-    sdl_slide_buffer_t vsync;
+    sdl_slide_buffer_t slide_buffer[sdl_time_panel_size];
 };
 
 static void
@@ -106,27 +113,24 @@ draw_time_panel(struct sdl_time_panel_s* self)
 {
     set_render_color(sdl_light_line_color);
     SDL_RenderRect(sdl_renderer, &self->rect);
-    draw_slide_buffer(self->sim, self->rect, sdl_channel_color[0], self->min_time_ms, self->max_time_ms);
-    draw_slide_buffer(self->input, self->rect, sdl_channel_color[1], self->min_time_ms, self->max_time_ms);
-    draw_slide_buffer(self->draw, self->rect, sdl_channel_color[2], self->min_time_ms, self->max_time_ms);
-    draw_slide_buffer(self->vsync, self->rect, sdl_channel_color[3], self->min_time_ms, self->max_time_ms);
+    for(size_t i = 0; i < sdl_time_panel_size; i++)
+    {
+        set_render_color(sdl_channel_color[i]);
+        draw_slide_buffer(
+            self->slide_buffer[i],
+            self->rect,
+            self->min_time_ms,
+            self->max_time_ms);
+    }
 }
 
-struct sdl_time_panel_sample_s
-{
-    float sim_time_ms;
-    float input_time_ms;
-    float draw_time_ms;
-    float vsync_time_ms;
-};
-
 static void
-push_time_panel(struct sdl_time_panel_s* self, struct sdl_time_panel_sample_s sample)
+push_time_panel(struct sdl_time_panel_s* self, float sample[static sdl_time_panel_size])
 {
-    push_slide_buffer(self->sim, sample.sim_time_ms);
-    push_slide_buffer(self->input, sample.input_time_ms);
-    push_slide_buffer(self->draw, sample.draw_time_ms);
-    push_slide_buffer(self->vsync, sample.vsync_time_ms);
+    for(size_t i = 0; i < sdl_time_panel_size; i++)
+    {
+        push_slide_buffer(self->slide_buffer[i], sample[i]);
+    }
 }
 
 static SDL_FPoint
@@ -222,7 +226,7 @@ draw_node_at(struct node_s* node, SDL_FPoint point)
     const char* spinner = sdl_spinner[index];
     SDL_FPoint mid = point;
     mid = center_text(mid, spinner);
-    SDL_RenderDebugText(sdl_renderer, mid.x, mid.y, spinner);
+    debugf(sdl_renderer, mid.x, mid.y, "%s", spinner);
 }
 
 static void
@@ -272,7 +276,7 @@ draw_radial_names(const struct engine_s* engine, const SDL_FPoint points[])
         point.y -= sdl_line_spacing_p;
         point.y -= sdl_node_half_w_p;
         set_render_color(sdl_text_color);
-        SDL_RenderDebugText(sdl_renderer, point.x, point.y, node_name);
+        debugf(sdl_renderer, point.x, point.y, "%s", node_name);
     }
 }
 
@@ -364,7 +368,7 @@ draw_plot_container(SDL_FRect rect, const char* name_string)
     set_render_color(sdl_text_color);
     float x_p = rect.x + sdl_line_spacing_p;
     float y_p = rect.y + sdl_line_spacing_p;
-    SDL_RenderDebugText(sdl_renderer, x_p, y_p, name_string);
+    debugf(sdl_renderer, x_p, y_p, "%s", name_string);
 }
 
 static void
@@ -412,23 +416,41 @@ draw_plots(const struct engine_s* engine)
 }
 
 static void
-draw_fps(const struct engine_s* engine, struct sdl_time_panel_s* time_panel, struct sdl_time_panel_sample_s sample)
+draw_time_panel_info(struct sdl_time_panel_s* loop_time_panel, float x_p, float* y_p, const char* strings[])
+{
+    for(size_t i = 0; i < sdl_time_panel_size; i++)
+    {
+        set_render_color(sdl_channel_color[i]);
+        float sample = loop_time_panel->slide_buffer[i][sdl_slide_buffer_size - 1];
+        *y_p += sdl_line_spacing_p;
+        debugf(sdl_renderer, x_p, *y_p, "%8s (ms): %6.3f", strings[i], sample);
+    }
+    *y_p += sdl_line_spacing_p;
+    loop_time_panel->rect.x = x_p;
+    loop_time_panel->rect.y = *y_p;
+    draw_time_panel(loop_time_panel);
+    *y_p += loop_time_panel->rect.h;
+}
+
+static void
+draw_engine_info(const struct engine_s* engine, float x_p, float* y_p)
 {
     set_render_color(sdl_text_color);
+    debugf(sdl_renderer, x_p, *y_p += sdl_line_spacing_p, "engine size (bytes): %lu", engine->bytes);
+    debugf(sdl_renderer, x_p, *y_p += sdl_line_spacing_p, "trigger min (rad/sec): %.0f", sample_minimum_angular_velocity_r_per_s);
+    debugf(sdl_renderer, x_p, *y_p += sdl_line_spacing_p, "ang vel (rad/sec): %.0f", engine->angular_velocity_r_per_s);
+}
+
+static void
+draw_info(const struct engine_s* engine, struct sdl_time_panel_s* loop_time_panel, struct sdl_time_panel_s* engine_time_panel)
+{
     float x_p = compute_plot_column_width_p(engine) + sdl_line_spacing_p;
     float y_p = sdl_line_spacing_p;
-    SDL_RenderDebugText(sdl_renderer, x_p, y_p, sdl_title);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "vsync (ms): %6.3f", sample.vsync_time_ms);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "sim   (ms): %6.3f", sample.sim_time_ms);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "draw  (ms): %6.3f", sample.draw_time_ms);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "input (ms): %6.3f", sample.input_time_ms);
-    y_p += sdl_line_spacing_p;
-    time_panel->rect.x = x_p;
-    time_panel->rect.y = y_p;
-    y_p += time_panel->rect.h;
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "engine size (bytes): %lu", engine->bytes);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "trigger min (rad/sec): %.0f", sample_minimum_angular_velocity_r_per_s);
-    SDL_RenderDebugTextFormat(sdl_renderer, x_p, y_p += sdl_line_spacing_p, "ang vel (rad/sec): %.0f", engine->angular_velocity_r_per_s);
+    set_render_color(sdl_text_color);
+    debugf(sdl_renderer, x_p, y_p, "%s", sdl_title);
+    draw_time_panel_info(loop_time_panel,   x_p, &y_p, (const char*[]) {"engine", "input", "draw", "vsync"});
+    draw_time_panel_info(engine_time_panel, x_p, &y_p, (const char*[]) {"flow", "mail", "move", "sample"});
+    draw_engine_info(engine, x_p, &y_p);
 }
 
 static void

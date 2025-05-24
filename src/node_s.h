@@ -245,4 +245,26 @@ normalize_node(struct node_s* self)
     normalize_chamber(&self->as.chamber);
 }
 
+static size_t
+count_node_edges(struct node_s* self)
+{
+    size_t edges = 0;
+    while(self->next[edges])
+    {
+        edges++;
+    }
+    return edges;
+}
+
+static size_t
+count_many_node_edges(struct node_s* nodes, size_t size)
+{
+    size_t edges = 0;
+    for(size_t i = 0; i < size; i++)
+    {
+        edges += count_node_edges(&nodes[i]);
+    }
+    return edges;
+}
+
 #undef TYPES

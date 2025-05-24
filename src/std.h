@@ -1,3 +1,4 @@
+static constexpr size_t std_cacheline_bytes = 64;
 static constexpr size_t std_audio_sample_rate_hz = 44100;
 static constexpr double std_dt_s = 1.0 / std_audio_sample_rate_hz;
 static constexpr double std_pi_r = 3.141592653589793;

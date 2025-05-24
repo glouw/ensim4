@@ -8,6 +8,7 @@
 #include "gamma.h"
 #include "gas_s.h"
 #include "chamber_s.h"
+#include "gas_mail_s.h"
 #include "source_s.h"
 #include "filter_s.h"
 #include "iplenum_s.h"
@@ -34,17 +35,28 @@ main()
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();
-    struct sdl_time_panel_sample_s time_panel_sample = {};
-    struct sdl_time_panel_s time_panel = {
+    struct sdl_time_panel_s loop_time_panel = {
         .min_time_ms = 0.0,
         .max_time_ms = 32.0,
         .rect.w = 192,
         .rect.h = 128,
     };
+    struct sdl_time_panel_s engine_time_panel = {
+        .min_time_ms = 0.0,
+        .max_time_ms = 16.0,
+        .rect.w = 192,
+        .rect.h = 192,
+    };
     while(true)
     {
         double t0 = SDL_GetTicksNS();
-        run_engine(&engine);
+        struct engine_perf_s engine_perf = run_engine(&engine);
+        push_time_panel(&engine_time_panel, (float[]) {
+            engine_perf.flow_time_ms,
+            engine_perf.mail_time_ms,
+            engine_perf.move_time_ms,
+            engine_perf.sample_time_ms,
+        });
         double t1 = SDL_GetTicksNS();
         if(handle_input(&engine))
         {
@@ -54,16 +66,16 @@ main()
         clear_screen();
         draw_plots(&engine);
         draw_radial_chambers(&engine);
-        draw_fps(&engine, &time_panel, time_panel_sample);
-        draw_time_panel(&time_panel);
+        draw_info(&engine, &loop_time_panel, &engine_time_panel);
         double t3 = SDL_GetTicksNS();
         present(0.0);
         double t4 = SDL_GetTicksNS();
-        time_panel_sample.sim_time_ms = SDL_NS_TO_MS(t1 - t0);
-        time_panel_sample.input_time_ms = SDL_NS_TO_MS(t2 - t1);
-        time_panel_sample.draw_time_ms = SDL_NS_TO_MS(t3 - t2);
-        time_panel_sample.vsync_time_ms = SDL_NS_TO_MS(t4 - t0);
-        push_time_panel(&time_panel, time_panel_sample);
+        push_time_panel(&loop_time_panel, (float[]) {
+            SDL_NS_TO_MS(t1 - t0),
+            SDL_NS_TO_MS(t2 - t1),
+            SDL_NS_TO_MS(t3 - t2),
+            SDL_NS_TO_MS(t4 - t0),
+        });
     }
     exit_sdl();
 }
