@@ -26,6 +26,24 @@
 #include "visualize.h"
 #include "sdl.h"
 
+static struct sdl_time_panel_s loop_time_panel = {
+    .title = "loop time",
+    .labels = {"engine", "input", "draw", "vsync"},
+    .min_time_ms = 0.0,
+    .max_time_ms = 32.0,
+    .rect.w = 192,
+    .rect.h = 128,
+};
+
+static struct sdl_time_panel_s engine_time_panel = {
+    .title = "engine time",
+    .labels = {"flow", "mail", "move", "sample"},
+    .min_time_ms = 0.0,
+    .max_time_ms = 16.0,
+    .rect.w = 192,
+    .rect.h = 192,
+};
+
 int
 main()
 {
@@ -35,18 +53,6 @@ main()
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();
-    struct sdl_time_panel_s loop_time_panel = {
-        .min_time_ms = 0.0,
-        .max_time_ms = 32.0,
-        .rect.w = 192,
-        .rect.h = 128,
-    };
-    struct sdl_time_panel_s engine_time_panel = {
-        .min_time_ms = 0.0,
-        .max_time_ms = 16.0,
-        .rect.w = 192,
-        .rect.h = 192,
-    };
     while(true)
     {
         double t0 = SDL_GetTicksNS();

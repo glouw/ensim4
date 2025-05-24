@@ -102,6 +102,8 @@ draw_slide_buffer(sdl_slide_buffer_t self, SDL_FRect rect, float min_val, float 
 
 struct sdl_time_panel_s
 {
+    const char* title;
+    const char* labels[sdl_time_panel_size];
     SDL_FRect rect;
     float min_time_ms;
     float max_time_ms;
@@ -125,7 +127,7 @@ draw_time_panel(struct sdl_time_panel_s* self)
 }
 
 static void
-push_time_panel(struct sdl_time_panel_s* self, float sample[static sdl_time_panel_size])
+push_time_panel(struct sdl_time_panel_s* self, float sample[])
 {
     for(size_t i = 0; i < sdl_time_panel_size; i++)
     {
@@ -415,42 +417,62 @@ draw_plots(const struct engine_s* engine)
     draw_plot_containers(rects);
 }
 
-static void
-draw_time_panel_info(struct sdl_time_panel_s* loop_time_panel, float x_p, float* y_p, const char* strings[])
+struct sdl_scroll_s
 {
-    for(size_t i = 0; i < sdl_time_panel_size; i++)
-    {
-        set_render_color(sdl_channel_color[i]);
-        float sample = loop_time_panel->slide_buffer[i][sdl_slide_buffer_size - 1];
-        *y_p += sdl_line_spacing_p;
-        debugf(sdl_renderer, x_p, *y_p, "%8s (ms): %6.3f", strings[i], sample);
-    }
-    *y_p += sdl_line_spacing_p;
-    loop_time_panel->rect.x = x_p;
-    loop_time_panel->rect.y = *y_p;
-    draw_time_panel(loop_time_panel);
-    *y_p += loop_time_panel->rect.h;
+    float x_p;
+    float y_p;
+};
+
+static float
+scroll_by(struct sdl_scroll_s* self, float y_p)
+{
+    return self->y_p += y_p;
+}
+
+static float
+newline(struct sdl_scroll_s* self)
+{
+    return scroll_by(self, sdl_line_spacing_p);
 }
 
 static void
-draw_engine_info(const struct engine_s* engine, float x_p, float* y_p)
+draw_time_panel_info(struct sdl_time_panel_s* time_panel, struct sdl_scroll_s* scroll)
 {
     set_render_color(sdl_text_color);
-    debugf(sdl_renderer, x_p, *y_p += sdl_line_spacing_p, "engine size (bytes): %lu", engine->bytes);
-    debugf(sdl_renderer, x_p, *y_p += sdl_line_spacing_p, "trigger min (rad/sec): %.0f", sample_minimum_angular_velocity_r_per_s);
-    debugf(sdl_renderer, x_p, *y_p += sdl_line_spacing_p, "ang vel (rad/sec): %.0f", engine->angular_velocity_r_per_s);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "%s", time_panel->title);
+    for(size_t i = 0; i < sdl_time_panel_size; i++)
+    {
+        set_render_color(sdl_channel_color[i]);
+        float sample = time_panel->slide_buffer[i][sdl_slide_buffer_size - 1];
+        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%8s (ms): %6.3f", time_panel->labels[i], sample);
+    }
+    newline(scroll);
+    time_panel->rect.x = scroll->x_p;
+    time_panel->rect.y = scroll->y_p;
+    draw_time_panel(time_panel);
+    scroll_by(scroll, time_panel->rect.h);
+}
+
+static void
+draw_engine_info(const struct engine_s* engine, struct sdl_scroll_s* scroll)
+{
+    set_render_color(sdl_text_color);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "engine size (bytes): %lu", engine->bytes);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "trigger min (rad/sec): %.0f", sample_minimum_angular_velocity_r_per_s);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "ang vel (rad/sec): %.0f", engine->angular_velocity_r_per_s);
 }
 
 static void
 draw_info(const struct engine_s* engine, struct sdl_time_panel_s* loop_time_panel, struct sdl_time_panel_s* engine_time_panel)
 {
-    float x_p = compute_plot_column_width_p(engine) + sdl_line_spacing_p;
-    float y_p = sdl_line_spacing_p;
+    struct sdl_scroll_s scroll = {
+        .x_p = compute_plot_column_width_p(engine) + sdl_line_spacing_p,
+        .y_p = sdl_line_spacing_p,
+    };
     set_render_color(sdl_text_color);
-    debugf(sdl_renderer, x_p, y_p, "%s", sdl_title);
-    draw_time_panel_info(loop_time_panel,   x_p, &y_p, (const char*[]) {"engine", "input", "draw", "vsync"});
-    draw_time_panel_info(engine_time_panel, x_p, &y_p, (const char*[]) {"flow", "mail", "move", "sample"});
-    draw_engine_info(engine, x_p, &y_p);
+    draw_time_panel_info(loop_time_panel, &scroll);
+    draw_time_panel_info(engine_time_panel, &scroll);
+    draw_engine_info(engine, &scroll);
 }
 
 static void
