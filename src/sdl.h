@@ -380,9 +380,10 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
             rect.x + sdl_line_spacing_p,
             rect.y + rect.h / 2.0,
         };
-        if(sample_channel_index == 1)
+        size_t last_channel = sample_channel_index - 1;
+        if(channel == last_channel)
         {
-            set_render_color(sdl_text_color);
+            set_render_color(sdl_channel_color[last_channel]);
             debugf(sdl_renderer, scroll.x_p, newline(&scroll), "max: %f", normalized.max_value);
             debugf(sdl_renderer, scroll.x_p, newline(&scroll), "min: %f", normalized.min_value);
         }

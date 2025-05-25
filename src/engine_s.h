@@ -32,7 +32,7 @@ sample_engine_name(enum sample_name_e sample_name, float sample)
 }
 
 static void
-sample_engine_channel(struct node_s* node, double sampled_nozzle_area_m2, struct nozzle_flow_field_s nozzle_flow_field)
+sample_engine_channel(struct node_s* node, struct nozzle_flow_s* nozzle_flow)
 {
     if(sample_channel_index < sample_channels)
     {
@@ -40,11 +40,11 @@ sample_engine_channel(struct node_s* node, double sampled_nozzle_area_m2, struct
         sample_engine_name(total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
         sample_engine_name(static_temperature_k, node->as.chamber.gas.static_temperature_k);
         sample_engine_name(volume_m3, node->as.chamber.volume_m3);
-        sample_engine_name(nozzle_area_m2, sampled_nozzle_area_m2);
-        sample_engine_name(nozzle_mach, nozzle_flow_field.mach);
-        sample_engine_name(nozzle_velocity_m_per_s, nozzle_flow_field.velocity_m_per_s);
-        sample_engine_name(nozzle_mass_flow_rate_kg_per_s, nozzle_flow_field.mass_flow_rate_kg_per_s);
-        sample_engine_name(nozzle_speed_of_sound_m_per_s, nozzle_flow_field.speed_of_sound_m_per_s);
+        sample_engine_name(nozzle_area_m2, nozzle_flow->area_m2);
+        sample_engine_name(nozzle_mach, nozzle_flow->flow_field.mach);
+        sample_engine_name(nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
+        sample_engine_name(nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
+        sample_engine_name(nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
         sample_engine_name(placeholder_5, 0.0);
         sample_engine_name(placeholder_5, 0.0);
         sample_engine_name(placeholder_6, 0.0);
@@ -91,7 +91,6 @@ flow_engine(struct engine_flow_s engine_flow[], size_t flow_size, struct gas_mai
 {
     sample_channel_index = 0;
     size_t mail_size = 0;
-    struct node_s* last = nullptr;
     struct nozzle_flow_field_s flow_field = {};
     for(size_t i = 0; i < flow_size; i++)
     {
@@ -102,19 +101,9 @@ flow_engine(struct engine_flow_s engine_flow[], size_t flow_size, struct gas_mai
         {
             gas_mails[mail_size++] = nozzle_flow.gas_mail;
         }
-        if(x == last)
-        {
-            flow_field = sum_nozzle_flow_fields(flow_field, nozzle_flow.flow_field);
-            continue;
-        }
-        else
-        {
-            flow_field = nozzle_flow.flow_field;
-        }
-        last = x;
         if(x->is_selected)
         {
-            sample_engine_channel(x, nozzle_flow.area_m2, flow_field);
+            sample_engine_channel(x, &nozzle_flow);
         }
     }
     return mail_size;

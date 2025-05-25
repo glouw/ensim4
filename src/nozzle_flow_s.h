@@ -6,16 +6,6 @@ struct nozzle_flow_field_s
     double speed_of_sound_m_per_s;
 };
 
-struct nozzle_flow_field_s
-sum_nozzle_flow_fields(struct nozzle_flow_field_s self, struct nozzle_flow_field_s other)
-{
-    self.mach += other.mach;
-    self.velocity_m_per_s += other.velocity_m_per_s;
-    self.mass_flow_rate_kg_per_s += other.mass_flow_rate_kg_per_s;
-    self.speed_of_sound_m_per_s += other.speed_of_sound_m_per_s;
-    return self;
-}
-
 struct nozzle_flow_s
 {
     double area_m2;
