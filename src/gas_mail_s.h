@@ -1,6 +1,5 @@
 struct gas_mail_s
 {
-    alignas(std_cacheline_bytes)
     struct gas_s gas;
     struct chamber_s* x;
     struct chamber_s* y;

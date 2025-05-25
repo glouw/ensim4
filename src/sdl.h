@@ -13,6 +13,7 @@ static constexpr float sdl_demo_delay_ms = 75.0f;
 static constexpr float sdl_column_width_ratio = 0.5f;
 static constexpr size_t sdl_slide_buffer_size = 128;
 static constexpr size_t sdl_time_panel_size = 4;
+static constexpr size_t sdl_flow_cycle_spinner_divisor = 2048;
 static constexpr SDL_FColor sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
      [1] = {0.00f, 1.00f, 0.00f, 1.0f},
@@ -242,7 +243,7 @@ draw_node_at(struct node_s* node, SDL_FPoint point, SDL_FColor node_color)
     SDL_RenderFillRect(sdl_renderer, &rect);
     set_render_color(node_color);
     SDL_RenderRect(sdl_renderer, &rect);
-    size_t cycle = node->as.chamber.flow_cycles / 1024;
+    size_t cycle = node->as.chamber.flow_cycles / sdl_flow_cycle_spinner_divisor;
     size_t index = cycle % len(sdl_spinner);
     const char* spinner = sdl_spinner[index];
     SDL_FPoint mid = point;
@@ -387,7 +388,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         SDL_FRect rect = rects[sample_name];
         struct sdl_scroll_s scroll = {
             rect.x + 1 * sdl_line_spacing_p,
-            rect.y - 2 * sdl_line_spacing_p + rect.h,
+            rect.y + 2 * sdl_line_spacing_p,
         };
         if(channel == sample_channel_index - 1)
         {
