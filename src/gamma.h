@@ -52,12 +52,6 @@ static constexpr double gamma_cp_weights_upper_h2o[] = {
     +1.034972096e+06, -2.412698562e+03, +4.646110780e+00, +2.291998307e-03, -6.836830480e-07, +9.426468930e-11, -4.822380530e-15
 };
 
-static double
-clamp(double value, double x, double y)
-{
-    return value < x ? x : value > y ? y : value;
-}
-
 /* eq. 1, [1, p. 43]
  *
  *                 -2         -1         0          1          2          3          4

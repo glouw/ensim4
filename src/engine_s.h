@@ -6,8 +6,7 @@ struct engine_s
     size_t size;
     size_t edges;
     size_t bytes;
-    double angular_velocity_r_per_s;
-    double theta_r;
+    struct crankshaft_s crankshaft;
 };
 
 #define set_engine(nodes) (struct engine_s) {          \
@@ -35,7 +34,7 @@ sample_engine_channel_name(enum sample_name_e sample_name, float sample)
 static void
 sample_engine_channel(struct engine_s* self)
 {
-    double temp_r = 1.0 - cos(self->theta_r + sample_channel_index);
+    double temp_r = 1.0 - cos(self->crankshaft.theta_r + sample_channel_index);
     sample_engine_channel_name(static_pressure_pa, temp_r);
     sample_engine_channel_name(dynamic_pressure_pa, temp_r);
     sample_engine_channel_name(static_temperature_k, temp_r);
@@ -90,9 +89,9 @@ flow_engine(struct engine_s* self, struct gas_mail_s gas_mails[])
 static void
 move_engine(struct engine_s* self)
 {
-    double theta_0_r = self->theta_r;
-    self->theta_r += self->angular_velocity_r_per_s * std_dt_s;
-    double theta_1_r = self->theta_r;
+    double theta_0_r = self->crankshaft.theta_r;
+    self->crankshaft.theta_r += self->crankshaft.angular_velocity_r_per_s * std_dt_s;
+    double theta_1_r = self->crankshaft.theta_r;
     if(theta_0_r != theta_1_r)
     {
         double theta_x_r = fmod(theta_0_r, std_four_pi_r);
@@ -115,38 +114,6 @@ mail_engine(struct engine_s* self, struct gas_mail_s gas_mails[])
 {
     for(size_t i = 0; i < self->edges; i++)
     {
-        mail(&gas_mails[i]);
+        mail_gas_mail(&gas_mails[i]);
     }
-}
-
-struct engine_perf_s
-{
-    float flow_time_ms;
-    float mail_time_ms;
-    float move_time_ms;
-    float sample_time_ms;
-};
-
-static struct engine_perf_s
-run_engine(struct engine_s* self)
-{
-    struct engine_perf_s engine_perf = {};
-    for(size_t i = 0; i < engine_cycles_per_frame; i++)
-    {
-        struct gas_mail_s gas_mail[self->edges];
-        double t0 = SDL_GetTicksNS();
-        flow_engine(self, gas_mail);
-        double t1 = SDL_GetTicksNS();
-        mail_engine(self, gas_mail);
-        double t2 = SDL_GetTicksNS();
-        move_engine(self);
-        double t3 = SDL_GetTicksNS();
-        sample_engine(self);
-        double t4 = SDL_GetTicksNS();
-        engine_perf.flow_time_ms += SDL_NS_TO_MS(t1 - t0);
-        engine_perf.mail_time_ms += SDL_NS_TO_MS(t2 - t1);
-        engine_perf.move_time_ms += SDL_NS_TO_MS(t3 - t2);
-        engine_perf.sample_time_ms += SDL_NS_TO_MS(t4 - t3);
-    }
-    return engine_perf;
 }

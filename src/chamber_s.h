@@ -23,6 +23,12 @@ calc_static_pressure_pa(const struct chamber_s* self)
     return m * Rs * Ts / V;
 }
 
+static double
+calc_static_gauge_pressure_pa(const struct chamber_s* self)
+{
+    return calc_static_pressure_pa(self) - chamber_ambient_static_pressure_pa;
+}
+
 /*
  *     Ps * V
  * m = -------
@@ -180,12 +186,28 @@ calc_nozzle_flow_area_m2(const struct chamber_s* self)
  */
 
 static double
-calc_new_adiabatic_static_temperature_k(const struct chamber_s* self, double old_static_pressure_pa)
+calc_new_adiabatic_static_temperature_from_pressure_delta_k(const struct chamber_s* self, double old_static_pressure_pa)
 {
     double Ps1 = old_static_pressure_pa;
     double Ps2 = calc_static_pressure_pa(self);
     double y = calc_mixed_gamma(&self->gas);
-    return pow(Ps2 / Ps1, (y - 1.0) / y);
+    return self->gas.static_temperature_k * pow(Ps2 / Ps1, (y - 1.0) / y);
+}
+
+/*                   y - 1
+ *               V1
+ * Ts2 = Ts1 * (----)
+ *               V2
+ *
+ */
+
+static double
+calc_new_adiabatic_static_temperature_from_volume_delta_k(const struct chamber_s* self, double old_volume_m3)
+{
+    double V1 = old_volume_m3;
+    double V2 = self->volume_m3;
+    double y = calc_mixed_gamma(&self->gas);
+    return self->gas.static_temperature_k * pow(V1 / V2, y - 1.0);
 }
 
 static void
@@ -194,7 +216,7 @@ remove_gas(struct chamber_s* self, const struct gas_s* mail)
     double old_static_pressure_pa = calc_static_pressure_pa(self);
     self->gas.mass_kg -= mail->mass_kg;
     self->gas.momentum_kg_m_per_s -= mail->momentum_kg_m_per_s;
-    self->gas.static_temperature_k *= calc_new_adiabatic_static_temperature_k(self, old_static_pressure_pa);
+    self->gas.static_temperature_k = calc_new_adiabatic_static_temperature_from_pressure_delta_k(self, old_static_pressure_pa);
 }
 
 static void

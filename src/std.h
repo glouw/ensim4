@@ -5,6 +5,34 @@ static constexpr double std_pi_r = 3.141592653589793;
 static constexpr double std_four_pi_r = 4.0 * std_pi_r;
 
 #define len(x) (sizeof(x) / sizeof(x[0]))
-#define min(x, y) (((x) < (y)) ? (x) : (y))
-#define max(x, y) (((x) > (y)) ? (x) : (y))
 #define clear(x) memset(x, 0, sizeof(x));
+
+static double
+min(double x, double y)
+{
+    return x < y ? x : y;
+}
+
+static double
+max(double x, double y)
+{
+    return x > y ? x : y;
+}
+
+static double
+clamp(double value, double lower, double upper)
+{
+    return value < lower ? lower : value > upper ? upper : value;
+}
+
+static double
+calc_circle_area_m2(double diameter_m)
+{
+    return std_pi_r * pow(diameter_m / 2.0, 2.0);
+}
+
+static double
+calc_cylinder_volume_m3(double diameter_m, double depth_m)
+{
+    return calc_circle_area_m2(diameter_m) * depth_m;
+}

@@ -462,7 +462,7 @@ draw_engine_info(const struct engine_s* engine, struct sdl_scroll_s* scroll)
     set_render_color(sdl_text_color);
     debugf(sdl_renderer, scroll->x_p, newline(scroll), "engine size (bytes): %lu", engine->bytes);
     debugf(sdl_renderer, scroll->x_p, newline(scroll), "trigger min (rad/sec): %.0f", sample_minimum_angular_velocity_r_per_s);
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "ang vel (rad/sec): %.0f", engine->angular_velocity_r_per_s);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "ang vel (rad/sec): %.0f", engine->crankshaft.angular_velocity_r_per_s);
 }
 
 static void
@@ -547,22 +547,22 @@ handle_input(struct engine_s* engine)
             draw_demo_engine(engine);
             break;
         case SDLK_1:
-            engine->angular_velocity_r_per_s = 20.0;
+            engine->crankshaft.angular_velocity_r_per_s = 20.0;
             break;
         case SDLK_2:
-            engine->angular_velocity_r_per_s = 69.0;
+            engine->crankshaft.angular_velocity_r_per_s = 69.0;
             break;
         case SDLK_3:
-            engine->angular_velocity_r_per_s = 100.0;
+            engine->crankshaft.angular_velocity_r_per_s = 100.0;
             break;
         case SDLK_4:
-            engine->angular_velocity_r_per_s = 500.0;
+            engine->crankshaft.angular_velocity_r_per_s = 500.0;
             break;
         case SDLK_5:
-            engine->angular_velocity_r_per_s = 1000.0;
+            engine->crankshaft.angular_velocity_r_per_s = 1000.0;
             break;
         case SDLK_6:
-            engine->angular_velocity_r_per_s = 1050.0;
+            engine->crankshaft.angular_velocity_r_per_s = 1050.0;
             break;
         }
         break;

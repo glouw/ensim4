@@ -7,7 +7,7 @@ struct gas_mail_s
 };
 
 static void
-mail(struct gas_mail_s* self)
+mail_gas_mail(struct gas_mail_s* self)
 {
     remove_gas(self->x, &self->gas);
     mix_in_gas(&self->y->gas, &self->gas);
