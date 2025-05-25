@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <float.h>
@@ -81,9 +82,11 @@ main()
         double t0 = SDL_GetTicksNS();
         for(size_t i = 0; i < engine_cycles_per_frame; i++)
         {
-            double ta = SDL_GetTicksNS();
+            struct engine_flow_s engine_flow[engine.edges];
             struct gas_mail_s gas_mail[engine.edges];
-            size_t mail_size = flow_engine(&engine, gas_mail);
+            double ta = SDL_GetTicksNS();
+            size_t flow_size = stage_engine_flow(&engine, engine_flow);
+            size_t mail_size = flow_engine(engine_flow, flow_size, gas_mail);
             double tb = SDL_GetTicksNS();
             mail_engine(&engine, gas_mail, mail_size);
             double tc = SDL_GetTicksNS();

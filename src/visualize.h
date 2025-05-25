@@ -139,10 +139,10 @@ visualize_chamber_s()
             , /* 15 */ calc_mixed_gamma(&y.gas)
             , /* 16 */ calc_specific_gas_constant_j_per_kg_k(&x.gas)
             , /* 17 */ calc_specific_gas_constant_j_per_kg_k(&y.gas)
-            , /* 18 */ nozzle_flow.mach
-            , /* 19 */ nozzle_flow.mass_flow_rate_kg_per_s
-            , /* 20 */ nozzle_flow.velocity_m_per_s
-            , /* 21 */ nozzle_flow.speed_of_sound_m_per_s
+            , /* 18 */ nozzle_flow.flow_field.mach
+            , /* 19 */ nozzle_flow.flow_field.mass_flow_rate_kg_per_s
+            , /* 20 */ nozzle_flow.flow_field.velocity_m_per_s
+            , /* 21 */ nozzle_flow.flow_field.speed_of_sound_m_per_s
         );
         fprintf(
             file_flow,
@@ -189,10 +189,10 @@ visualize_chamber_s()
             , /* 17 */ calc_total_pressure_pa(&y)
             , /* 18 */ calc_total_temperature_k(&x)
             , /* 19 */ calc_total_temperature_k(&y)
-            , /* 20 */ nozzle_flow.mach
-            , /* 21 */ nozzle_flow.mass_flow_rate_kg_per_s
-            , /* 22 */ nozzle_flow.velocity_m_per_s
-            , /* 23 */ nozzle_flow.speed_of_sound_m_per_s
+            , /* 20 */ nozzle_flow.flow_field.mach
+            , /* 21 */ nozzle_flow.flow_field.mass_flow_rate_kg_per_s
+            , /* 22 */ nozzle_flow.flow_field.velocity_m_per_s
+            , /* 23 */ nozzle_flow.flow_field.speed_of_sound_m_per_s
         );
     }
     fclose(file_mix);

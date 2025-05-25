@@ -1,10 +1,25 @@
-struct nozzle_flow_s
+struct nozzle_flow_field_s
 {
-    double area_m2;
     double mach;
     double velocity_m_per_s;
     double mass_flow_rate_kg_per_s;
     double speed_of_sound_m_per_s;
+};
+
+struct nozzle_flow_field_s
+sum_nozzle_flow_fields(struct nozzle_flow_field_s self, struct nozzle_flow_field_s other)
+{
+    self.mach += other.mach;
+    self.velocity_m_per_s += other.velocity_m_per_s;
+    self.mass_flow_rate_kg_per_s += other.mass_flow_rate_kg_per_s;
+    self.speed_of_sound_m_per_s += other.speed_of_sound_m_per_s;
+    return self;
+}
+
+struct nozzle_flow_s
+{
+    double area_m2;
+    struct nozzle_flow_field_s flow_field;
     struct gas_mail_s gas_mail;
     bool is_success;
 };
@@ -46,10 +61,10 @@ flow(const struct chamber_s* x, const struct chamber_s* y)
         };
         return (struct nozzle_flow_s) {
             .area_m2 = nozzle_flow_area_m2,
-            .mach = direction * nozzle_mach,
-            .velocity_m_per_s = direction * nozzle_flow_velocity_m_per_s,
-            .mass_flow_rate_kg_per_s = direction * nozzle_mass_flow_rate_kg_per_s,
-            .speed_of_sound_m_per_s = nozzle_speed_of_sound_m_per_s,
+            .flow_field.mach = direction * nozzle_mach,
+            .flow_field.velocity_m_per_s = direction * nozzle_flow_velocity_m_per_s,
+            .flow_field.mass_flow_rate_kg_per_s = direction * nozzle_mass_flow_rate_kg_per_s,
+            .flow_field.speed_of_sound_m_per_s = nozzle_speed_of_sound_m_per_s,
             .gas_mail = gas_mail,
             .is_success = true,
         };
