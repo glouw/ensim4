@@ -317,7 +317,7 @@ struct sdl_normalized_s
 {
     float max_value;
     float min_value;
-    bool success;
+    bool is_success;
 };
 
 static struct sdl_normalized_s
@@ -330,7 +330,7 @@ normalize_samples(float samples[], size_t channel, enum sample_name_e sample_nam
     struct sdl_normalized_s normalized = {
         .max_value = FLT_MIN,
         .min_value = FLT_MAX,
-        .success = false,
+        .is_success = false,
     };
     for(size_t i = 0; i < sample_size; i++)
     {
@@ -349,7 +349,7 @@ normalize_samples(float samples[], size_t channel, enum sample_name_e sample_nam
     {
         samples[i] = (samples[i] - normalized.min_value) / range;
     }
-    normalized.success = true;
+    normalized.is_success = true;
     return normalized;
 }
 
@@ -375,10 +375,6 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
     for(enum sample_name_e sample_name = 0; sample_name < sample_name_e_size; sample_name++)
     {
         struct sdl_normalized_s normalized = normalize_samples(samples, channel, sample_name);
-        if(normalized.success == false)
-        {
-            continue;
-        }
         SDL_FRect rect = rects[sample_name];
         struct sdl_scroll_s scroll = {
             rect.x + sdl_line_spacing_p,
@@ -388,7 +384,11 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         {
             set_render_color(sdl_text_color);
             debugf(sdl_renderer, scroll.x_p, newline(&scroll), "max: %f", normalized.max_value);
-            debugf(sdl_renderer, scroll.x_p, newline(&scroll), "min: %e", normalized.min_value);
+            debugf(sdl_renderer, scroll.x_p, newline(&scroll), "min: %f", normalized.min_value);
+        }
+        if(normalized.is_success == false)
+        {
+            continue;
         }
         buffer_samples(buffer, &buffered, samples, rect);
     }

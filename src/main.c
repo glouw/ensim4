@@ -47,7 +47,7 @@ static struct sdl_time_panel_s engine_time_panel = {
         "flow",
         "mail",
         "move",
-        "sample",
+        "compress",
     },
     .min_time_ms = 0.0,
     .max_time_ms = 16.0,
@@ -60,6 +60,8 @@ reset_engine(struct engine_s* engine)
 {
     rig_engine_pistons(engine);
     normalize_engine(engine);
+    engine->crankshaft.angular_velocity_r_per_s = 1000.0;
+    select_nodes(engine->node, engine->size, is_piston);
 }
 
 int
@@ -75,31 +77,30 @@ main()
         double flow_time_ms = 0.0;
         double mail_time_ms = 0.0;
         double move_time_ms = 0.0;
-        double sample_time_ms = 0.0;
+        double compress_time_ms = 0.0;
         double t0 = SDL_GetTicksNS();
         for(size_t i = 0; i < engine_cycles_per_frame; i++)
         {
-            compress_engine_pistons(&engine);
             double ta = SDL_GetTicksNS();
             struct gas_mail_s gas_mail[engine.edges];
-            flow_engine(&engine, gas_mail);
+            size_t mail_size = flow_engine(&engine, gas_mail);
             double tb = SDL_GetTicksNS();
-            mail_engine(&engine, gas_mail);
+            mail_engine(&engine, gas_mail, mail_size);
             double tc = SDL_GetTicksNS();
             move_engine(&engine);
             double td = SDL_GetTicksNS();
-            sample_engine(&engine);
+            compress_engine_pistons(&engine);
             double te = SDL_GetTicksNS();
             flow_time_ms += tb - ta;
             mail_time_ms += tc - tb;
             move_time_ms += td - tc;
-            sample_time_ms += te - td;
+            compress_time_ms += te - td;
         }
         push_time_panel(&engine_time_panel, (float[]) {
             SDL_NS_TO_MS(flow_time_ms),
             SDL_NS_TO_MS(mail_time_ms),
             SDL_NS_TO_MS(move_time_ms),
-            SDL_NS_TO_MS(sample_time_ms),
+            SDL_NS_TO_MS(compress_time_ms),
         });
         double t1 = SDL_GetTicksNS();
         if(handle_input(&engine))

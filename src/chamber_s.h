@@ -1,3 +1,5 @@
+static constexpr double chamber_total_pressure_hysteresis_pa = 1.0;
+
 struct chamber_s
 {
     struct gas_s gas;
@@ -90,8 +92,7 @@ calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
 {
     double Pt0 = calc_total_pressure_pa(self);
     double Pt1 = calc_total_pressure_pa(other);
-    double total_pressure_hysteresis_pa = 5.0;
-    if(Pt0 - Pt1 < total_pressure_hysteresis_pa)
+    if(Pt0 - Pt1 < chamber_total_pressure_hysteresis_pa)
     {
         return 0.0;
     }

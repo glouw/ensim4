@@ -6,6 +6,7 @@ struct nozzle_flow_s
     double mass_flow_rate_kg_per_s;
     double speed_of_sound_m_per_s;
     struct gas_mail_s gas_mail;
+    bool is_success;
 };
 
 static struct nozzle_flow_s
@@ -50,7 +51,13 @@ flow(const struct chamber_s* x, const struct chamber_s* y)
             .mass_flow_rate_kg_per_s = direction * nozzle_mass_flow_rate_kg_per_s,
             .speed_of_sound_m_per_s = nozzle_speed_of_sound_m_per_s,
             .gas_mail = gas_mail,
+            .is_success = true,
         };
     }
-    return (struct nozzle_flow_s) {};
+    else
+    {
+        return (struct nozzle_flow_s) {
+            .is_success = false
+        };
+    }
 }
