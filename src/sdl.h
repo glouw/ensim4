@@ -82,6 +82,17 @@ newline(struct sdl_scroll_s* self)
 
 typedef float sdl_slide_buffer_t[sdl_slide_buffer_size];
 
+static float
+calc_slide_buffer_average(const sdl_slide_buffer_t self)
+{
+    float average = 0.0;
+    for(size_t i = 0; i < sdl_slide_buffer_size; i++)
+    {
+        average += self[i];
+    }
+    return average / sdl_slide_buffer_size;
+}
+
 static void
 push_slide_buffer(sdl_slide_buffer_t self, float value)
 {
@@ -229,10 +240,8 @@ draw_node_at(struct node_s* node, SDL_FPoint point, SDL_FColor node_color)
     SDL_FRect rect = { point.x, point.y, sdl_node_w_p, sdl_node_w_p };
     set_render_color(sdl_black_color);
     SDL_RenderFillRect(sdl_renderer, &rect);
-
     set_render_color(node_color);
     SDL_RenderRect(sdl_renderer, &rect);
-
     size_t cycle = node->as.chamber.flow_cycles / 1024;
     size_t index = cycle % len(sdl_spinner);
     const char* spinner = sdl_spinner[index];
@@ -468,8 +477,8 @@ draw_time_panel_info(struct sdl_time_panel_s* time_panel, struct sdl_scroll_s* s
     for(size_t i = 0; i < sdl_time_panel_size; i++)
     {
         set_render_color(sdl_channel_color[i]);
-        float sample = time_panel->slide_buffer[i][sdl_slide_buffer_size - 1];
-        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%8s: %6.3f", time_panel->labels[i], sample);
+        float average = calc_slide_buffer_average(time_panel->slide_buffer[i]);
+        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%8s: %6.3f", time_panel->labels[i], average);
     }
     time_panel->rect.x = scroll->x_p;
     time_panel->rect.y = scroll->y_p;
