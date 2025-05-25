@@ -69,6 +69,26 @@ static const char* sdl_spinner[] = {
 static SDL_Window* sdl_window = nullptr;
 static SDL_Renderer* sdl_renderer = nullptr;
 
+struct sdl_scroll_s
+{
+    float x_p;
+    float y_p;
+};
+
+static float
+scroll_by(struct sdl_scroll_s* self, float dy_p)
+{
+    float y_p = self->y_p;
+    self->y_p += dy_p;
+    return y_p;
+}
+
+static float
+newline(struct sdl_scroll_s* self)
+{
+    return scroll_by(self, sdl_line_spacing_p);
+}
+
 typedef float sdl_slide_buffer_t[sdl_slide_buffer_size];
 
 static void
@@ -293,33 +313,44 @@ draw_radial_chambers(const struct engine_s* engine)
     draw_radial_names(engine, points);
 }
 
-static bool
+struct sdl_normalized_s
+{
+    float max_value;
+    float min_value;
+    bool success;
+};
+
+static struct sdl_normalized_s
 normalize_samples(float samples[], size_t channel, enum sample_name_e sample_name)
 {
     for(size_t i = 0; i < sample_size; i++)
     {
         samples[i] = sample_sample[channel][sample_name][i];
     }
-    float max_value = FLT_MIN;
-    float min_value = FLT_MAX;
+    struct sdl_normalized_s normalized = {
+        .max_value = FLT_MIN,
+        .min_value = FLT_MAX,
+        .success = false,
+    };
     for(size_t i = 0; i < sample_size; i++)
     {
-        max_value = max(max_value, samples[i]);
+        normalized.max_value = max(normalized.max_value, samples[i]);
     }
     for(size_t i = 0; i < sample_size; i++)
     {
-        min_value = min(min_value, samples[i]);
+        normalized.min_value = min(normalized.min_value, samples[i]);
     }
-    float range = max_value - min_value;
+    float range = normalized.max_value - normalized.min_value;
     if(range < 1e-9f)
     {
-        return false;
+        return normalized;
     }
     for(size_t i = 0; i < sample_size; i++)
     {
-        samples[i] = (samples[i] - min_value) / range;
+        samples[i] = (samples[i] - normalized.min_value) / range;
     }
-    return true;
+    normalized.success = true;
+    return normalized;
 }
 
 static void
@@ -343,11 +374,22 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
     static float samples[sample_samples];
     for(enum sample_name_e sample_name = 0; sample_name < sample_name_e_size; sample_name++)
     {
-        if(normalize_samples(samples, channel, sample_name) == false)
+        struct sdl_normalized_s normalized = normalize_samples(samples, channel, sample_name);
+        if(normalized.success == false)
         {
             continue;
         }
         SDL_FRect rect = rects[sample_name];
+        struct sdl_scroll_s scroll = {
+            rect.x + sdl_line_spacing_p,
+            rect.y + rect.h / 2.0,
+        };
+        if(sample_channel_index == 1)
+        {
+            set_render_color(sdl_text_color);
+            debugf(sdl_renderer, scroll.x_p, newline(&scroll), "max: %f", normalized.max_value);
+            debugf(sdl_renderer, scroll.x_p, newline(&scroll), "min: %e", normalized.min_value);
+        }
         buffer_samples(buffer, &buffered, samples, rect);
     }
     set_render_color(sdl_channel_color[channel]);
@@ -416,26 +458,6 @@ draw_plots(const struct engine_s* engine)
     position_plots(engine, rects);
     draw_plot_channels(rects);
     draw_plot_containers(rects);
-}
-
-struct sdl_scroll_s
-{
-    float x_p;
-    float y_p;
-};
-
-static float
-scroll_by(struct sdl_scroll_s* self, float dy_p)
-{
-    float y_p = self->y_p;
-    self->y_p += dy_p;
-    return y_p;
-}
-
-static float
-newline(struct sdl_scroll_s* self)
-{
-    return scroll_by(self, sdl_line_spacing_p);
 }
 
 static void

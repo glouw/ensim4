@@ -26,7 +26,7 @@ calc_static_pressure_pa(const struct chamber_s* self)
 static double
 calc_static_gauge_pressure_pa(const struct chamber_s* self)
 {
-    return calc_static_pressure_pa(self) - chamber_ambient_static_pressure_pa;
+    return calc_static_pressure_pa(self) - gas_ambient_static_pressure_pa;
 }
 
 /*
@@ -36,9 +36,9 @@ calc_static_gauge_pressure_pa(const struct chamber_s* self)
  */
 
 static double
-calc_mass_kg(const struct chamber_s* self)
+calc_mass_at_kg(const struct chamber_s* self, double static_pressure_pa)
 {
-    double Ps = calc_static_pressure_pa(self);
+    double Ps = static_pressure_pa;
     double V = self->volume_m3;
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
     double Ts = self->gas.static_temperature_k;
@@ -222,6 +222,6 @@ remove_gas(struct chamber_s* self, const struct gas_s* mail)
 static void
 normalize_chamber(struct chamber_s* self)
 {
-    self->gas.static_temperature_k = chamber_ambient_static_temperature_k;
-    self->gas.mass_kg = calc_mass_kg(self);
+    self->gas = gas_ambient_air;
+    self->gas.mass_kg = calc_mass_at_kg(self, gas_ambient_static_pressure_pa);
 }

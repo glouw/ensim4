@@ -9,7 +9,7 @@ struct nozzle_flow_s
 };
 
 static struct nozzle_flow_s
-flow(struct chamber_s* x, struct chamber_s* y)
+flow(const struct chamber_s* x, const struct chamber_s* y)
 {
     double nozzle_flow_area_m2 = calc_nozzle_flow_area_m2(x);
     if(nozzle_flow_area_m2 > 0.0)
@@ -17,7 +17,7 @@ flow(struct chamber_s* x, struct chamber_s* y)
         double direction = 1.0;
         if(calc_total_pressure_pa(x) < calc_total_pressure_pa(y))
         {
-            struct chamber_s* copy = x;
+            const struct chamber_s* copy = x;
             x = y;
             y = copy;
             direction = -1.0;
@@ -40,8 +40,8 @@ flow(struct chamber_s* x, struct chamber_s* y)
                 .mass_kg = mass_flowed_kg,
                 .momentum_kg_m_per_s = momentum_transferred_kg,
             },
-            .x = x,
-            .y = y,
+            .x = (struct chamber_s*) x,
+            .y = (struct chamber_s*) y,
         };
         return (struct nozzle_flow_s) {
             .area_m2 = nozzle_flow_area_m2,

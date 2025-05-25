@@ -24,7 +24,7 @@
 #include "sample_s.h"
 #include "engine_s.h"
 #include "visualize.h"
-#include <SDL3/SDL.h> /* down here to prevent ensim dependence */
+#include <SDL3/SDL.h>
 #include "sdl.h"
 
 static struct sdl_time_panel_s loop_time_panel = {
@@ -55,13 +55,11 @@ static struct sdl_time_panel_s engine_time_panel = {
     .rect.h = 192,
 };
 
-
 static void
 reset_engine(struct engine_s* engine)
 {
-    normalize_engine(engine);
     rig_engine_pistons(engine);
-    engine->crankshaft.angular_velocity_r_per_s = 500.0;
+    normalize_engine(engine);
 }
 
 int

@@ -146,6 +146,7 @@ rig_piston(struct piston_s* self, const struct crankshaft_s* crankshaft)
     double theta_r = calc_piston_theta_r(self, crankshaft);
     update_piston_bearing_position(self, theta_r);
     update_piston_pin_position(self, theta_r);
+    self->chamber.volume_m3 = calc_piston_volume_m3(self);
 }
 
 static void
@@ -153,6 +154,5 @@ compress_piston(struct piston_s* self, const struct crankshaft_s* crankshaft)
 {
     double old_volume_m3 = calc_piston_volume_m3(self);
     rig_piston(self, crankshaft);
-    self->chamber.volume_m3 = calc_piston_volume_m3(self);
     self->chamber.gas.static_temperature_k = calc_new_adiabatic_static_temperature_from_volume_delta_k(&self->chamber, old_volume_m3);
 }

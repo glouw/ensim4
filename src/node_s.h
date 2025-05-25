@@ -40,12 +40,80 @@ struct node_s
     uint8_t next[nodes_node_children];
 };
 
+static struct node_s node_debug_stationary[] = {
+    [0] = {
+        .type = is_source,
+        .as.source = {
+            .chamber = {
+                .volume_m3 = 1e9,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001,
+            },
+        },
+        .next = {1}
+    },
+    [1] = {
+        .type = is_sink,
+        .as.sink = {
+            .chamber = {
+                .volume_m3 = 1e9,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {}
+    },
+};
+
+static struct node_s node_debug_cylinder[] = {
+    [0] = {
+        .type = is_source,
+        .as.source = {
+            .chamber = {
+                .volume_m3 = 1e9,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001,
+            },
+        },
+        .next = {1}
+    },
+    [1] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {2}
+    },
+    [2] = {
+        .type = is_sink,
+        .as.sink = {
+            .chamber = {
+                .volume_m3 = 1e9,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {}
+    },
+};
+
 static struct node_s node_three_cylinder[] = {
     [0] = {
         .type = is_source,
         .as.source = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001,
@@ -58,7 +126,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_filter,
         .as.filter = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -71,7 +138,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_throttle,
         .as.throttle = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -84,7 +150,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_iplenum,
         .as.iplenum = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -97,7 +162,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -109,7 +173,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -121,7 +184,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -133,7 +195,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -154,7 +215,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -175,7 +235,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -196,7 +255,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -208,7 +266,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -220,7 +277,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -232,7 +288,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_eplenum,
         .as.eplenum = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -244,7 +299,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_exhaust,
         .as.eplenum = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -256,7 +310,6 @@ static struct node_s node_three_cylinder[] = {
         .type = is_sink,
         .as.sink = {
             .chamber = {
-                .gas = ambient_gas_air,
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
@@ -312,19 +365,6 @@ select_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
         if(node->type == type)
         {
             node->is_selected = true;
-        }
-    }
-}
-
-static void
-deselect_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
-{
-    for(size_t i = 0; i < size; i++)
-    {
-        struct node_s* node = &nodes[i];
-        if(node->type == type)
-        {
-            node->is_selected = false;
         }
     }
 }
