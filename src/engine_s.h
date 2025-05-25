@@ -36,21 +36,21 @@ sample_engine_channel(struct node_s* node, struct nozzle_flow_s* nozzle_flow)
 {
     if(sample_channel_index < sample_channels)
     {
-        sample_engine_name(static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
-        sample_engine_name(total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
-        sample_engine_name(static_temperature_k, node->as.chamber.gas.static_temperature_k);
-        sample_engine_name(volume_m3, node->as.chamber.volume_m3);
-        sample_engine_name(nozzle_area_m2, nozzle_flow->area_m2);
-        sample_engine_name(nozzle_mach, nozzle_flow->flow_field.mach);
-        sample_engine_name(nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
-        sample_engine_name(nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
-        sample_engine_name(nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
-        sample_engine_name(placeholder_5, 0.0);
-        sample_engine_name(placeholder_5, 0.0);
-        sample_engine_name(placeholder_6, 0.0);
-        sample_engine_name(placeholder_7, 0.0);
-        sample_engine_name(placeholder_8, 0.0);
-        sample_engine_name(placeholder_9, 0.0);
+        sample_engine_name(sample_static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
+        sample_engine_name(sample_total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
+        sample_engine_name(sample_static_temperature_k, node->as.chamber.gas.static_temperature_k);
+        sample_engine_name(sample_volume_m3, node->as.chamber.volume_m3);
+        sample_engine_name(sample_nozzle_area_m2, nozzle_flow->area_m2);
+        sample_engine_name(sample_nozzle_mach, nozzle_flow->flow_field.mach);
+        sample_engine_name(sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
+        sample_engine_name(sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
+        sample_engine_name(sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
+        sample_engine_name(sample_placeholder_5, 0.0);
+        sample_engine_name(sample_placeholder_5, 0.0);
+        sample_engine_name(sample_placeholder_6, 0.0);
+        sample_engine_name(sample_placeholder_7, 0.0);
+        sample_engine_name(sample_placeholder_8, 0.0);
+        sample_engine_name(sample_placeholder_9, 0.0);
         sample_channel_index++;
     }
 }

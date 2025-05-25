@@ -2,21 +2,21 @@ static constexpr size_t sample_channels = 8;
 static constexpr size_t sample_samples = 8192;
 static constexpr double sample_minimum_angular_velocity_r_per_s = std_four_pi_r * std_audio_sample_rate_hz / sample_samples;
 
-#define SAMPLES                       \
-    X(static_pressure_pa)             \
-    X(total_pressure_pa)              \
-    X(static_temperature_k)           \
-    X(volume_m3)                      \
-    X(nozzle_area_m2)                 \
-    X(nozzle_mach)                    \
-    X(nozzle_velocity_m_per_s)        \
-    X(nozzle_mass_flow_rate_kg_per_s) \
-    X(nozzle_speed_of_sound_m_per_s ) \
-    X(placeholder_5)                  \
-    X(placeholder_6)                  \
-    X(placeholder_7)                  \
-    X(placeholder_8)                  \
-    X(placeholder_9)                  \
+#define SAMPLES                              \
+    X(sample_static_pressure_pa)             \
+    X(sample_total_pressure_pa)              \
+    X(sample_static_temperature_k)           \
+    X(sample_volume_m3)                      \
+    X(sample_nozzle_area_m2)                 \
+    X(sample_nozzle_mach)                    \
+    X(sample_nozzle_velocity_m_per_s)        \
+    X(sample_nozzle_mass_flow_rate_kg_per_s) \
+    X(sample_nozzle_speed_of_sound_m_per_s ) \
+    X(sample_placeholder_5)                  \
+    X(sample_placeholder_6)                  \
+    X(sample_placeholder_7)                  \
+    X(sample_placeholder_8)                  \
+    X(sample_placeholder_9)                  \
 
 enum sample_name_e
 {
@@ -45,4 +45,10 @@ static void
 clear_samples()
 {
     clear(sample_sample);
+}
+
+static const char*
+skip_sample_namespace(const char* string)
+{
+    return strchr(string, '_') + 1;
 }

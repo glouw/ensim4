@@ -29,7 +29,7 @@
 #include "sdl.h"
 
 static struct sdl_time_panel_s loop_time_panel = {
-    .title = "loop time",
+    .title = "loop_time_ms",
     .labels = {
         "engine",
         "input",
@@ -43,7 +43,7 @@ static struct sdl_time_panel_s loop_time_panel = {
 };
 
 static struct sdl_time_panel_s engine_time_panel = {
-    .title = "engine time",
+    .title = "engine_time_ms",
     .labels = {
         "flow",
         "mail",

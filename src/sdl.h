@@ -384,8 +384,8 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         if(channel == last_channel)
         {
             set_render_color(sdl_channel_color[last_channel]);
-            debugf(sdl_renderer, scroll.x_p, newline(&scroll), "max: %f", normalized.max_value);
-            debugf(sdl_renderer, scroll.x_p, newline(&scroll), "min: %f", normalized.min_value);
+            debugf(sdl_renderer, scroll.x_p, newline(&scroll), "max: %+.3e", normalized.max_value);
+            debugf(sdl_renderer, scroll.x_p, newline(&scroll), "min: %+.3e", normalized.min_value);
         }
         if(normalized.is_success == false)
         {
@@ -423,7 +423,7 @@ draw_plot_containers(const SDL_FRect rects[])
     for(enum sample_name_e sample_name = 0; sample_name < sample_name_e_size; sample_name++)
     {
         const SDL_FRect rect = rects[sample_name];
-        const char* name_string = sample_name_string[sample_name];
+        const char* name_string = skip_sample_namespace(sample_name_string[sample_name]);
         draw_plot_container(rect, name_string);
     }
 }
@@ -470,7 +470,7 @@ draw_time_panel_info(struct sdl_time_panel_s* time_panel, struct sdl_scroll_s* s
     {
         set_render_color(sdl_channel_color[i]);
         float sample = time_panel->slide_buffer[i][sdl_slide_buffer_size - 1];
-        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%8s (ms): %6.3f", time_panel->labels[i], sample);
+        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%8s: %6.3f", time_panel->labels[i], sample);
     }
     time_panel->rect.x = scroll->x_p;
     time_panel->rect.y = scroll->y_p;
@@ -483,9 +483,9 @@ static void
 draw_engine_info(const struct engine_s* engine, struct sdl_scroll_s* scroll)
 {
     set_render_color(sdl_text_color);
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "engine size (bytes): %lu", engine->bytes);
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "trigger min (rad/sec): %.0f", sample_minimum_angular_velocity_r_per_s);
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "ang vel (rad/sec): %.0f", engine->crankshaft.angular_velocity_r_per_s);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "engine_size_bytes: %lu", engine->bytes);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", sample_minimum_angular_velocity_r_per_s);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "ang_vel_r_per_s: %.0f", engine->crankshaft.angular_velocity_r_per_s);
 }
 
 static void
