@@ -46,9 +46,9 @@ static struct sdl_time_panel_s engine_time_panel = {
     .title = "engine_time_ms",
     .labels = {
         "flow",
+        "sample",
         "mail",
-        "move",
-        "compress",
+        "dynamics",
     },
     .min_time_ms = 0.0,
     .max_time_ms = 16.0,
@@ -82,16 +82,17 @@ main()
         double t0 = SDL_GetTicksNS();
         for(size_t i = 0; i < engine_cycles_per_frame; i++)
         {
-            struct engine_flow_s engine_flow[engine.edges];
-            struct gas_mail_s gas_mail[engine.edges];
+            struct engine_flow_s engine_flows[engine.edges];
+            struct nozzle_flow_s nozzle_flows[engine.edges];
             double ta = SDL_GetTicksNS();
-            size_t flow_size = stage_engine_flow(&engine, engine_flow);
-            size_t mail_size = flow_engine(engine_flow, flow_size, gas_mail);
+            stage_engine_flow(&engine, engine_flows);
+            flow_engine(&engine, engine_flows, nozzle_flows);
             double tb = SDL_GetTicksNS();
-            mail_engine(&engine, gas_mail, mail_size);
+            sample_engine(&engine, engine_flows, nozzle_flows);
             double tc = SDL_GetTicksNS();
-            move_engine(&engine);
+            mail_engine(&engine, nozzle_flows);
             double td = SDL_GetTicksNS();
+            move_engine(&engine);
             compress_engine_pistons(&engine);
             double te = SDL_GetTicksNS();
             flow_time_ms += tb - ta;

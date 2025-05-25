@@ -61,54 +61,64 @@ struct engine_flow_s
     struct node_s* y;
 };
 
-static int
-compare_engine_flow(const void* x, const void* y)
+static void
+stage_engine_flow(
+    struct engine_s* self,
+    struct engine_flow_s engine_flows[])
 {
-    const struct engine_flow_s* a = x;
-    const struct engine_flow_s* b = y;
-    return (a->x > b->x) - (a->x < b->x);
-}
-
-static size_t
-stage_engine_flow(struct engine_s* self, struct engine_flow_s engine_flow[])
-{
-    size_t flow_size = 0;
+    size_t k = 0;
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* x = &self->node[i];
         for(size_t next, j = 0; (next = x->next[j]); j++)
         {
             struct node_s* y = &self->node[next];
-            engine_flow[flow_size++] = (struct engine_flow_s) {x, y};
+            engine_flows[k++] = (struct engine_flow_s) {x, y};
         }
     }
-    qsort(engine_flow, flow_size, sizeof(struct engine_flow_s), compare_engine_flow);
-    return flow_size;
 }
 
-static size_t
-flow_engine(struct engine_flow_s engine_flow[], size_t flow_size, struct gas_mail_s gas_mails[])
+static void
+mail_engine(
+    struct engine_s* self,
+    struct nozzle_flow_s nozzle_flows[])
+{
+    for(size_t i = 0; i < self->edges; i++)
+    {
+        mail_gas_mail(&nozzle_flows[i].gas_mail);
+    }
+}
+
+static void
+flow_engine(
+    struct engine_s* self,
+    struct engine_flow_s engine_flows[],
+    struct nozzle_flow_s nozzle_flows[])
+{
+    for(size_t i = 0; i < self->edges; i++)
+    {
+        struct node_s* x = engine_flows[i].x;
+        struct node_s* y = engine_flows[i].y;
+        nozzle_flows[i] = flow(&x->as.chamber, &y->as.chamber);
+    }
+}
+
+static void
+sample_engine(
+    struct engine_s* self,
+    struct engine_flow_s engine_flows[],
+    struct nozzle_flow_s nozzle_flows[])
 {
     sample_channel_index = 0;
-    size_t mail_size = 0;
-    struct nozzle_flow_field_s flow_field = {};
-    for(size_t i = 0; i < flow_size; i++)
+    for(size_t i = 0; i < self->edges; i++)
     {
-        struct node_s* x = engine_flow[i].x;
-        struct node_s* y = engine_flow[i].y;
-        struct nozzle_flow_s nozzle_flow = flow(&x->as.chamber, &y->as.chamber);
-        if(nozzle_flow.is_success)
-        {
-            gas_mails[mail_size++] = nozzle_flow.gas_mail;
-        }
+        struct node_s* x = engine_flows[i].x;
         if(x->is_selected)
         {
-            sample_engine_channel(x, &nozzle_flow);
+            sample_engine_channel(x, &nozzle_flows[i]);
         }
     }
-    return mail_size;
 }
-
 static void
 move_engine(struct engine_s* self)
 {
@@ -129,15 +139,6 @@ move_engine(struct engine_s* self)
             sample_index += 1;
             sample_index = min(sample_index, sample_samples - 1);
         }
-    }
-}
-
-static void
-mail_engine(struct engine_s* self, struct gas_mail_s gas_mails[], size_t mail_size)
-{
-    for(size_t i = 0; i < mail_size; i++)
-    {
-        mail_gas_mail(&gas_mails[i]);
     }
 }
 

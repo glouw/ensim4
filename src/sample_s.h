@@ -1,4 +1,4 @@
-static constexpr size_t sample_channels = 8;
+static constexpr size_t sample_channels = 16;
 static constexpr size_t sample_samples = 8192;
 static constexpr double sample_minimum_angular_velocity_r_per_s = std_four_pi_r * std_audio_sample_rate_hz / sample_samples;
 
