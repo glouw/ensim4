@@ -26,30 +26,29 @@ normalize_engine(struct engine_s* self)
 }
 
 static void
-sample_engine_channel_name(enum sample_name_e sample_name, float sample)
+sample_engine_name(enum sample_name_e sample_name, float sample)
 {
     sample_sample[sample_channel_index][sample_name][sample_index] = sample;
 }
 
 static void
-sample_engine_channel(struct engine_s* self)
+sample_engine_channel(struct node_s* node, double placeholder_r)
 {
-    double temp_r = 1.0 - cos(self->crankshaft.theta_r + sample_channel_index);
-    sample_engine_channel_name(static_pressure_pa, temp_r);
-    sample_engine_channel_name(dynamic_pressure_pa, temp_r);
-    sample_engine_channel_name(static_temperature_k, temp_r);
-    sample_engine_channel_name(volume_m3, temp_r);
-    sample_engine_channel_name(placeholder_0, temp_r);
-    sample_engine_channel_name(placeholder_1, temp_r);
-    sample_engine_channel_name(placeholder_2, temp_r);
-    sample_engine_channel_name(placeholder_3, temp_r);
-    sample_engine_channel_name(placeholder_4, temp_r);
-    sample_engine_channel_name(placeholder_5, temp_r);
-    sample_engine_channel_name(placeholder_5, temp_r);
-    sample_engine_channel_name(placeholder_6, temp_r);
-    sample_engine_channel_name(placeholder_7, temp_r);
-    sample_engine_channel_name(placeholder_8, temp_r);
-    sample_engine_channel_name(placeholder_9, temp_r);
+    sample_engine_name(static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
+    sample_engine_name(total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
+    sample_engine_name(static_temperature_k, node->as.chamber.gas.static_temperature_k);
+    sample_engine_name(volume_m3, node->as.chamber.volume_m3);
+    sample_engine_name(placeholder_0, placeholder_r);
+    sample_engine_name(placeholder_1, placeholder_r);
+    sample_engine_name(placeholder_2, placeholder_r);
+    sample_engine_name(placeholder_3, placeholder_r);
+    sample_engine_name(placeholder_4, placeholder_r);
+    sample_engine_name(placeholder_5, placeholder_r);
+    sample_engine_name(placeholder_5, placeholder_r);
+    sample_engine_name(placeholder_6, placeholder_r);
+    sample_engine_name(placeholder_7, placeholder_r);
+    sample_engine_name(placeholder_8, placeholder_r);
+    sample_engine_name(placeholder_9, placeholder_r);
 }
 
 static void
@@ -61,7 +60,8 @@ sample_engine(struct engine_s* self)
         struct node_s* node = &self->node[i];
         if(node->is_selected)
         {
-            sample_engine_channel(self);
+            double placeholder_r = 1.0 - cos(self->crankshaft.theta_r + sample_channel_index);
+            sample_engine_channel(node, placeholder_r);
             if(++sample_channel_index == sample_channels)
             {
                 break;
@@ -90,7 +90,7 @@ static void
 move_engine(struct engine_s* self)
 {
     double theta_0_r = self->crankshaft.theta_r;
-    self->crankshaft.theta_r += self->crankshaft.angular_velocity_r_per_s * std_dt_s;
+    turn_crankshaft(&self->crankshaft);
     double theta_1_r = self->crankshaft.theta_r;
     if(theta_0_r != theta_1_r)
     {
@@ -115,5 +115,31 @@ mail_engine(struct engine_s* self, struct gas_mail_s gas_mails[])
     for(size_t i = 0; i < self->edges; i++)
     {
         mail_gas_mail(&gas_mails[i]);
+    }
+}
+
+static void
+rig_engine_pistons(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == is_piston)
+        {
+            rig_piston(&node->as.piston, &self->crankshaft);
+        }
+    }
+}
+
+static void
+compress_engine_pistons(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == is_piston)
+        {
+            compress_piston(&node->as.piston, &self->crankshaft);
+        }
     }
 }

@@ -55,12 +55,20 @@ static struct sdl_time_panel_s engine_time_panel = {
     .rect.h = 192,
 };
 
+
+static void
+reset_engine(struct engine_s* engine)
+{
+    normalize_engine(engine);
+    rig_engine_pistons(engine);
+    engine->crankshaft.angular_velocity_r_per_s = 500.0;
+}
+
 int
 main()
 {
     struct engine_s engine = set_engine(node_three_cylinder);
-    normalize_engine(&engine);
-    engine.crankshaft.angular_velocity_r_per_s = 500.0;
+    reset_engine(&engine);
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();
@@ -73,8 +81,9 @@ main()
         double t0 = SDL_GetTicksNS();
         for(size_t i = 0; i < engine_cycles_per_frame; i++)
         {
-            struct gas_mail_s gas_mail[engine.edges];
+            compress_engine_pistons(&engine);
             double ta = SDL_GetTicksNS();
+            struct gas_mail_s gas_mail[engine.edges];
             flow_engine(&engine, gas_mail);
             double tb = SDL_GetTicksNS();
             mail_engine(&engine, gas_mail);

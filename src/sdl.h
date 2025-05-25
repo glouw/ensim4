@@ -345,7 +345,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
     {
         if(normalize_samples(samples, channel, sample_name) == false)
         {
-            break;
+            continue;
         }
         SDL_FRect rect = rects[sample_name];
         buffer_samples(buffer, &buffered, samples, rect);
@@ -563,6 +563,26 @@ handle_input(struct engine_s* engine)
             break;
         case SDLK_6:
             engine->crankshaft.angular_velocity_r_per_s = 1050.0;
+            break;
+        case SDLK_P:
+            deselect_all_nodes(engine->node, engine->size);
+            select_nodes(engine->node, engine->size, is_piston);
+            break;
+        case SDLK_I:
+            deselect_all_nodes(engine->node, engine->size);
+            select_nodes(engine->node, engine->size, is_filter);
+            select_nodes(engine->node, engine->size, is_throttle);
+            select_nodes(engine->node, engine->size, is_iplenum);
+            select_nodes(engine->node, engine->size, is_irunner);
+            break;
+        case SDLK_E:
+            deselect_all_nodes(engine->node, engine->size);
+            select_nodes(engine->node, engine->size, is_eplenum);
+            select_nodes(engine->node, engine->size, is_erunner);
+            select_nodes(engine->node, engine->size, is_exhaust);
+            break;
+        case SDLK_C:
+            deselect_all_nodes(engine->node, engine->size);
             break;
         }
         break;

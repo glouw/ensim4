@@ -138,6 +138,15 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
             },
+            .diameter_m = 0.08,
+            .theta_r = (0.0 / 3.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
         },
         .next = {10}
     },
@@ -150,6 +159,15 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
             },
+            .diameter_m = 0.08,
+            .theta_r = (1.0 / 3.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
         },
         .next = {11}
     },
@@ -162,6 +180,15 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
             },
+            .diameter_m = 0.08,
+            .theta_r = (2.0 / 3.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
         },
         .next = {12}
     },
@@ -246,7 +273,7 @@ normalize_node(struct node_s* self)
 }
 
 static size_t
-count_node_edges(struct node_s* self)
+count_node_edges(const struct node_s* self)
 {
     size_t edges = 0;
     while(self->next[edges])
@@ -257,7 +284,7 @@ count_node_edges(struct node_s* self)
 }
 
 static size_t
-count_many_node_edges(struct node_s* nodes, size_t size)
+count_many_node_edges(const struct node_s* nodes, size_t size)
 {
     size_t edges = 0;
     for(size_t i = 0; i < size; i++)
@@ -265,6 +292,41 @@ count_many_node_edges(struct node_s* nodes, size_t size)
         edges += count_node_edges(&nodes[i]);
     }
     return edges;
+}
+
+static void
+deselect_all_nodes(struct node_s* nodes, size_t size)
+{
+    for(size_t i = 0; i < size; i++)
+    {
+        nodes[i].is_selected = false;
+    }
+}
+
+static void
+select_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
+{
+    for(size_t i = 0; i < size; i++)
+    {
+        struct node_s* node = &nodes[i];
+        if(node->type == type)
+        {
+            node->is_selected = true;
+        }
+    }
+}
+
+static void
+deselect_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
+{
+    for(size_t i = 0; i < size; i++)
+    {
+        struct node_s* node = &nodes[i];
+        if(node->type == type)
+        {
+            node->is_selected = false;
+        }
+    }
 }
 
 #undef TYPES
