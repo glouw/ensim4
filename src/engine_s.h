@@ -55,6 +55,19 @@ sample_engine_channel(struct node_s* node, struct nozzle_flow_s* nozzle_flow)
     }
 }
 
+static void
+rig_engine_pistons(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == is_piston)
+        {
+            rig_piston(&node->as.piston, &self->crankshaft);
+        }
+    }
+}
+
 struct engine_flow_s
 {
     struct node_s* x;
@@ -75,17 +88,6 @@ stage_engine_flow(
             struct node_s* y = &self->node[next];
             engine_flows[k++] = (struct engine_flow_s) {x, y};
         }
-    }
-}
-
-static void
-mail_engine(
-    struct engine_s* self,
-    struct nozzle_flow_s nozzle_flows[])
-{
-    for(size_t i = 0; i < self->edges; i++)
-    {
-        mail_gas_mail(&nozzle_flows[i].gas_mail);
     }
 }
 
@@ -119,6 +121,18 @@ sample_engine(
         }
     }
 }
+
+static void
+mail_engine(
+    struct engine_s* self,
+    struct nozzle_flow_s nozzle_flows[])
+{
+    for(size_t i = 0; i < self->edges; i++)
+    {
+        mail_gas_mail(&nozzle_flows[i].gas_mail);
+    }
+}
+
 static void
 move_engine(struct engine_s* self)
 {
@@ -138,19 +152,6 @@ move_engine(struct engine_s* self)
         {
             sample_index += 1;
             sample_index = min(sample_index, sample_samples - 1);
-        }
-    }
-}
-
-static void
-rig_engine_pistons(struct engine_s* self)
-{
-    for(size_t i = 0; i < self->size; i++)
-    {
-        struct node_s* node = &self->node[i];
-        if(node->type == is_piston)
-        {
-            rig_piston(&node->as.piston, &self->crankshaft);
         }
     }
 }

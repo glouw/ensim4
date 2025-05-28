@@ -171,14 +171,16 @@ calc_mix(double value1, double weight1, double value2, double weight2)
 static void
 mix_in_gas(struct gas_s* self, const struct gas_s* mail)
 {
+    double self_moles = calc_moles(self);
+    double mail_moles = calc_moles(mail);
     self->mass_kg += mail->mass_kg;
     self->momentum_kg_m_per_s += mail->momentum_kg_m_per_s;
-    self->mol_ratio_c8h18 = calc_mix(self->mol_ratio_c8h18, calc_moles(self), mail->mol_ratio_c8h18, calc_moles(mail));
-    self->mol_ratio_o2 = calc_mix(self->mol_ratio_o2, calc_moles(self), mail->mol_ratio_o2, calc_moles(mail));
-    self->mol_ratio_n2 = calc_mix(self->mol_ratio_n2, calc_moles(self), mail->mol_ratio_n2, calc_moles(mail));
-    self->mol_ratio_ar = calc_mix(self->mol_ratio_ar, calc_moles(self), mail->mol_ratio_ar, calc_moles(mail));
-    self->mol_ratio_co2 = calc_mix(self->mol_ratio_co2, calc_moles(self), mail->mol_ratio_co2, calc_moles(mail));
-    self->mol_ratio_h2o = calc_mix(self->mol_ratio_h2o, calc_moles(self), mail->mol_ratio_h2o, calc_moles(mail));
+    self->mol_ratio_c8h18 = calc_mix(self->mol_ratio_c8h18, self_moles, mail->mol_ratio_c8h18, mail_moles);
+    self->mol_ratio_o2 = calc_mix(self->mol_ratio_o2, self_moles, mail->mol_ratio_o2, mail_moles);
+    self->mol_ratio_n2 = calc_mix(self->mol_ratio_n2, self_moles, mail->mol_ratio_n2, mail_moles);
+    self->mol_ratio_ar = calc_mix(self->mol_ratio_ar, self_moles, mail->mol_ratio_ar, mail_moles);
+    self->mol_ratio_co2 = calc_mix(self->mol_ratio_co2, self_moles, mail->mol_ratio_co2, mail_moles);
+    self->mol_ratio_h2o = calc_mix(self->mol_ratio_h2o, self_moles, mail->mol_ratio_h2o, mail_moles);
     self->static_temperature_k = calc_mix(self->static_temperature_k, calc_total_cv_j_per_k(self), mail->static_temperature_k, calc_total_cv_j_per_k(mail));
 }
 

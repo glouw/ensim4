@@ -66,14 +66,14 @@ reset_engine(struct engine_s* engine)
 }
 
 int
-main()
+main(int argc, char* argv[])
 {
     struct engine_s engine = set_engine(node_three_cylinder);
     reset_engine(&engine);
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();
-    while(true)
+    for(size_t cycle = 0; argc > 1 ? cycle < 60 : true ; cycle++)
     {
         double flow_time_ms = 0.0;
         double mail_time_ms = 0.0;

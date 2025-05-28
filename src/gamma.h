@@ -62,15 +62,14 @@ static constexpr double gamma_cp_weights_upper_h2o[] = {
 static double
 calc_cp_j_per_mol_k(double static_temperature_k, const double* lower, const double* upper)
 {
-    static_temperature_k = clamp(static_temperature_k, 200.0, 6000.0);
-    const double* a = static_temperature_k < 1000.0 ? lower : upper;
-    return (a[0] * pow(static_temperature_k, -2.0)
-          + a[1] * pow(static_temperature_k, -1.0)
-          + a[2] * pow(static_temperature_k, +0.0)
-          + a[3] * pow(static_temperature_k, +1.0)
-          + a[4] * pow(static_temperature_k, +2.0)
-          + a[5] * pow(static_temperature_k, +3.0)
-          + a[6] * pow(static_temperature_k, +4.0)) * gamma_universal_gas_constant_j_per_mol_k;
+    double T1 = clamp(static_temperature_k, 200.0, 6000.0);
+    const double* a = T1 < 1000.0 ? lower : upper;
+    double T2 = T1 * T1;
+    double T3 = T2 * T1;
+    double T4 = T3 * T1;
+    double inv_T1 = 1.0 / T1;
+    double inv_T2 = inv_T1 * inv_T1;
+    return (a[0] * inv_T2 + a[1] * inv_T1 + a[2] + a[3] * T1 + a[4] * T2 + a[5] * T3 + a[6] * T4) * gamma_universal_gas_constant_j_per_mol_k;
 }
 
 static double

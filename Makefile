@@ -14,7 +14,7 @@ all:
 	size $(BIN)
 
 perf: all
-	perf stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses ./$(BIN)
+	perf stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses ./$(BIN) 1
 
 clean:
 	rm -f visualize/*.txt
