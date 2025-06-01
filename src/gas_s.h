@@ -181,7 +181,9 @@ mix_in_gas(struct gas_s* self, const struct gas_s* mail)
     self->mol_ratio_ar = calc_mix(self->mol_ratio_ar, self_moles, mail->mol_ratio_ar, mail_moles);
     self->mol_ratio_co2 = calc_mix(self->mol_ratio_co2, self_moles, mail->mol_ratio_co2, mail_moles);
     self->mol_ratio_h2o = calc_mix(self->mol_ratio_h2o, self_moles, mail->mol_ratio_h2o, mail_moles);
-    self->static_temperature_k = calc_mix(self->static_temperature_k, calc_total_cv_j_per_k(self), mail->static_temperature_k, calc_total_cv_j_per_k(mail));
+    double self_total_cv_j_per_k = calc_total_cv_j_per_k(self);
+    double mail_total_cv_j_per_k = calc_total_cv_j_per_k(mail);
+    self->static_temperature_k = calc_mix(self->static_temperature_k, self_total_cv_j_per_k, mail->static_temperature_k, mail_total_cv_j_per_k);
 }
 
 static void

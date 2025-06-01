@@ -68,68 +68,23 @@ rig_engine_pistons(struct engine_s* self)
     }
 }
 
-struct engine_flow_s
-{
-    struct node_s* x;
-    struct node_s* y;
-};
-
 static void
-stage_engine_flow(
-    struct engine_s* self,
-    struct engine_flow_s engine_flows[])
+flow_engine(struct engine_s* self)
 {
-    size_t k = 0;
+    sample_channel_index = 0;
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* x = &self->node[i];
         for(size_t next, j = 0; (next = x->next[j]); j++)
         {
             struct node_s* y = &self->node[next];
-            engine_flows[k++] = (struct engine_flow_s) {x, y};
+            struct nozzle_flow_s nozzle_flow = flow(&x->as.chamber, &y->as.chamber);
+            if(x->is_selected)
+            {
+                sample_engine_channel(x, &nozzle_flow);
+            }
+            mail_gas_mail(&nozzle_flow.gas_mail);
         }
-    }
-}
-
-static void
-flow_engine(
-    struct engine_s* self,
-    struct engine_flow_s engine_flows[],
-    struct nozzle_flow_s nozzle_flows[])
-{
-    for(size_t i = 0; i < self->edges; i++)
-    {
-        struct node_s* x = engine_flows[i].x;
-        struct node_s* y = engine_flows[i].y;
-        nozzle_flows[i] = flow(&x->as.chamber, &y->as.chamber);
-    }
-}
-
-static void
-sample_engine(
-    struct engine_s* self,
-    struct engine_flow_s engine_flows[],
-    struct nozzle_flow_s nozzle_flows[])
-{
-    sample_channel_index = 0;
-    for(size_t i = 0; i < self->edges; i++)
-    {
-        struct node_s* x = engine_flows[i].x;
-        if(x->is_selected)
-        {
-            sample_engine_channel(x, &nozzle_flows[i]);
-        }
-    }
-}
-
-static void
-mail_engine(
-    struct engine_s* self,
-    struct nozzle_flow_s nozzle_flows[])
-{
-    for(size_t i = 0; i < self->edges; i++)
-    {
-        mail_gas_mail(&nozzle_flows[i].gas_mail);
     }
 }
 
