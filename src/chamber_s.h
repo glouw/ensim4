@@ -129,13 +129,13 @@ calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_s* self, const struct c
     return A * Pt / sqrt(Tt) * sqrt(y / Rs) * M / pow(1.0 + (y - 1.0) / 2.0 * pow(M, 2.0), (y + 1.0) / (2.0 * (y - 1.0)));
 }
 
-/*               _________________________
+/*               ______________
  *              /
- *             /                   (y - 1)
- *            /                    -------
- *           /                 Ps     y
- * u = M _  /  y * Rs * Tt * (----)
- *        \/                   Pt
+ *             /  y * Rs * Tt
+ *            / --------------
+ *           /       y - 1   2
+ * u = M _  /   1 + (-----) M
+ *        \/           2
  */
 
 static double
@@ -145,9 +145,7 @@ calc_nozzle_flow_velocity_m_per_s(const struct chamber_s* self, const struct cha
     double M = nozzle_mach;
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
     double Tt = calc_total_temperature_k(self);
-    double Ps = calc_static_pressure_pa(other);
-    double Pt = calc_total_pressure_pa(self);
-    return M * sqrt(y * Rs * Tt * pow(Ps / Pt, (y - 1.0) / y));
+    return M * sqrt(y * Rs * Tt / (1.0 + (y - 1.0) / 2.0 * pow(M, 2.0)));
 }
 
 /*
