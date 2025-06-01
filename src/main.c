@@ -68,12 +68,13 @@ reset_engine(struct engine_s* engine)
 int
 main(int argc, char* argv[])
 {
+    size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
     struct engine_s engine = set_engine(node_three_cylinder);
     reset_engine(&engine);
     visualize_gamma();
     visualize_chamber_s();
     init_sdl();
-    for(size_t cycle = 0; argc > 1 ? cycle < 60 : true ; cycle++)
+    for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
     {
         double flow_time_ms = 0.0;
         double mail_time_ms = 0.0;
