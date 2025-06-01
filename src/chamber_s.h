@@ -118,10 +118,10 @@ calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
  */
 
 static double
-calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_s* self, const struct chamber_s* other, double nozzle_flow_area_m2)
+calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_s* self, const struct chamber_s* other, double nozzle_flow_area_m2, double nozzle_mach)
 {
     double y = calc_mixed_gamma(&self->gas);
-    double M = calc_nozzle_mach(self, other);
+    double M = nozzle_mach;
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
     double Tt = calc_total_temperature_k(self);
     double Pt = calc_total_pressure_pa(self);
@@ -139,10 +139,10 @@ calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_s* self, const struct c
  */
 
 static double
-calc_nozzle_flow_velocity_m_per_s(const struct chamber_s* self, const struct chamber_s* other)
+calc_nozzle_flow_velocity_m_per_s(const struct chamber_s* self, const struct chamber_s* other, double nozzle_mach)
 {
     double y = calc_mixed_gamma(&self->gas);
-    double M = calc_nozzle_mach(self, other);
+    double M = nozzle_mach;
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
     double Tt = calc_total_temperature_k(self);
     double Ps = calc_static_pressure_pa(other);
@@ -157,10 +157,10 @@ calc_nozzle_flow_velocity_m_per_s(const struct chamber_s* self, const struct cha
  */
 
 static double
-calc_nozzle_speed_of_sound_m_per_s(const struct chamber_s* self, const struct chamber_s* other)
+calc_nozzle_speed_of_sound_m_per_s(const struct chamber_s* self, const struct chamber_s* other, double nozzle_mach, double nozzle_flow_velocity_m_per_s)
 {
-    double u = calc_nozzle_flow_velocity_m_per_s(self, other);
-    double M = calc_nozzle_mach(self, other);
+    double u = nozzle_flow_velocity_m_per_s;
+    double M = nozzle_mach;
     if(M == 0.0)
     {
         return calc_bulk_speed_of_sound_m_per_s(&self->gas);
