@@ -41,12 +41,12 @@ calc_mixed_molar_mass_kg_per_mol(const struct gas_s* self)
 static double
 calc_mixed_cp_j_per_mol_k(const struct gas_s* self)
 {
-    return self->mol_ratio_c8h18 * calc_cp_c8h18_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_o2 * calc_cp_o2_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_n2 * calc_cp_n2_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_ar * calc_cp_ar_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_co2 * calc_cp_co2_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_h2o * calc_cp_h2o_j_per_mol_k(self->static_temperature_k);
+    return self->mol_ratio_c8h18 * get_cp_c8h18_j_per_mol_k(self->static_temperature_k)
+         + self->mol_ratio_o2 * get_cp_o2_j_per_mol_k(self->static_temperature_k)
+         + self->mol_ratio_n2 * get_cp_n2_j_per_mol_k(self->static_temperature_k)
+         + self->mol_ratio_ar * get_cp_ar_j_per_mol_k(self->static_temperature_k)
+         + self->mol_ratio_co2 * get_cp_co2_j_per_mol_k(self->static_temperature_k)
+         + self->mol_ratio_h2o * get_cp_h2o_j_per_mol_k(self->static_temperature_k);
 }
 
 static double

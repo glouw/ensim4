@@ -69,6 +69,7 @@ int
 main(int argc, char* argv[])
 {
     size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
+    init_cp_precompute_buffer();
     struct engine_s engine = set_engine(node_three_cylinder);
     reset_engine(&engine);
     visualize_gamma();
