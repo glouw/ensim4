@@ -12,11 +12,6 @@ static constexpr double sample_minimum_angular_velocity_r_per_s = std_four_pi_r 
     X(sample_nozzle_velocity_m_per_s)        \
     X(sample_nozzle_mass_flow_rate_kg_per_s) \
     X(sample_nozzle_speed_of_sound_m_per_s ) \
-    X(sample_placeholder_5)                  \
-    X(sample_placeholder_6)                  \
-    X(sample_placeholder_7)                  \
-    X(sample_placeholder_8)                  \
-    X(sample_placeholder_9)                  \
 
 enum sample_name_e
 {

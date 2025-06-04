@@ -45,10 +45,10 @@ static struct sdl_time_panel_s loop_time_panel = {
 static struct sdl_time_panel_s engine_time_panel = {
     .title = "engine_time_ms",
     .labels = {
-        "flow",
+        "fluids",
+        "thermo",
         "N/A",
-        "N/A",
-        "dynamics",
+        "kinematics",
     },
     .min_time_ms = 0.0,
     .max_time_ms = 16.0,

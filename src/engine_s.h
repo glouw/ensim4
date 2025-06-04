@@ -45,12 +45,6 @@ sample_engine_channel(struct node_s* node, struct nozzle_flow_s* nozzle_flow)
         sample_engine_name(sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
         sample_engine_name(sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
         sample_engine_name(sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
-        sample_engine_name(sample_placeholder_5, 0.0);
-        sample_engine_name(sample_placeholder_5, 0.0);
-        sample_engine_name(sample_placeholder_6, 0.0);
-        sample_engine_name(sample_placeholder_7, 0.0);
-        sample_engine_name(sample_placeholder_8, 0.0);
-        sample_engine_name(sample_placeholder_9, 0.0);
         sample_channel_index++;
     }
 }

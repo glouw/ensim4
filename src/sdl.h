@@ -479,7 +479,7 @@ draw_time_panel_info(struct sdl_time_panel_s* time_panel, struct sdl_scroll_s* s
     {
         set_render_color(sdl_channel_color[i]);
         float average = calc_slide_buffer_average(time_panel->slide_buffer[i]);
-        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%8s: %6.3f", time_panel->labels[i], average);
+        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%12s: %6.3f", time_panel->labels[i], average);
     }
     time_panel->rect.x = scroll->x_p;
     time_panel->rect.y = scroll->y_p;
@@ -615,6 +615,9 @@ handle_input(struct engine_s* engine)
             break;
         case SDLK_C:
             deselect_all_nodes(engine->node, engine->size);
+            break;
+        case SDLK_N:
+            select_next(engine->node, engine->size);
             break;
         }
         break;

@@ -40,75 +40,6 @@ struct node_s
     uint8_t next[nodes_node_children];
 };
 
-static struct node_s node_debug_stationary[] = {
-    [0] = {
-        .type = is_source,
-        .as.source = {
-            .chamber = {
-                .volume_m3 = 1e9,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001,
-            },
-        },
-        .next = {1}
-    },
-    [1] = {
-        .type = is_sink,
-        .as.sink = {
-            .chamber = {
-                .volume_m3 = 1e9,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-        },
-        .next = {}
-    },
-};
-
-static struct node_s node_debug_cylinder[] = {
-    [0] = {
-        .type = is_source,
-        .as.source = {
-            .chamber = {
-                .volume_m3 = 1e9,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001,
-            },
-        },
-        .next = {1}
-    },
-    [1] = {
-        .type = is_piston,
-        .as.piston = {
-            .chamber = {
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-            .diameter_m = 0.08,
-            .theta_r = std_four_pi_r,
-            .crank_throw_length_m = 0.04,
-            .connecting_rod_length_m = 0.12,
-            .connecting_rod_mass_kg = 0.5,
-            .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
-            .head_clearance_height_m = 0.001,
-            .friction_coefficient = 0.1,
-        },
-        .next = {2}
-    },
-    [2] = {
-        .type = is_sink,
-        .as.sink = {
-            .chamber = {
-                .volume_m3 = 1e9,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-        },
-        .next = {}
-    },
-};
-
 static struct node_s node_three_cylinder[] = {
     [0] = {
         .type = is_source,
@@ -152,7 +83,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .next = {4, 5, 6}
+        .next = {4, 5, 6, 7, 8, 9, 10, 11}
     },
     [4] = {
         .type = is_irunner,
@@ -163,7 +94,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .next = {7}
+        .next = {12}
     },
     [5] = {
         .type = is_irunner,
@@ -174,7 +105,7 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .next = {8}
+        .next = {13}
     },
     [6] = {
         .type = is_irunner,
@@ -185,115 +116,11 @@ static struct node_s node_three_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
         },
-        .next = {9}
-    },
-    [7] = {
-        .type = is_piston,
-        .as.piston = {
-            .chamber = {
-                .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-            .diameter_m = 0.08,
-            .theta_r = (0.0 / 3.0) * std_four_pi_r,
-            .crank_throw_length_m = 0.04,
-            .connecting_rod_length_m = 0.12,
-            .connecting_rod_mass_kg = 0.5,
-            .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
-            .head_clearance_height_m = 0.001,
-            .friction_coefficient = 0.1,
-        },
-        .next = {10}
-    },
-    [8] = {
-        .type = is_piston,
-        .as.piston = {
-            .chamber = {
-                .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-            .diameter_m = 0.08,
-            .theta_r = (1.0 / 3.0) * std_four_pi_r,
-            .crank_throw_length_m = 0.04,
-            .connecting_rod_length_m = 0.12,
-            .connecting_rod_mass_kg = 0.5,
-            .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
-            .head_clearance_height_m = 0.001,
-            .friction_coefficient = 0.1,
-        },
-        .next = {11}
-    },
-    [9] = {
-        .type = is_piston,
-        .as.piston = {
-            .chamber = {
-                .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-            .diameter_m = 0.08,
-            .theta_r = (2.0 / 3.0) * std_four_pi_r,
-            .crank_throw_length_m = 0.04,
-            .connecting_rod_length_m = 0.12,
-            .connecting_rod_mass_kg = 0.5,
-            .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
-            .head_clearance_height_m = 0.001,
-            .friction_coefficient = 0.1,
-        },
-        .next = {12}
-    },
-    [10] = {
-        .type = is_erunner,
-        .as.erunner = {
-            .chamber = {
-                .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-        },
-        .next = {13}
-    },
-    [11] = {
-        .type = is_erunner,
-        .as.erunner = {
-            .chamber = {
-                .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-        },
-        .next = {13}
-    },
-    [12] = {
-        .type = is_erunner,
-        .as.erunner = {
-            .chamber = {
-                .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-        },
-        .next = {13}
-    },
-    [13] = {
-        .type = is_eplenum,
-        .as.eplenum = {
-            .chamber = {
-                .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
-            },
-        },
         .next = {14}
     },
-    [14] = {
-        .type = is_exhaust,
-        .as.eplenum = {
+    [7] = {
+        .type = is_irunner,
+        .as.irunner = {
             .chamber = {
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
@@ -302,7 +129,321 @@ static struct node_s node_three_cylinder[] = {
         },
         .next = {15}
     },
+    [8] = {
+        .type = is_irunner,
+        .as.irunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {16}
+    },
+    [9] = {
+        .type = is_irunner,
+        .as.irunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {17}
+    },
+    [10] = {
+        .type = is_irunner,
+        .as.irunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {18}
+    },
+    [11] = {
+        .type = is_irunner,
+        .as.irunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {19}
+    },
+    [12] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = (0.0 / 8.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {20}
+    },
+    [13] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = (1.0 / 8.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {21}
+    },
+    [14] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = (2.0 / 8.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {22}
+    },
     [15] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = (3.0 / 8.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {23}
+    },
+    [16] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = (4.0 / 8.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {24}
+    },
+    [17] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = (5.0 / 8.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {25}
+    },
+    [18] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = (6.0 / 8.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {26}
+    },
+    [19] = {
+        .type = is_piston,
+        .as.piston = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .diameter_m = 0.08,
+            .theta_r = (7.0 / 8.0) * std_four_pi_r,
+            .crank_throw_length_m = 0.04,
+            .connecting_rod_length_m = 0.12,
+            .connecting_rod_mass_kg = 0.5,
+            .head_mass_density_kg_per_m3 = 7800.0,
+            .head_compression_height_m = 0.01,
+            .head_clearance_height_m = 0.001,
+            .friction_coefficient = 0.1,
+        },
+        .next = {27}
+    },
+    [20] = {
+        .type = is_erunner,
+        .as.erunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {28}
+    },
+    [21] = {
+        .type = is_erunner,
+        .as.erunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {28}
+    },
+    [22] = {
+        .type = is_erunner,
+        .as.erunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {28}
+    },
+    [23] = {
+        .type = is_erunner,
+        .as.erunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {28}
+    },
+    [24] = {
+        .type = is_erunner,
+        .as.erunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {28}
+    },
+    [25] = {
+        .type = is_erunner,
+        .as.erunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {28}
+    },
+    [26] = {
+        .type = is_erunner,
+        .as.erunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {28}
+    },
+    [27] = {
+        .type = is_erunner,
+        .as.erunner = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {28}
+    },
+    [28] = {
+        .type = is_eplenum,
+        .as.eplenum = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {29}
+    },
+    [29] = {
+        .type = is_exhaust,
+        .as.eplenum = {
+            .chamber = {
+                .volume_m3 = 1.0,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.0001
+            },
+        },
+        .next = {30}
+    },
+    [30] = {
         .type = is_sink,
         .as.sink = {
             .chamber = {
@@ -361,6 +502,26 @@ select_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
         if(node->type == type)
         {
             node->is_selected = true;
+        }
+    }
+}
+
+static void
+select_next(struct node_s* nodes, size_t size)
+{
+    for(size_t i = 0; i < size; i++)
+    {
+        struct node_s* node = &nodes[i];
+        if(node->is_selected)
+        {
+            size_t edges = 0;
+            size_t next;
+            while((next = node->next[edges]))
+            {
+                nodes[next].is_selected = true;
+                edges++;
+            }
+            break;
         }
     }
 }
