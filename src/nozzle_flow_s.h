@@ -23,16 +23,13 @@ flow(const struct chamber_s* x, const struct chamber_s* y)
         double direction = 1.0;
         if(calc_total_pressure_pa(x) < calc_total_pressure_pa(y))
         {
-            /* always flows from node x to y */
-            const struct chamber_s* copy = x;
-            x = y;
-            y = copy;
+            swap(x, y);
             direction = -1.0;
         }
         double nozzle_mach = calc_nozzle_mach(x, y);
-        double nozzle_flow_velocity_m_per_s = calc_nozzle_flow_velocity_m_per_s(x, y, nozzle_mach);
-        double nozzle_mass_flow_rate_kg_per_s = calc_nozzle_mass_flow_rate_kg_per_s(x, y, nozzle_flow_area_m2, nozzle_mach);
-        double nozzle_speed_of_sound_m_per_s = calc_nozzle_speed_of_sound_m_per_s(x, y, nozzle_mach, nozzle_flow_velocity_m_per_s);
+        double nozzle_flow_velocity_m_per_s = calc_nozzle_flow_velocity_m_per_s(x, nozzle_mach);
+        double nozzle_mass_flow_rate_kg_per_s = calc_nozzle_mass_flow_rate_kg_per_s(x, nozzle_flow_area_m2, nozzle_mach);
+        double nozzle_speed_of_sound_m_per_s = calc_nozzle_speed_of_sound_m_per_s(x, nozzle_mach, nozzle_flow_velocity_m_per_s);
         double mass_flowed_kg = nozzle_mass_flow_rate_kg_per_s * std_dt_s;
         double momentum_transferred_kg = mass_flowed_kg * nozzle_flow_velocity_m_per_s;
         return (struct nozzle_flow_s) {
@@ -59,10 +56,7 @@ flow(const struct chamber_s* x, const struct chamber_s* y)
             .is_success = true,
         };
     }
-    else
-    {
-        return (struct nozzle_flow_s) {
-            .is_success = false
-        };
-    }
+    return (struct nozzle_flow_s) {
+        .is_success = false
+    };
 }

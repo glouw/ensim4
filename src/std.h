@@ -6,6 +6,7 @@ static constexpr double std_four_pi_r = 4.0 * std_pi_r;
 
 #define len(x) (sizeof(x) / sizeof(x[0]))
 #define clear(x) memset(x, 0, sizeof(x));
+#define swap(x, y) { auto copy = (x); (x) = (y); (y) = copy; }
 
 static double
 min(double x, double y)

@@ -117,3 +117,12 @@ compress_engine_pistons(struct engine_s* self)
         }
     }
 }
+
+static void
+reset_engine(struct engine_s* engine)
+{
+    rig_engine_pistons(engine);
+    normalize_engine(engine);
+    engine->crankshaft.angular_velocity_r_per_s = 1000.0;
+    select_nodes(engine->node, engine->size, is_piston);
+}

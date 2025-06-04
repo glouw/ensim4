@@ -25,8 +25,17 @@
 #include "sample_s.h"
 #include "engine_s.h"
 #include "visualize.h"
+
+/* isolated from engine core */
 #include <SDL3/SDL.h>
+#include "sdl_scroll_s.h"
+#include "sdl_slide_buffer_t.h"
+#include "sdl_time_panel_s.h"
+#include "sdl_progress_bar_s.h"
+#include "sdl_normalized_s.h"
 #include "sdl.h"
+
+static struct engine_s engine;
 
 static struct sdl_time_panel_s loop_time_panel = {
     .title = "loop_time_ms",
@@ -56,21 +65,20 @@ static struct sdl_time_panel_s engine_time_panel = {
     .rect.h = 192,
 };
 
-static void
-reset_engine(struct engine_s* engine)
-{
-    rig_engine_pistons(engine);
-    normalize_engine(engine);
-    engine->crankshaft.angular_velocity_r_per_s = 1000.0;
-    select_nodes(engine->node, engine->size, is_piston);
-}
+static struct sdl_progress_bar_s rad_per_sec_progress_bar = {
+    .title = "rad_per_sec",
+    .max_value = 2000.0,
+    .value = &engine.crankshaft.angular_velocity_r_per_s,
+    .rect.w = 192,
+    .rect.h = 32,
+};
 
 int
 main(int argc, char* argv[])
 {
     size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
     init_cp_precompute_buffer();
-    struct engine_s engine = set_engine(node_three_cylinder);
+    engine = set_engine(node_8_cylinder);
     reset_engine(&engine);
     visualize_gamma();
     visualize_chamber_s();
@@ -112,7 +120,7 @@ main(int argc, char* argv[])
         clear_screen();
         draw_plots(&engine);
         draw_radial_chambers(&engine);
-        draw_info(&engine, &loop_time_panel, &engine_time_panel);
+        draw_info(&engine, &loop_time_panel, &engine_time_panel, &rad_per_sec_progress_bar);
         double t3 = SDL_GetTicksNS();
         present(0.0);
         double t4 = SDL_GetTicksNS();

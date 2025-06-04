@@ -1,8 +1,11 @@
 CC = gcc
+
 CFLAGS = -std=c23 -Ofast -march=native
+
 ifeq (0,1)
 CFLAGS+= -fsanitize=address,undefined -g
 endif
+
 WFLAGS = -Wall -Wextra -Wpedantic
 LDFLAGS = -lm -lSDL3
 BIN = ensim4
@@ -12,6 +15,9 @@ all:
 	$(CC) $(CFLAGS) $(WFLAGS) $(SRC) $(LDFLAGS) -o $(BIN)
 	objdump -d -M intel $(BIN) > $(BIN).asm
 	size $(BIN)
+
+vroom: all
+	./$(BIN)
 
 perf: all
 	perf stat -e\

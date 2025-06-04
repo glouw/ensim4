@@ -6,14 +6,10 @@ static constexpr float sdl_mid_y_p = sdl_yres_p / 2.0f;
 static constexpr float sdl_node_w_p = 32.0f;
 static constexpr float sdl_radial_spacing = 2.5f;
 static constexpr float sdl_node_half_w_p = sdl_node_w_p / 2.0f;
-static constexpr float sdl_char_size_p = SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE;
-static constexpr float sdl_half_char_size_p = sdl_char_size_p / 2.0f;
-static constexpr float sdl_line_spacing_p = 1.5f * sdl_char_size_p;
 static constexpr float sdl_demo_delay_ms = 75.0f;
 static constexpr float sdl_column_width_ratio = 0.5f;
-static constexpr size_t sdl_slide_buffer_size = 128;
-static constexpr size_t sdl_time_panel_size = 4;
 static constexpr size_t sdl_flow_cycle_spinner_divisor = 2048;
+
 static constexpr SDL_FColor sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
      [1] = {0.00f, 1.00f, 0.00f, 1.0f},
@@ -32,19 +28,29 @@ static constexpr SDL_FColor sdl_channel_color[] = {
     [14] = {0.00f, 0.75f, 1.00f, 1.0f},
     [15] = {1.00f, 0.30f, 0.30f, 1.0f},
 };
-static_assert(sample_channels <= len(sdl_channel_color));
+
+static SDL_FColor
+get_channel_color(size_t index)
+{
+    return sdl_channel_color[index % len(sdl_channel_color)];
+}
+
 static constexpr SDL_FColor sdl_black_color = {
     0.00f, 0.00f, 0.00f, 0.0f
 };
+
 static constexpr SDL_FColor sdl_line_color = {
     0.25f, 0.25f, 0.25f, 1.0f
 };
+
 static constexpr SDL_FColor sdl_container_color = {
     0.50f, 0.50f, 0.50f, 1.0f
 };
+
 static constexpr SDL_FColor sdl_text_color = {
     1.00f, 1.00f, 1.00f, 1.0f
 };
+
 static const char* sdl_spinner[] = {
     "|",
     "/",
@@ -60,49 +66,6 @@ static const char* sdl_spinner[] = {
 
 static SDL_Window* sdl_window = nullptr;
 static SDL_Renderer* sdl_renderer = nullptr;
-
-struct sdl_scroll_s
-{
-    float x_p;
-    float y_p;
-};
-
-static float
-scroll_by(struct sdl_scroll_s* self, float dy_p)
-{
-    float y_p = self->y_p;
-    self->y_p += dy_p;
-    return y_p;
-}
-
-static float
-newline(struct sdl_scroll_s* self)
-{
-    return scroll_by(self, sdl_line_spacing_p);
-}
-
-typedef float sdl_slide_buffer_t[sdl_slide_buffer_size];
-
-static float
-calc_slide_buffer_average(const sdl_slide_buffer_t self)
-{
-    float average = 0.0;
-    for(size_t i = 0; i < sdl_slide_buffer_size; i++)
-    {
-        average += self[i];
-    }
-    return average / sdl_slide_buffer_size;
-}
-
-static void
-push_slide_buffer(sdl_slide_buffer_t self, float value)
-{
-    for(size_t i = 0; i < sdl_slide_buffer_size - 1; i++)
-    {
-        self[i] = self[i + 1];
-    }
-    self[sdl_slide_buffer_size - 1] = value;
-}
 
 static void
 set_render_color(SDL_FColor color)
@@ -124,16 +87,6 @@ draw_slide_buffer(sdl_slide_buffer_t self, SDL_FRect rect, float min_val, float 
     SDL_RenderLines(sdl_renderer, points, sdl_slide_buffer_size);
 }
 
-struct sdl_time_panel_s
-{
-    const char* title;
-    const char* labels[sdl_time_panel_size];
-    SDL_FRect rect;
-    float min_time_ms;
-    float max_time_ms;
-    sdl_slide_buffer_t slide_buffer[sdl_time_panel_size];
-};
-
 static void
 draw_time_panel(struct sdl_time_panel_s* self)
 {
@@ -141,18 +94,22 @@ draw_time_panel(struct sdl_time_panel_s* self)
     SDL_RenderRect(sdl_renderer, &self->rect);
     for(size_t i = 0; i < sdl_time_panel_size; i++)
     {
-        set_render_color(sdl_channel_color[i]);
+        set_render_color(get_channel_color(i));
         draw_slide_buffer(self->slide_buffer[i], self->rect, self->min_time_ms, self->max_time_ms);
     }
 }
 
 static void
-push_time_panel(struct sdl_time_panel_s* self, float sample[])
+draw_progress_bar(struct sdl_progress_bar_s* self)
 {
-    for(size_t i = 0; i < sdl_time_panel_size; i++)
-    {
-        push_slide_buffer(self->slide_buffer[i], sample[i]);
-    }
+    double percent = (self->max_value > 0.0) ? (*self->value / self->max_value) : 0.0;
+    percent = clamp(percent, 0.0, 1.0);
+    SDL_FRect fill = self->rect;
+    fill.w = self->rect.w * percent;
+    set_render_color(sdl_line_color);
+    SDL_RenderFillRect(sdl_renderer, &fill);
+    set_render_color(sdl_container_color);
+    SDL_RenderRect(sdl_renderer, &self->rect);
 }
 
 static SDL_FPoint
@@ -286,7 +243,7 @@ draw_radial_nodes(const struct engine_s* engine, const SDL_FPoint points[])
         SDL_FPoint point = points[i];
         if(node->is_selected)
         {
-            SDL_FColor node_color = sdl_channel_color[color_index];
+            SDL_FColor node_color = get_channel_color(color_index);
             draw_node_at(node, point, node_color);
             color_index += count_node_edges(node);
         }
@@ -323,46 +280,6 @@ draw_radial_chambers(const struct engine_s* engine)
     draw_radial_names(engine, points);
 }
 
-struct sdl_normalized_s
-{
-    float max_value;
-    float min_value;
-    bool is_success;
-};
-
-static struct sdl_normalized_s
-normalize_samples(float samples[], size_t channel, enum sample_name_e sample_name)
-{
-    for(size_t i = 0; i < sample_size; i++)
-    {
-        samples[i] = sample_sample[channel][sample_name][i];
-    }
-    struct sdl_normalized_s normalized = {
-        .max_value = FLT_MIN,
-        .min_value = FLT_MAX,
-        .is_success = false,
-    };
-    for(size_t i = 0; i < sample_size; i++)
-    {
-        normalized.max_value = max(normalized.max_value, samples[i]);
-    }
-    for(size_t i = 0; i < sample_size; i++)
-    {
-        normalized.min_value = min(normalized.min_value, samples[i]);
-    }
-    float range = normalized.max_value - normalized.min_value;
-    if(range < 1e-9f)
-    {
-        return normalized;
-    }
-    for(size_t i = 0; i < sample_size; i++)
-    {
-        samples[i] = (samples[i] - normalized.min_value) / range;
-    }
-    normalized.is_success = true;
-    return normalized;
-}
-
 static void
 buffer_samples(SDL_FPoint buffer[], size_t* buffered, float samples[], SDL_FRect rect)
 {
@@ -384,7 +301,11 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
     static float samples[sample_samples];
     for(enum sample_name_e sample_name = 0; sample_name < sample_name_e_size; sample_name++)
     {
-        struct sdl_normalized_s normalized = normalize_samples(samples, channel, sample_name);
+        for(size_t i = 0; i < sample_size; i++)
+        {
+            samples[i] = sample_sample[channel][sample_name][i];
+        }
+        struct sdl_normalized_s normalized = normalize_samples(samples);
         SDL_FRect rect = rects[sample_name];
         struct sdl_scroll_s scroll = {
             rect.x + 1 * sdl_line_spacing_p,
@@ -392,7 +313,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         };
         if(channel == sample_channel_index - 1)
         {
-            set_render_color(sdl_channel_color[channel]);
+            set_render_color(get_channel_color(channel));
             debugf(sdl_renderer, scroll.x_p, newline(&scroll), "max: %+.3e", normalized.max_value);
             debugf(sdl_renderer, scroll.x_p, newline(&scroll), "min: %+.3e", normalized.min_value);
         }
@@ -402,7 +323,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         }
         buffer_samples(buffer, &buffered, samples, rect);
     }
-    set_render_color(sdl_channel_color[channel]);
+    set_render_color(get_channel_color(channel));
     SDL_RenderPoints(sdl_renderer, buffer, buffered);
 }
 
@@ -470,22 +391,34 @@ draw_plots(const struct engine_s* engine)
     draw_plot_containers(rects);
 }
 
+
 static void
-draw_time_panel_info(struct sdl_time_panel_s* time_panel, struct sdl_scroll_s* scroll)
+draw_progress_bar_info(struct sdl_progress_bar_s* self, struct sdl_scroll_s* scroll)
+{
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "%s", self->title);
+    self->rect.x = scroll->x_p;
+    self->rect.y = scroll->y_p;
+    newline(scroll);
+    draw_progress_bar(self);
+    scroll_by(scroll, self->rect.h);
+}
+
+static void
+draw_time_panel_info(struct sdl_time_panel_s* self, struct sdl_scroll_s* scroll)
 {
     set_render_color(sdl_text_color);
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "%s", time_panel->title);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "%s", self->title);
     for(size_t i = 0; i < sdl_time_panel_size; i++)
     {
-        set_render_color(sdl_channel_color[i]);
-        float average = calc_slide_buffer_average(time_panel->slide_buffer[i]);
-        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%12s: %6.3f", time_panel->labels[i], average);
+        set_render_color(get_channel_color(i));
+        float average = calc_slide_buffer_average(self->slide_buffer[i]);
+        debugf(sdl_renderer, scroll->x_p, newline(scroll), "%12s: %6.3f", self->labels[i], average);
     }
-    time_panel->rect.x = scroll->x_p;
-    time_panel->rect.y = scroll->y_p;
-    draw_time_panel(time_panel);
+    self->rect.x = scroll->x_p;
+    self->rect.y = scroll->y_p;
+    draw_time_panel(self);
     newline(scroll);
-    scroll_by(scroll, time_panel->rect.h);
+    scroll_by(scroll, self->rect.h);
 }
 
 static void
@@ -505,7 +438,11 @@ draw_info_title(struct sdl_scroll_s* scroll)
 }
 
 static void
-draw_info(const struct engine_s* engine, struct sdl_time_panel_s* loop_time_panel, struct sdl_time_panel_s* engine_time_panel)
+draw_info(
+    const struct engine_s* engine,
+    struct sdl_time_panel_s* loop_time_panel,
+    struct sdl_time_panel_s* engine_time_panel,
+    struct sdl_progress_bar_s* rad_per_sec_progress_bar)
 {
     struct sdl_scroll_s scroll = {
         .x_p = compute_plot_column_width_p(engine) + sdl_line_spacing_p,
@@ -514,6 +451,7 @@ draw_info(const struct engine_s* engine, struct sdl_time_panel_s* loop_time_pane
     draw_info_title(&scroll);
     draw_time_panel_info(loop_time_panel, &scroll);
     draw_time_panel_info(engine_time_panel, &scroll);
+    draw_progress_bar_info(rad_per_sec_progress_bar, &scroll);
     draw_engine_info(engine, &scroll);
 }
 

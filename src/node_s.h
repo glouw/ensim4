@@ -40,7 +40,7 @@ struct node_s
     uint8_t next[nodes_node_children];
 };
 
-static struct node_s node_three_cylinder[] = {
+static struct node_s node_8_cylinder[] = {
     [0] = {
         .type = is_source,
         .as.source = {

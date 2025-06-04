@@ -1,0 +1,35 @@
+struct sdl_normalized_s
+{
+    float max_value;
+    float min_value;
+    bool is_success;
+};
+
+static struct sdl_normalized_s
+normalize_samples(float samples[])
+{
+    struct sdl_normalized_s normalized = {
+        .max_value = FLT_MIN,
+        .min_value = FLT_MAX,
+        .is_success = false,
+    };
+    for(size_t i = 0; i < sample_size; i++)
+    {
+        normalized.max_value = max(normalized.max_value, samples[i]);
+    }
+    for(size_t i = 0; i < sample_size; i++)
+    {
+        normalized.min_value = min(normalized.min_value, samples[i]);
+    }
+    float range = normalized.max_value - normalized.min_value;
+    if(range < 1e-9f)
+    {
+        return normalized;
+    }
+    for(size_t i = 0; i < sample_size; i++)
+    {
+        samples[i] = (samples[i] - normalized.min_value) / range;
+    }
+    normalized.is_success = true;
+    return normalized;
+}
