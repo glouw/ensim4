@@ -305,7 +305,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         {
             samples[i] = sample_sample[channel][sample_name][i];
         }
-        struct sdl_normalized_s normalized = normalize_samples(samples);
+        struct normalized_s normalized = normalize_samples(samples, sample_samples);
         SDL_FRect rect = rects[sample_name];
         struct sdl_scroll_s scroll = {
             rect.x + 1 * sdl_line_spacing_p,

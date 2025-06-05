@@ -25,6 +25,7 @@
 #include "sample_s.h"
 #include "engine_s.h"
 #include "visualize.h"
+#include "normalized_s.h"
 
 /* isolated from engine core */
 #include <SDL3/SDL.h>
@@ -32,7 +33,6 @@
 #include "sdl_slide_buffer_t.h"
 #include "sdl_time_panel_s.h"
 #include "sdl_progress_bar_s.h"
-#include "sdl_normalized_s.h"
 #include "sdl.h"
 
 static struct engine_s engine;

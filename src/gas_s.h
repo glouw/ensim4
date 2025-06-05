@@ -167,12 +167,12 @@ calc_mix(double value1, double weight1, double value2, double weight2)
 static void
 mix_in_gas(struct gas_s* self, const struct gas_s* mail)
 {
+    self->mass_kg += mail->mass_kg;
+    self->momentum_kg_m_per_s += mail->momentum_kg_m_per_s;
     double self_moles = calc_moles(self);
     double mail_moles = calc_moles(mail);
     double self_total_cv_j_per_k = calc_total_cv_j_per_k(self);
     double mail_total_cv_j_per_k = calc_total_cv_j_per_k(mail);
-    self->mass_kg += mail->mass_kg;
-    self->momentum_kg_m_per_s += mail->momentum_kg_m_per_s;
 #define X(M) self->mol_ratio_##M = calc_mix(self->mol_ratio_##M, self_moles, mail->mol_ratio_##M, mail_moles);
     GAMMA_MOLECULES
 #undef X
