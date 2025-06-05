@@ -15,15 +15,15 @@ static constexpr size_t nodes_node_children = 16;
 
 enum node_type_e
 {
-    #define X(type) is_##type,
+#define X(type) is_##type,
     TYPES
-    #undef X
+#undef X
 };
 
 static const char* node_name_string[] = {
-    #define X(type) #type,
+#define X(type) #type,
     TYPES
-    #undef X
+#undef X
 };
 
 struct node_s
@@ -31,9 +31,9 @@ struct node_s
     enum node_type_e type;
     union
     {
-        #define X(type) struct type##_s type;
+#define X(type) struct type##_s type;
         TYPES
-        #undef X
+#undef X
     }
     as;
     bool is_selected;

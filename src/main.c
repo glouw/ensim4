@@ -76,12 +76,12 @@ static struct sdl_progress_bar_s rad_per_sec_progress_bar = {
 int
 main(int argc, char* argv[])
 {
-    size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
     init_cp_precompute_buffer();
-    engine = set_engine(node_8_cylinder);
-    reset_engine(&engine);
     visualize_gamma();
     visualize_chamber_s();
+    size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
+    engine = set_engine(node_8_cylinder);
+    reset_engine(&engine);
     init_sdl();
     for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
     {

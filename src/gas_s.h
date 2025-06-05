@@ -9,16 +9,14 @@ static constexpr double gas_ambient_static_pressure_pa = 101325.0;
 
 struct gas_s
 {
-    double mol_ratio_c8h18;
-    double mol_ratio_o2;
-    double mol_ratio_n2;
-    double mol_ratio_ar;
-    double mol_ratio_co2;
-    double mol_ratio_h2o;
+#define X(M) double mol_ratio_##M;
+    GAMMA_MOLECULES
+#undef X
     double static_temperature_k;
     double mass_kg;
     double momentum_kg_m_per_s;
 };
+
 
 static constexpr struct gas_s gas_ambient_air = {
     .mol_ratio_n2 = 0.78,
@@ -30,23 +28,21 @@ static constexpr struct gas_s gas_ambient_air = {
 static double
 calc_mixed_molar_mass_kg_per_mol(const struct gas_s* self)
 {
-    return self->mol_ratio_c8h18 * gas_molar_mass_kg_per_mol_c8h18
-         + self->mol_ratio_o2 * gas_molar_mass_kg_per_mol_o2
-         + self->mol_ratio_n2 * gas_molar_mass_kg_per_mol_n2
-         + self->mol_ratio_ar * gas_molar_mass_kg_per_mol_ar
-         + self->mol_ratio_co2 * gas_molar_mass_kg_per_mol_co2
-         + self->mol_ratio_h2o * gas_molar_mass_kg_per_mol_h2o;
+    double result = 0.0;
+#define X(M) result += self->mol_ratio_##M * gas_molar_mass_kg_per_mol_##M;
+    GAMMA_MOLECULES
+#undef X
+    return result;
 }
 
 static double
 calc_mixed_cp_j_per_mol_k(const struct gas_s* self)
 {
-    return self->mol_ratio_c8h18 * get_cp_c8h18_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_o2 * get_cp_o2_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_n2 * get_cp_n2_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_ar * get_cp_ar_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_co2 * get_cp_co2_j_per_mol_k(self->static_temperature_k)
-         + self->mol_ratio_h2o * get_cp_h2o_j_per_mol_k(self->static_temperature_k);
+    double result = 0.0;
+#define X(M) result += self->mol_ratio_##M * lookup_cp_##M##_j_per_mol_k(self->static_temperature_k);
+    GAMMA_MOLECULES
+#undef X
+    return result;
 }
 
 static double
@@ -173,16 +169,13 @@ mix_in_gas(struct gas_s* self, const struct gas_s* mail)
 {
     double self_moles = calc_moles(self);
     double mail_moles = calc_moles(mail);
-    self->mass_kg += mail->mass_kg;
-    self->momentum_kg_m_per_s += mail->momentum_kg_m_per_s;
-    self->mol_ratio_c8h18 = calc_mix(self->mol_ratio_c8h18, self_moles, mail->mol_ratio_c8h18, mail_moles);
-    self->mol_ratio_o2 = calc_mix(self->mol_ratio_o2, self_moles, mail->mol_ratio_o2, mail_moles);
-    self->mol_ratio_n2 = calc_mix(self->mol_ratio_n2, self_moles, mail->mol_ratio_n2, mail_moles);
-    self->mol_ratio_ar = calc_mix(self->mol_ratio_ar, self_moles, mail->mol_ratio_ar, mail_moles);
-    self->mol_ratio_co2 = calc_mix(self->mol_ratio_co2, self_moles, mail->mol_ratio_co2, mail_moles);
-    self->mol_ratio_h2o = calc_mix(self->mol_ratio_h2o, self_moles, mail->mol_ratio_h2o, mail_moles);
     double self_total_cv_j_per_k = calc_total_cv_j_per_k(self);
     double mail_total_cv_j_per_k = calc_total_cv_j_per_k(mail);
+    self->mass_kg += mail->mass_kg;
+    self->momentum_kg_m_per_s += mail->momentum_kg_m_per_s;
+#define X(M) self->mol_ratio_##M = calc_mix(self->mol_ratio_##M, self_moles, mail->mol_ratio_##M, mail_moles);
+    GAMMA_MOLECULES
+#undef X
     self->static_temperature_k = calc_mix(self->static_temperature_k, self_total_cv_j_per_k, mail->static_temperature_k, mail_total_cv_j_per_k);
 }
 

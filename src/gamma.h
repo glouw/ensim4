@@ -1,11 +1,17 @@
+#define GAMMA_MOLECULES \
+    X(n2)               \
+    X(o2)               \
+    X(ar)               \
+    X(c8h18)            \
+    X(co2)              \
+    X(h2o)
+
 static constexpr double gamma_universal_gas_constant_j_per_mol_k = 8.3144598;
-static constexpr size_t cp_precompute_buffer_size = 8192;
-static double cp_n2_j_per_mol_k[cp_precompute_buffer_size];
-static double cp_o2_j_per_mol_k[cp_precompute_buffer_size];
-static double cp_ar_j_per_mol_k[cp_precompute_buffer_size];
-static double cp_c8h18_j_per_mol_k[cp_precompute_buffer_size];
-static double cp_co2_j_per_mol_k[cp_precompute_buffer_size];
-static double cp_h2o_j_per_mol_k[cp_precompute_buffer_size];
+static constexpr size_t gamma_cp_precompute_buffer_size = 8192;
+
+#define X(M) static double cp_##M##_j_per_mol_k[gamma_cp_precompute_buffer_size] = {};
+GAMMA_MOLECULES
+#undef X
 
 /*
  *  2 c8h18 + 25 o2 -> 16 co2 + 18 h2o
@@ -79,91 +85,29 @@ calc_cp_j_per_mol_k(double static_temperature_k, const double* lower, const doub
     return (a[0] * inv_T2 + a[1] * inv_T1 + a[2] + a[3] * T1 + a[4] * T2 + a[5] * T3 + a[6] * T4) * gamma_universal_gas_constant_j_per_mol_k;
 }
 
-static double
-calc_cp_n2_j_per_mol_k(double static_temperature_k)
-{
-    return calc_cp_j_per_mol_k(static_temperature_k, gamma_cp_weights_lower_n2, gamma_cp_weights_upper_n2);
+#define X(M)                                                                                                  \
+static double calc_cp_##M##_j_per_mol_k(double static_temperature_k) {                                        \
+    return calc_cp_j_per_mol_k(static_temperature_k, gamma_cp_weights_lower_##M, gamma_cp_weights_upper_##M); \
 }
-
-static double
-calc_cp_o2_j_per_mol_k(double static_temperature_k)
-{
-    return calc_cp_j_per_mol_k(static_temperature_k, gamma_cp_weights_lower_o2, gamma_cp_weights_upper_o2);
-}
-
-static double
-calc_cp_ar_j_per_mol_k(double static_temperature_k)
-{
-    return calc_cp_j_per_mol_k(static_temperature_k, gamma_cp_weights_lower_ar, gamma_cp_weights_upper_ar);
-}
-
-static double
-calc_cp_c8h18_j_per_mol_k(double static_temperature_k)
-{
-    return calc_cp_j_per_mol_k(static_temperature_k, gamma_cp_weights_lower_c8h18, gamma_cp_weights_upper_c8h18);
-}
-
-static double
-calc_cp_co2_j_per_mol_k(double static_temperature_k)
-{
-    return calc_cp_j_per_mol_k(static_temperature_k, gamma_cp_weights_lower_co2, gamma_cp_weights_upper_co2);
-}
-
-static double
-calc_cp_h2o_j_per_mol_k(double static_temperature_k)
-{
-    return calc_cp_j_per_mol_k(static_temperature_k, gamma_cp_weights_lower_h2o, gamma_cp_weights_upper_h2o);
-}
+GAMMA_MOLECULES
+#undef X
 
 static void
 init_cp_precompute_buffer()
 {
-    for(size_t static_temperature_k = 0; static_temperature_k < cp_precompute_buffer_size; static_temperature_k++)
-    {
-        cp_n2_j_per_mol_k[static_temperature_k] = calc_cp_n2_j_per_mol_k(static_temperature_k);
-        cp_o2_j_per_mol_k[static_temperature_k] = calc_cp_o2_j_per_mol_k(static_temperature_k);
-        cp_ar_j_per_mol_k[static_temperature_k] = calc_cp_ar_j_per_mol_k(static_temperature_k);
-        cp_c8h18_j_per_mol_k[static_temperature_k] = calc_cp_c8h18_j_per_mol_k(static_temperature_k);
-        cp_co2_j_per_mol_k[static_temperature_k] = calc_cp_co2_j_per_mol_k(static_temperature_k);
-        cp_h2o_j_per_mol_k[static_temperature_k] = calc_cp_h2o_j_per_mol_k(static_temperature_k);
-    }
+#define X(M)                                                    \
+    for(size_t i = 0; i < gamma_cp_precompute_buffer_size; i++) \
+        cp_##M##_j_per_mol_k[i] = calc_cp_##M##_j_per_mol_k(i);
+    GAMMA_MOLECULES
+#undef X
 }
 
-static double
-get_cp_n2_j_per_mol_k(size_t static_temperature_k)
-{
-    return cp_n2_j_per_mol_k[static_temperature_k];
+#define X(M)                                                             \
+static double lookup_cp_##M##_j_per_mol_k(size_t static_temperature_k) { \
+    return cp_##M##_j_per_mol_k[static_temperature_k];                   \
 }
-
-static double
-get_cp_o2_j_per_mol_k(size_t static_temperature_k)
-{
-    return cp_o2_j_per_mol_k[static_temperature_k];
-}
-
-static double
-get_cp_ar_j_per_mol_k(size_t static_temperature_k)
-{
-    return cp_ar_j_per_mol_k[static_temperature_k];
-}
-
-static double
-get_cp_c8h18_j_per_mol_k(size_t static_temperature_k)
-{
-    return cp_c8h18_j_per_mol_k[static_temperature_k];
-}
-
-static double
-get_cp_co2_j_per_mol_k(size_t static_temperature_k)
-{
-    return cp_co2_j_per_mol_k[static_temperature_k];
-}
-
-static double
-get_cp_h2o_j_per_mol_k(size_t static_temperature_k)
-{
-    return cp_h2o_j_per_mol_k[static_temperature_k];
-}
+GAMMA_MOLECULES
+#undef X
 
 /*
  *
@@ -189,41 +133,12 @@ calc_gamma(double cp_j_per_mol_k)
     return cp_j_per_mol_k / calc_cv_j_per_mol_k(cp_j_per_mol_k);
 }
 
-static double
-calc_gamma_n2(double static_temperature_k)
-{
-    return calc_gamma(get_cp_n2_j_per_mol_k(static_temperature_k));
+#define X(M)                                                              \
+static double calc_gamma_##M(double static_temperature_k) {               \
+    return calc_gamma(lookup_cp_##M##_j_per_mol_k(static_temperature_k)); \
 }
-
-static double
-calc_gamma_o2(double static_temperature_k)
-{
-    return calc_gamma(get_cp_o2_j_per_mol_k(static_temperature_k));
-}
-
-static double
-calc_gamma_ar(double static_temperature_k)
-{
-    return calc_gamma(get_cp_ar_j_per_mol_k(static_temperature_k));
-}
-
-static double
-calc_gamma_c8h18(double static_temperature_k)
-{
-    return calc_gamma(get_cp_c8h18_j_per_mol_k(static_temperature_k));
-}
-
-static double
-calc_gamma_co2(double static_temperature_k)
-{
-    return calc_gamma(get_cp_co2_j_per_mol_k(static_temperature_k));
-}
-
-static double
-calc_gamma_h2o(double static_temperature_k)
-{
-    return calc_gamma(get_cp_h2o_j_per_mol_k(static_temperature_k));
-}
+GAMMA_MOLECULES
+#undef X
 
 /* [1] B. Mcbride, M. Zehe, and S. Gordon, “NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species”, 2002.
  *     Available: https://ntrs.nasa.gov/api/citations/20020085330/downloads/20020085330.pdf
