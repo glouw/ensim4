@@ -9,8 +9,8 @@ static struct normalized_s
 normalize_samples(float samples[], size_t size)
 {
     struct normalized_s normalized = {
-        .max_value = FLT_MIN,
-        .min_value = FLT_MAX,
+        .max_value = -FLT_MAX,
+        .min_value = +FLT_MAX,
         .is_success = false,
     };
     for(size_t i = 0; i < size; i++)
