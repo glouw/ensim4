@@ -395,7 +395,8 @@ draw_plots(const struct engine_s* engine)
 static void
 draw_progress_bar_info(struct sdl_progress_bar_s* self, struct sdl_scroll_s* scroll)
 {
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "%s", self->title);
+    set_render_color(sdl_text_color);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "%s %.1f", self->title, *self->value);
     self->rect.x = scroll->x_p;
     self->rect.y = scroll->y_p;
     newline(scroll);
@@ -427,7 +428,6 @@ draw_engine_info(const struct engine_s* engine, struct sdl_scroll_s* scroll)
     set_render_color(sdl_text_color);
     debugf(sdl_renderer, scroll->x_p, newline(scroll), "engine_size_bytes: %lu", engine->bytes);
     debugf(sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", sample_minimum_angular_velocity_r_per_s);
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "ang_vel_r_per_s: %.0f", engine->crankshaft.angular_velocity_r_per_s);
 }
 
 static void
@@ -442,7 +442,8 @@ draw_info(
     const struct engine_s* engine,
     struct sdl_time_panel_s* loop_time_panel,
     struct sdl_time_panel_s* engine_time_panel,
-    struct sdl_progress_bar_s* rad_per_sec_progress_bar)
+    struct sdl_progress_bar_s* rad_per_sec_progress_bar,
+    struct sdl_progress_bar_s* frames_per_sec_progress_bar)
 {
     struct sdl_scroll_s scroll = {
         .x_p = compute_plot_column_width_p(engine) + sdl_line_spacing_p,
@@ -452,6 +453,7 @@ draw_info(
     draw_time_panel_info(loop_time_panel, &scroll);
     draw_time_panel_info(engine_time_panel, &scroll);
     draw_progress_bar_info(rad_per_sec_progress_bar, &scroll);
+    draw_progress_bar_info(frames_per_sec_progress_bar, &scroll);
     draw_engine_info(engine, &scroll);
 }
 

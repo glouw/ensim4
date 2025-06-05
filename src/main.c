@@ -46,7 +46,7 @@ static struct sdl_time_panel_s loop_time_panel = {
         "vsync",
     },
     .min_time_ms = 0.0,
-    .max_time_ms = 25.0,
+    .max_time_ms = 40.0,
     .rect.w = 192,
     .rect.h = 128,
 };
@@ -56,13 +56,13 @@ static struct sdl_time_panel_s engine_time_panel = {
     .labels = {
         "fluids",
         "thermo",
-        "N/A",
+        "TBD",
         "kinematics",
     },
     .min_time_ms = 0.0,
-    .max_time_ms = 16.0,
+    .max_time_ms = 40.0,
     .rect.w = 192,
-    .rect.h = 192,
+    .rect.h = 128,
 };
 
 static struct sdl_progress_bar_s rad_per_sec_progress_bar = {
@@ -70,7 +70,17 @@ static struct sdl_progress_bar_s rad_per_sec_progress_bar = {
     .max_value = 2000.0,
     .value = &engine.crankshaft.angular_velocity_r_per_s,
     .rect.w = 192,
-    .rect.h = 32,
+    .rect.h = 16,
+};
+
+static double frames_per_sec = 0.0;
+
+static struct sdl_progress_bar_s frames_per_sec_bar = {
+    .title = "frames_per_sec",
+    .max_value = 100.0,
+    .value = &frames_per_sec,
+    .rect.w = 192,
+    .rect.h = 16,
 };
 
 int
@@ -85,51 +95,53 @@ main(int argc, char* argv[])
     init_sdl();
     for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
     {
-        double flow_time_ms = 0.0;
-        double mail_time_ms = 0.0;
-        double move_time_ms = 0.0;
-        double compress_time_ms = 0.0;
-        double t0 = SDL_GetTicksNS();
+        double fluids_time_ms = 0.0;
+        double thermo_time_ms = 0.0;
+        double tbd_time_ms = 0.0;
+        double kinematics_time_ms = 0.0;
+        double t0 = SDL_GetTicks();
         for(size_t i = 0; i < engine_cycles_per_frame; i++)
         {
-            double ta = SDL_GetTicksNS();
+            double ta = SDL_GetTicks();
             flow_engine(&engine);
-            double tb = SDL_GetTicksNS();
-            double tc = SDL_GetTicksNS();
-            double td = SDL_GetTicksNS();
+            double tb = SDL_GetTicks();
+            double tc = SDL_GetTicks();
+            double td = SDL_GetTicks();
             move_engine(&engine);
             compress_engine_pistons(&engine);
-            double te = SDL_GetTicksNS();
-            flow_time_ms += tb - ta;
-            mail_time_ms += tc - tb;
-            move_time_ms += td - tc;
-            compress_time_ms += te - td;
+            double te = SDL_GetTicks();
+            fluids_time_ms += tb - ta;
+            thermo_time_ms += tc - tb;
+            tbd_time_ms += td - tc;
+            kinematics_time_ms += te - td;
         }
         push_time_panel(&engine_time_panel, (float[]) {
-            SDL_NS_TO_MS(flow_time_ms),
-            SDL_NS_TO_MS(mail_time_ms),
-            SDL_NS_TO_MS(move_time_ms),
-            SDL_NS_TO_MS(compress_time_ms),
+            fluids_time_ms,
+            thermo_time_ms,
+            tbd_time_ms,
+            kinematics_time_ms,
         });
-        double t1 = SDL_GetTicksNS();
+        double t1 = SDL_GetTicks();
         if(handle_input(&engine))
         {
             break;
         }
-        double t2 = SDL_GetTicksNS();
+        double t2 = SDL_GetTicks();
         clear_screen();
         draw_plots(&engine);
         draw_radial_chambers(&engine);
-        draw_info(&engine, &loop_time_panel, &engine_time_panel, &rad_per_sec_progress_bar);
-        double t3 = SDL_GetTicksNS();
+        draw_info(&engine, &loop_time_panel, &engine_time_panel, &rad_per_sec_progress_bar, &frames_per_sec_bar);
+        double t3 = SDL_GetTicks();
         present(0.0);
-        double t4 = SDL_GetTicksNS();
+        double t4 = SDL_GetTicks();
         push_time_panel(&loop_time_panel, (float[]) {
-            SDL_NS_TO_MS(t1 - t0),
-            SDL_NS_TO_MS(t2 - t1),
-            SDL_NS_TO_MS(t3 - t2),
-            SDL_NS_TO_MS(t4 - t0),
+            t1 - t0,
+            t2 - t1,
+            t3 - t2,
+            t4 - t0,
         });
+        double t5 = SDL_GetTicks();
+        frames_per_sec = 1000.0 / (t5 - t0);
     }
     exit_sdl();
 }
