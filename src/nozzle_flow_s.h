@@ -30,7 +30,7 @@ flow(const struct chamber_s* x, const struct chamber_s* y)
         double nozzle_flow_velocity_m_per_s = calc_nozzle_flow_velocity_m_per_s(x, nozzle_mach);
         double nozzle_mass_flow_rate_kg_per_s = calc_nozzle_mass_flow_rate_kg_per_s(x, nozzle_flow_area_m2, nozzle_mach);
         double nozzle_speed_of_sound_m_per_s = calc_nozzle_speed_of_sound_m_per_s(x, nozzle_mach, nozzle_flow_velocity_m_per_s);
-        double mass_flowed_kg = nozzle_mass_flow_rate_kg_per_s * std_dt_s;
+        double mass_flowed_kg = nozzle_mass_flow_rate_kg_per_s * g_std_dt_s;
         double momentum_transferred_kg = mass_flowed_kg * nozzle_flow_velocity_m_per_s;
         return (struct nozzle_flow_s) {
             .area_m2 = nozzle_flow_area_m2,

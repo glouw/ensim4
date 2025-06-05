@@ -1,4 +1,4 @@
-static constexpr double chamber_total_pressure_hysteresis_pa = 1.0;
+static constexpr double g_chamber_total_pressure_hysteresis_pa = 1.0;
 
 struct chamber_s
 {
@@ -28,7 +28,7 @@ calc_static_pressure_pa(const struct chamber_s* self)
 static double
 calc_static_gauge_pressure_pa(const struct chamber_s* self)
 {
-    return calc_static_pressure_pa(self) - gas_ambient_static_pressure_pa;
+    return calc_static_pressure_pa(self) - g_gas_ambient_static_pressure_pa;
 }
 
 /*
@@ -92,7 +92,7 @@ calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
 {
     double Pt0 = calc_total_pressure_pa(self);
     double Pt1 = calc_total_pressure_pa(other);
-    if(Pt0 - Pt1 < chamber_total_pressure_hysteresis_pa)
+    if(Pt0 - Pt1 < g_chamber_total_pressure_hysteresis_pa)
     {
         return 0.0;
     }
@@ -221,6 +221,6 @@ remove_gas(struct chamber_s* self, const struct gas_s* mail)
 static void
 normalize_chamber(struct chamber_s* self)
 {
-    self->gas = gas_ambient_air;
-    self->gas.mass_kg = calc_mass_at_kg(self, gas_ambient_static_pressure_pa);
+    self->gas = g_gas_ambient_air;
+    self->gas.mass_kg = calc_mass_at_kg(self, g_gas_ambient_static_pressure_pa);
 }

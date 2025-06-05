@@ -1,4 +1,4 @@
-static constexpr size_t engine_cycles_per_frame = 512;
+static constexpr size_t g_engine_cycles_per_frame = 512;
 
 struct engine_s
 {
@@ -28,24 +28,24 @@ normalize_engine(struct engine_s* self)
 static void
 sample_engine_name(enum sample_name_e sample_name, float sample)
 {
-    sample_sample[sample_channel_index][sample_name][sample_index] = sample;
+    g_sample_sample[g_sample_channel_index][sample_name][g_sample_index] = sample;
 }
 
 static void
 sample_engine_channel(struct node_s* node, struct nozzle_flow_s* nozzle_flow)
 {
-    if(sample_channel_index < sample_channels)
+    if(g_sample_channel_index < g_sample_channels)
     {
-        sample_engine_name(sample_static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
-        sample_engine_name(sample_total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
-        sample_engine_name(sample_static_temperature_k, node->as.chamber.gas.static_temperature_k);
-        sample_engine_name(sample_volume_m3, node->as.chamber.volume_m3);
-        sample_engine_name(sample_nozzle_area_m2, nozzle_flow->area_m2);
-        sample_engine_name(sample_nozzle_mach, nozzle_flow->flow_field.mach);
-        sample_engine_name(sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
-        sample_engine_name(sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
-        sample_engine_name(sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
-        sample_channel_index++;
+        sample_engine_name(g_sample_static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
+        sample_engine_name(g_sample_total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
+        sample_engine_name(g_sample_static_temperature_k, node->as.chamber.gas.static_temperature_k);
+        sample_engine_name(g_sample_volume_m3, node->as.chamber.volume_m3);
+        sample_engine_name(g_sample_nozzle_area_m2, nozzle_flow->area_m2);
+        sample_engine_name(g_sample_nozzle_mach, nozzle_flow->flow_field.mach);
+        sample_engine_name(g_sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
+        sample_engine_name(g_sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
+        sample_engine_name(g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
+        g_sample_channel_index++;
     }
 }
 
@@ -65,7 +65,7 @@ rig_engine_pistons(struct engine_s* self)
 static void
 flow_engine(struct engine_s* self)
 {
-    sample_channel_index = 0;
+    g_sample_channel_index = 0;
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* x = &self->node[i];
@@ -90,17 +90,17 @@ move_engine(struct engine_s* self)
     double theta_1_r = self->crankshaft.theta_r;
     if(theta_0_r != theta_1_r)
     {
-        double theta_x_r = fmod(theta_0_r, std_four_pi_r);
-        double theta_y_r = fmod(theta_1_r, std_four_pi_r);
+        double theta_x_r = fmod(theta_0_r, g_std_four_pi_r);
+        double theta_y_r = fmod(theta_1_r, g_std_four_pi_r);
         if(theta_y_r < theta_x_r)
         {
-            sample_size = sample_index;
-            sample_index = 0;
+            g_sample_size = g_sample_index;
+            g_sample_index = 0;
         }
         else
         {
-            sample_index += 1;
-            sample_index = min(sample_index, sample_samples - 1);
+            g_sample_index += 1;
+            g_sample_index = min(g_sample_index, g_sample_samples - 1);
         }
     }
 }

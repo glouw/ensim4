@@ -1,11 +1,11 @@
-static constexpr double gas_molar_mass_kg_per_mol_c8h18 = 0.1142285200;
-static constexpr double gas_molar_mass_kg_per_mol_o2 = 0.0319988000;
-static constexpr double gas_molar_mass_kg_per_mol_n2 = 0.0280134000;
-static constexpr double gas_molar_mass_kg_per_mol_ar = 0.0399480000;
-static constexpr double gas_molar_mass_kg_per_mol_co2 = 0.0440095000;
-static constexpr double gas_molar_mass_kg_per_mol_h2o = 0.0180152800;
-static constexpr double gas_ambient_static_temperature_k = 300.0;
-static constexpr double gas_ambient_static_pressure_pa = 101325.0;
+static constexpr double g_gas_molar_mass_kg_per_mol_c8h18 = 0.1142285200;
+static constexpr double g_gas_molar_mass_kg_per_mol_o2 = 0.0319988000;
+static constexpr double g_gas_molar_mass_kg_per_mol_n2 = 0.0280134000;
+static constexpr double g_gas_molar_mass_kg_per_mol_ar = 0.0399480000;
+static constexpr double g_gas_molar_mass_kg_per_mol_co2 = 0.0440095000;
+static constexpr double g_gas_molar_mass_kg_per_mol_h2o = 0.0180152800;
+static constexpr double g_gas_ambient_static_temperature_k = 300.0;
+static constexpr double g_gas_ambient_static_pressure_pa = 101325.0;
 
 struct gas_s
 {
@@ -18,18 +18,18 @@ struct gas_s
 };
 
 
-static constexpr struct gas_s gas_ambient_air = {
+static constexpr struct gas_s g_gas_ambient_air = {
     .mol_ratio_n2 = 0.78,
     .mol_ratio_o2 = 0.21,
     .mol_ratio_ar = 0.01,
-    .static_temperature_k = gas_ambient_static_temperature_k
+    .static_temperature_k = g_gas_ambient_static_temperature_k
 };
 
 static double
 calc_mixed_molar_mass_kg_per_mol(const struct gas_s* self)
 {
     double result = 0.0;
-#define X(M) result += self->mol_ratio_##M * gas_molar_mass_kg_per_mol_##M;
+#define X(M) result += self->mol_ratio_##M * g_gas_molar_mass_kg_per_mol_##M;
     GAMMA_MOLECULES
 #undef X
     return result;
@@ -39,7 +39,7 @@ static double
 calc_mixed_cp_j_per_mol_k(const struct gas_s* self)
 {
     double result = 0.0;
-#define X(M) result += self->mol_ratio_##M * lookup_cp_##M##_j_per_mol_k(self->static_temperature_k);
+#define X(M) result += self->mol_ratio_##M * g_cp_##M##_j_per_mol_k[(size_t) self->static_temperature_k];
     GAMMA_MOLECULES
 #undef X
     return result;
@@ -92,7 +92,7 @@ calc_total_cv_j_per_k(const struct gas_s* self)
 static double
 calc_specific_gas_constant_j_per_kg_k(const struct gas_s* self)
 {
-    double R = gamma_universal_gas_constant_j_per_mol_k;
+    double R = g_gamma_universal_gas_constant_j_per_mol_k;
     double M = calc_mixed_molar_mass_kg_per_mol(self);
     return R / M;
 }

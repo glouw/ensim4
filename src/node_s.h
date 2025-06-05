@@ -1,4 +1,4 @@
-static constexpr size_t nodes_node_children = 16;
+static constexpr size_t g_nodes_node_children = 16;
 
 #define TYPES   \
     X(chamber)  \
@@ -20,7 +20,7 @@ enum node_type_e
 #undef X
 };
 
-static const char* node_name_string[] = {
+static const char* g_node_name_string[] = {
 #define X(type) #type,
     TYPES
 #undef X
@@ -37,10 +37,10 @@ struct node_s
     }
     as;
     bool is_selected;
-    uint8_t next[nodes_node_children];
+    uint8_t next[g_nodes_node_children];
 };
 
-static struct node_s node_8_cylinder[] = {
+static struct node_s g_node_8_cylinder[] = {
     [0] = {
         .type = is_source,
         .as.source = {
@@ -182,7 +182,7 @@ static struct node_s node_8_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
             .diameter_m = 0.08,
-            .theta_r = (0.0 / 8.0) * std_four_pi_r,
+            .theta_r = (0.0 / 8.0) * g_std_four_pi_r,
             .crank_throw_length_m = 0.04,
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
@@ -202,7 +202,7 @@ static struct node_s node_8_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
             .diameter_m = 0.08,
-            .theta_r = (1.0 / 8.0) * std_four_pi_r,
+            .theta_r = (1.0 / 8.0) * g_std_four_pi_r,
             .crank_throw_length_m = 0.04,
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
@@ -222,7 +222,7 @@ static struct node_s node_8_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
             .diameter_m = 0.08,
-            .theta_r = (2.0 / 8.0) * std_four_pi_r,
+            .theta_r = (2.0 / 8.0) * g_std_four_pi_r,
             .crank_throw_length_m = 0.04,
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
@@ -242,7 +242,7 @@ static struct node_s node_8_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
             .diameter_m = 0.08,
-            .theta_r = (3.0 / 8.0) * std_four_pi_r,
+            .theta_r = (3.0 / 8.0) * g_std_four_pi_r,
             .crank_throw_length_m = 0.04,
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
@@ -262,7 +262,7 @@ static struct node_s node_8_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
             .diameter_m = 0.08,
-            .theta_r = (4.0 / 8.0) * std_four_pi_r,
+            .theta_r = (4.0 / 8.0) * g_std_four_pi_r,
             .crank_throw_length_m = 0.04,
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
@@ -282,7 +282,7 @@ static struct node_s node_8_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
             .diameter_m = 0.08,
-            .theta_r = (5.0 / 8.0) * std_four_pi_r,
+            .theta_r = (5.0 / 8.0) * g_std_four_pi_r,
             .crank_throw_length_m = 0.04,
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
@@ -302,7 +302,7 @@ static struct node_s node_8_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
             .diameter_m = 0.08,
-            .theta_r = (6.0 / 8.0) * std_four_pi_r,
+            .theta_r = (6.0 / 8.0) * g_std_four_pi_r,
             .crank_throw_length_m = 0.04,
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
@@ -322,7 +322,7 @@ static struct node_s node_8_cylinder[] = {
                 .nozzle_max_flow_area_m2 = 0.0001
             },
             .diameter_m = 0.08,
-            .theta_r = (7.0 / 8.0) * std_four_pi_r,
+            .theta_r = (7.0 / 8.0) * g_std_four_pi_r,
             .crank_throw_length_m = 0.04,
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
