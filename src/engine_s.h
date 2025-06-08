@@ -26,30 +26,6 @@ normalize_engine(struct engine_s* self)
 }
 
 static void
-sample_engine_name(enum sample_name_e sample_name, float sample)
-{
-    g_sample_sample[g_sample_channel_index][sample_name][g_sample_index] = sample;
-}
-
-static void
-sample_engine_channel(struct node_s* node, struct nozzle_flow_s* nozzle_flow)
-{
-    if(g_sample_channel_index < g_sample_channels)
-    {
-        sample_engine_name(g_sample_static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
-        sample_engine_name(g_sample_total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
-        sample_engine_name(g_sample_static_temperature_k, node->as.chamber.gas.static_temperature_k);
-        sample_engine_name(g_sample_volume_m3, node->as.chamber.volume_m3);
-        sample_engine_name(g_sample_nozzle_area_m2, nozzle_flow->area_m2);
-        sample_engine_name(g_sample_nozzle_mach, nozzle_flow->flow_field.mach);
-        sample_engine_name(g_sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
-        sample_engine_name(g_sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
-        sample_engine_name(g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
-        g_sample_channel_index++;
-    }
-}
-
-static void
 rig_engine_pistons(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -63,9 +39,9 @@ rig_engine_pistons(struct engine_s* self)
 }
 
 static void
-flow_engine(struct engine_s* self)
+flow_engine(struct engine_s* self, struct sampler_s* sampler)
 {
-    g_sample_channel_index = 0;
+    sampler->channel_index = 0;
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* x = &self->node[i];
@@ -75,7 +51,7 @@ flow_engine(struct engine_s* self)
             struct nozzle_flow_s nozzle_flow = flow(&x->as.chamber, &y->as.chamber);
             if(x->is_selected)
             {
-                sample_engine_channel(x, &nozzle_flow);
+                sample_channel(sampler, x, &nozzle_flow);
             }
             mail_gas_mail(&nozzle_flow.gas_mail);
         }
@@ -83,7 +59,7 @@ flow_engine(struct engine_s* self)
 }
 
 static void
-move_engine(struct engine_s* self)
+move_engine(struct engine_s* self, struct sampler_s* sampler)
 {
     double theta_0_r = self->crankshaft.theta_r;
     turn_crankshaft(&self->crankshaft);
@@ -94,13 +70,13 @@ move_engine(struct engine_s* self)
         double theta_y_r = fmod(theta_1_r, g_std_four_pi_r);
         if(theta_y_r < theta_x_r)
         {
-            g_sample_size = g_sample_index;
-            g_sample_index = 0;
+            sampler->size = sampler->index;
+            sampler->index = 0;
         }
         else
         {
-            g_sample_index += 1;
-            g_sample_index = min(g_sample_index, g_sample_samples - 1);
+            sampler->index += 1;
+            sampler->index = min(sampler->index, g_sampler_max_samples - 1);
         }
     }
 }
@@ -125,4 +101,33 @@ reset_engine(struct engine_s* engine)
     normalize_engine(engine);
     engine->crankshaft.angular_velocity_r_per_s = 1000.0;
     select_nodes(engine->node, engine->size, is_piston);
+}
+
+struct engine_time_s
+{
+    uint64_t fluids_time_ms;
+    uint64_t thermo_time_ms;
+    uint64_t tbd_time_ms;
+    uint64_t kinematics_time_ms;
+    uint64_t (*get_ms)();
+};
+
+static void
+run_engine(struct engine_s* self, struct engine_time_s* engine_time, struct sampler_s* sampler)
+{
+    for(size_t i = 0; i < g_engine_cycles_per_frame; i++)
+    {
+        uint64_t t0 = engine_time->get_ms();
+        flow_engine(self, sampler);
+        uint64_t t1 = engine_time->get_ms();
+        uint64_t t2 = engine_time->get_ms();
+        uint64_t t3 = engine_time->get_ms();
+        move_engine(self, sampler);
+        compress_engine_pistons(self);
+        uint64_t t4 = engine_time->get_ms();
+        engine_time->fluids_time_ms += t1 - t0;
+        engine_time->thermo_time_ms += t2 - t1;
+        engine_time->tbd_time_ms += t3 - t2;
+        engine_time->kinematics_time_ms += t4 - t3;
+    }
 }

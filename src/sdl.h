@@ -1,4 +1,6 @@
-static constexpr char g_sdl_title[] = "ENSIM4";
+#define debugf SDL_RenderDebugTextFormat
+
+static const char* const g_sdl_title = "ENSIM4";
 static constexpr float g_sdl_xres_p = 1800.0f;
 static constexpr float g_sdl_yres_p = 900.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
@@ -51,18 +53,7 @@ static constexpr SDL_FColor sdl_text_color = {
     1.00f, 1.00f, 1.00f, 1.0f
 };
 
-static const char* sdl_spinner[] = {
-    "|",
-    "/",
-    "-",
-    "\\",
-    "|",
-    "/",
-    "-",
-    "\\"
-};
-
-#define debugf SDL_RenderDebugTextFormat
+static const char* sdl_spinner[] = { "|", "/", "-", "\\", "|", "/", "-", "\\" };
 
 static SDL_Window* sdl_window = nullptr;
 static SDL_Renderer* sdl_renderer = nullptr;
@@ -281,12 +272,12 @@ draw_radial_chambers(const struct engine_s* engine)
 }
 
 static void
-buffer_samples(SDL_FPoint buffer[], size_t* buffered, float samples[], SDL_FRect rect)
+buffer_samples(SDL_FPoint buffer[], size_t* buffered, float samples[], SDL_FRect rect, size_t size)
 {
-    for(size_t i = 0; i < g_sample_size; i++)
+    for(size_t i = 0; i < size; i++)
     {
         SDL_FPoint point = {
-            rect.x + (i / (g_sample_size - 1.0f)) * (rect.w - 1.0f),
+            rect.x + (i / (size - 1.0f)) * (rect.w - 1.0f),
             rect.y + (1.0f - samples[i]) * rect.h,
         };
         buffer[(*buffered)++] = point;
@@ -294,24 +285,24 @@ buffer_samples(SDL_FPoint buffer[], size_t* buffered, float samples[], SDL_FRect
 }
 
 static void
-draw_plot_channel(SDL_FRect rects[], size_t channel)
+draw_plot_channel(SDL_FRect rects[], size_t channel, const struct sampler_s* sampler)
 {
     size_t buffered = 0;
-    static SDL_FPoint buffer[g_sample_name_e_size * g_sample_samples];
-    static float samples[g_sample_samples];
+    static SDL_FPoint buffer[g_sample_name_e_size * g_sampler_max_samples];
+    static float samples[g_sampler_max_samples];
     for(enum sample_name_e sample_name = 0; sample_name < g_sample_name_e_size; sample_name++)
     {
-        for(size_t i = 0; i < g_sample_size; i++)
+        for(size_t i = 0; i < sampler->size; i++)
         {
-            samples[i] = g_sample_sample[channel][sample_name][i];
+            samples[i] = sampler->value[channel][sample_name][i];
         }
-        struct normalized_s normalized = normalize_samples(samples, g_sample_size);
+        struct normalized_s normalized = normalize_samples(samples, sampler->size);
         SDL_FRect rect = rects[sample_name];
         struct sdl_scroll_s scroll = {
             rect.x + 1 * g_sdl_line_spacing_p,
             rect.y + 2 * g_sdl_line_spacing_p,
         };
-        if(channel == g_sample_channel_index - 1)
+        if(channel == sampler->channel_index - 1)
         {
             set_render_color(get_channel_color(channel));
             debugf(sdl_renderer, scroll.x_p, newline(&scroll), "max: %+.3e", normalized.max_value);
@@ -321,18 +312,18 @@ draw_plot_channel(SDL_FRect rects[], size_t channel)
         {
             continue;
         }
-        buffer_samples(buffer, &buffered, samples, rect);
+        buffer_samples(buffer, &buffered, samples, rect, sampler->size);
     }
     set_render_color(get_channel_color(channel));
     SDL_RenderPoints(sdl_renderer, buffer, buffered);
 }
 
 static void
-draw_plot_channels(SDL_FRect rects[])
+draw_plot_channels(SDL_FRect rects[], const struct sampler_s* sampler)
 {
-    for(size_t channel = 0; channel < g_sample_channel_index; channel++)
+    for(size_t channel = 0; channel < sampler->channel_index; channel++)
     {
-        draw_plot_channel(rects, channel);
+        draw_plot_channel(rects, channel, sampler);
     }
 }
 
@@ -374,7 +365,7 @@ position_plots(const struct engine_s* engine, SDL_FRect rects[])
 {
     enum sample_name_e sample_name = 0;
     float w_p = compute_plot_column_width_p(engine);
-    float left_samples = roundf(g_sample_name_e_size/ 2.0f);
+    float left_samples = roundf(g_sample_name_e_size / 2.0f);
     float right_samples = g_sample_name_e_size - left_samples;
     float left_h = ceilf(g_sdl_yres_p / left_samples);
     float right_h = ceilf(g_sdl_yres_p / right_samples);
@@ -383,14 +374,13 @@ position_plots(const struct engine_s* engine, SDL_FRect rects[])
 }
 
 static void
-draw_plots(const struct engine_s* engine)
+draw_plots(const struct engine_s* engine, const struct sampler_s* sampler)
 {
-    SDL_FRect rects[g_sample_name_e_size];
+    static SDL_FRect rects[g_sample_name_e_size];
     position_plots(engine, rects);
-    draw_plot_channels(rects);
+    draw_plot_channels(rects, sampler);
     draw_plot_containers(rects);
 }
-
 
 static void
 draw_progress_bar_info(struct sdl_progress_bar_s* self, struct sdl_scroll_s* scroll)
@@ -427,7 +417,7 @@ draw_engine_info(const struct engine_s* engine, struct sdl_scroll_s* scroll)
 {
     set_render_color(sdl_text_color);
     debugf(sdl_renderer, scroll->x_p, newline(scroll), "engine_size_bytes: %lu", engine->bytes);
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", g_sample_minimum_angular_velocity_r_per_s);
+    debugf(sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s);
 }
 
 static void
@@ -479,7 +469,7 @@ draw_demo_engine(const struct engine_s* engine)
 }
 
 static void
-toggle_node_at(struct engine_s* engine, float x_p, float y_p)
+toggle_node_at(struct engine_s* engine, struct sampler_s* sampler, float x_p, float y_p)
 {
     SDL_FPoint points[engine->size];
     compute_radials(engine, points);
@@ -487,16 +477,11 @@ toggle_node_at(struct engine_s* engine, float x_p, float y_p)
     {
         struct node_s* node = &engine->node[i];
         SDL_FPoint point = points[i];
-        SDL_FRect rect = {
-            point.x,
-            point.y,
-            g_sdl_node_w_p,
-            g_sdl_node_w_p,
-        };
+        SDL_FRect rect = { point.x, point.y, g_sdl_node_w_p, g_sdl_node_w_p };
         SDL_FPoint select = { x_p, y_p };
         if(SDL_PointInRectFloat(&select, &rect))
         {
-            clear_samples();
+            clear_sampler(sampler);
             node->is_selected ^= true;
             break;
         }
@@ -504,7 +489,7 @@ toggle_node_at(struct engine_s* engine, float x_p, float y_p)
 }
 
 static bool
-handle_input(struct engine_s* engine)
+handle_input(struct engine_s* engine, struct sampler_s* sampler)
 {
     SDL_Event event;
     SDL_PollEvent(&event);
@@ -565,7 +550,7 @@ handle_input(struct engine_s* engine)
         switch(event.button.button)
         {
         case SDL_BUTTON_LEFT:
-            toggle_node_at(engine, event.button.x, event.button.y);
+            toggle_node_at(engine, sampler, event.button.x, event.button.y);
             break;
         case SDL_BUTTON_RIGHT:
             break;
