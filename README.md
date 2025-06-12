@@ -7,3 +7,23 @@
 ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░
 ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░
 ```
+
+## BUILD
+
+Dependencies:
+```
+pacman -S sdl3
+```
+
+Interactive ensim4:
+```
+make vroom
+```
+
+Performance tuning. Logs to `perf.txt`:
+```
+make perf
+```
+
+All invocations of `ensim4` output thermo-fluidic plots to `visualize/`.
+They take somewhat of an eye for mechanical engineering to both verify and validate.
