@@ -79,22 +79,39 @@ select_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
     }
 }
 
+static size_t
+count_selected_nodes(struct node_s* nodes, size_t size)
+{
+    size_t selected = 0;
+    for(size_t i = 0; i < size; i++)
+    {
+        if(nodes[i].is_selected)
+        {
+            selected++;
+        }
+    }
+    return selected;
+}
+
 static void
 select_next(struct node_s* nodes, size_t size)
 {
-    for(size_t i = 0; i < size; i++)
+    if(count_selected_nodes(nodes, size) == 1)
     {
-        struct node_s* node = &nodes[i];
-        if(node->is_selected)
+        for(size_t i = 0; i < size; i++)
         {
-            size_t edges = 0;
-            size_t next;
-            while((next = node->next[edges]))
+            struct node_s* node = &nodes[i];
+            if(node->is_selected)
             {
-                nodes[next].is_selected = true;
-                edges++;
+                size_t edges = 0;
+                size_t next;
+                while((next = node->next[edges]))
+                {
+                    nodes[next].is_selected = true;
+                    edges++;
+                }
+                break;
             }
-            break;
         }
     }
 }
