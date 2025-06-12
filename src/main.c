@@ -21,6 +21,7 @@
 #include "throttle_s.h"
 #include "irunner_s.h"
 #include "crankshaft_s.h"
+#include "flywheel_s.h"
 #include "piston_s.h"
 #include "erunner_s.h"
 #include "eplenum_s.h"
@@ -28,7 +29,9 @@
 #include "sink_s.h"
 #include "node_s.h"
 #include "sampler_s.h"
+#include "starter_s.h"
 #include "engine_s.h"
+#include "engine_8_cyl.h"
 
 /* display and input */
 #include <SDL3/SDL.h>
@@ -46,7 +49,7 @@ main(int argc, char* argv[])
     visualize_gamma();
     visualize_chamber_s();
     static struct sampler_s sampler = {}; /* big boi */
-    struct engine_s engine = {};
+    struct engine_s* engine = &g_engine_8_cyl;
     double frames_per_sec = 0.0;
     struct sdl_time_panel_s loop_time_panel = {
         .title = "loop_time_ms",
@@ -77,7 +80,7 @@ main(int argc, char* argv[])
     struct sdl_progress_bar_s rad_per_sec_progress_bar = {
         .title = "rad_per_sec",
         .max_value = 2000.0,
-        .value = &engine.crankshaft.angular_velocity_r_per_s,
+        .value = &engine->crankshaft.angular_velocity_r_per_s,
         .rect.w = 192,
         .rect.h = 16,
     };
@@ -89,8 +92,7 @@ main(int argc, char* argv[])
         .rect.h = 16,
     };
     size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
-    engine = set_engine(g_node_8_cylinder);
-    reset_engine(&engine);
+    reset_engine(engine);
     init_sdl();
     for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
     {
@@ -98,7 +100,7 @@ main(int argc, char* argv[])
             .get_ms = SDL_GetTicks
         };
         uint64_t t0 = SDL_GetTicks();
-        run_engine(&engine, &engine_time, &sampler);
+        run_engine(engine, &engine_time, &sampler);
         push_time_panel(
             &engine_time_panel,
             (float[]) {
@@ -109,16 +111,16 @@ main(int argc, char* argv[])
             }
         );
         uint64_t t1 = SDL_GetTicks();
-        if(handle_input(&engine, &sampler))
+        if(handle_input(engine, &sampler))
         {
             break;
         }
         uint64_t t2 = SDL_GetTicks();
         clear_screen();
-        draw_plots(&engine, &sampler);
-        draw_radial_chambers(&engine);
+        draw_plots(engine, &sampler);
+        draw_radial_chambers(engine);
         draw_info(
-            &engine,
+            engine,
             &loop_time_panel,
             &engine_time_panel,
             &rad_per_sec_progress_bar,

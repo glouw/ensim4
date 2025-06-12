@@ -4,17 +4,19 @@ struct engine_s
 {
     struct node_s* node;
     size_t size;
-    size_t edges;
-    size_t bytes;
     struct crankshaft_s crankshaft;
+    struct flywheel_s flywheel;
+    struct starter_s starter;
 };
 
-#define set_engine(nodes) (struct engine_s) {          \
-    .node = nodes,                                     \
-    .size = len(nodes),                                \
-    .edges = count_many_node_edges(nodes, len(nodes)), \
-    .bytes = sizeof(nodes)                             \
-}
+struct engine_time_s
+{
+    uint64_t fluids_time_ms;
+    uint64_t thermo_time_ms;
+    uint64_t tbd_time_ms;
+    uint64_t kinematics_time_ms;
+    uint64_t (*get_ms)();
+};
 
 static void
 normalize_engine(struct engine_s* self)
@@ -41,7 +43,6 @@ rig_engine_pistons(struct engine_s* self)
 static void
 flow_engine(struct engine_s* self, struct sampler_s* sampler)
 {
-    sampler->channel_index = 0;
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* x = &self->node[i];
@@ -58,9 +59,48 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
     }
 }
 
+static double
+calc_engine_torque_n_m(const struct engine_s* self)
+{
+    double torque_n_m = 0.0;
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == is_piston)
+        {
+            torque_n_m += calc_piston_gas_torque_n_m(&node->as.piston, &self->crankshaft);
+            torque_n_m += calc_piston_inertia_torque_n_m(&node->as.piston, &self->crankshaft);
+            torque_n_m += calc_piston_friction_torque_n_m(&node->as.piston, &self->crankshaft);
+        }
+    }
+    torque_n_m += calc_starter_torque_n_m(&self->starter, &self->flywheel, &self->crankshaft);
+    return torque_n_m;
+}
+
+static double
+calc_engine_moment_of_inertia_kg_m2(const struct engine_s* self)
+{
+    double moment_of_inertia_kg_m2 = 0.0;
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == is_piston)
+        {
+            moment_of_inertia_kg_m2 += calc_piston_moment_of_inertia_kg_per_m2(&node->as.piston);
+        }
+    }
+    moment_of_inertia_kg_m2 += calc_crankshaft_moment_of_inertia_kg_m2(&self->crankshaft);
+    moment_of_inertia_kg_m2 += calc_flywheel_moment_of_inertia_kg_m2(&self->flywheel);
+    return moment_of_inertia_kg_m2;
+}
+
 static void
 move_engine(struct engine_s* self, struct sampler_s* sampler)
 {
+    double torque_n_m = calc_engine_torque_n_m(self);
+    double moment_of_inertia_kg_m2 = calc_engine_moment_of_inertia_kg_m2(self);
+    double angular_acceleration_r_per_s2 = torque_n_m / moment_of_inertia_kg_m2;
+    accelerate_crankshaft(&self->crankshaft, angular_acceleration_r_per_s2);
     double theta_0_r = self->crankshaft.theta_r;
     turn_crankshaft(&self->crankshaft);
     double theta_1_r = self->crankshaft.theta_r;
@@ -95,28 +135,19 @@ compress_engine_pistons(struct engine_s* self)
 }
 
 static void
-reset_engine(struct engine_s* engine)
+reset_engine(struct engine_s* self)
 {
-    rig_engine_pistons(engine);
-    normalize_engine(engine);
-    engine->crankshaft.angular_velocity_r_per_s = 1000.0;
-    select_nodes(engine->node, engine->size, is_piston);
+    rig_engine_pistons(self);
+    normalize_engine(self);
+    select_nodes(self->node, self->size, is_piston);
 }
-
-struct engine_time_s
-{
-    uint64_t fluids_time_ms;
-    uint64_t thermo_time_ms;
-    uint64_t tbd_time_ms;
-    uint64_t kinematics_time_ms;
-    uint64_t (*get_ms)();
-};
 
 static void
 run_engine(struct engine_s* self, struct engine_time_s* engine_time, struct sampler_s* sampler)
 {
     for(size_t i = 0; i < g_engine_cycles_per_frame; i++)
     {
+        sampler->channel_index = 0;
         uint64_t t0 = engine_time->get_ms();
         flow_engine(self, sampler);
         uint64_t t1 = engine_time->get_ms();

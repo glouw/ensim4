@@ -416,7 +416,6 @@ static void
 draw_engine_info(const struct engine_s* engine, struct sdl_scroll_s* scroll)
 {
     set_render_color(sdl_text_color);
-    debugf(sdl_renderer, scroll->x_p, newline(scroll), "engine_size_bytes: %lu", engine->bytes);
     debugf(sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s);
 }
 
