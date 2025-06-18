@@ -77,8 +77,8 @@ main(int argc, char* argv[])
         .rect.w = 192,
         .rect.h = 128,
     };
-    struct sdl_progress_bar_s rad_per_sec_progress_bar = {
-        .title = "rad_per_sec",
+    struct sdl_progress_bar_s r_per_s_progress_bar = {
+        .title = "radians_per_second",
         .max_value = 2000.0,
         .value = &engine->crankshaft.angular_velocity_r_per_s,
         .rect.w = 192,
@@ -119,12 +119,7 @@ main(int argc, char* argv[])
         clear_screen();
         draw_plots(engine, &sampler);
         draw_radial_chambers(engine);
-        draw_info(
-            engine,
-            &loop_time_panel,
-            &engine_time_panel,
-            &rad_per_sec_progress_bar,
-            &frames_per_sec_bar);
+        draw_info(engine, &loop_time_panel, &engine_time_panel, &r_per_s_progress_bar, &frames_per_sec_bar);
         uint64_t t3 = SDL_GetTicks();
         present(0.0);
         uint64_t t4 = SDL_GetTicks();
