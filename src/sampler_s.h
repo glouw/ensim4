@@ -44,27 +44,33 @@ sample_value(struct sampler_s* self, enum sample_name_e sample_name, float sampl
 }
 
 static void
-sample_channel(struct sampler_s* sampler, struct node_s* node, struct nozzle_flow_s* nozzle_flow)
+sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s* nozzle_flow)
 {
-    if(sampler->channel_index< g_sampler_max_channels)
+    if(self->channel_index< g_sampler_max_channels)
     {
-        sample_value(sampler, g_sample_static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
-        sample_value(sampler, g_sample_total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
-        sample_value(sampler, g_sample_static_temperature_k, node->as.chamber.gas.static_temperature_k);
-        sample_value(sampler, g_sample_volume_m3, node->as.chamber.volume_m3);
-        sample_value(sampler, g_sample_nozzle_area_m2, nozzle_flow->area_m2);
-        sample_value(sampler, g_sample_nozzle_mach, nozzle_flow->flow_field.mach);
-        sample_value(sampler, g_sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
-        sample_value(sampler, g_sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
-        sample_value(sampler, g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
-        sampler->channel_index++;
+        sample_value(self, g_sample_static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
+        sample_value(self, g_sample_total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
+        sample_value(self, g_sample_static_temperature_k, node->as.chamber.gas.static_temperature_k);
+        sample_value(self, g_sample_volume_m3, node->as.chamber.volume_m3);
+        sample_value(self, g_sample_nozzle_area_m2, nozzle_flow->area_m2);
+        sample_value(self, g_sample_nozzle_mach, nozzle_flow->flow_field.mach);
+        sample_value(self, g_sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
+        sample_value(self, g_sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
+        sample_value(self, g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
+        self->channel_index++;
     }
 }
 
 static void
-clear_sampler(struct sampler_s* sample)
+clear_sampler(struct sampler_s* self)
 {
-    clear(sample->value);
+    clear(self->value);
+}
+
+static void
+reset_sampler_channel(struct sampler_s* self)
+{
+    self->channel_index = 0;
 }
 
 static const char*

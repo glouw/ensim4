@@ -143,22 +143,42 @@ reset_engine(struct engine_s* self)
 }
 
 static void
-run_engine(struct engine_s* self, struct engine_time_s* engine_time, struct sampler_s* sampler)
+run_engine_once(
+    struct engine_s* self,
+    struct engine_time_s* engine_time,
+    struct sampler_s* sampler,
+    struct synth_s* synth)
 {
-    for(size_t i = 0; i < g_engine_cycles_per_frame; i++)
+    reset_sampler_channel(sampler);
+    size_t t0 = engine_time->get_ms();
+    flow_engine(self, sampler);
+    size_t t1 = engine_time->get_ms();
+    size_t t2 = engine_time->get_ms();
+    size_t t3 = engine_time->get_ms();
+    move_engine(self, sampler);
+    compress_engine_pistons(self);
+    size_t t4 = engine_time->get_ms();
+    engine_time->fluids_time_ms += t1 - t0;
+    engine_time->thermo_time_ms += t2 - t1;
+    engine_time->tbd_time_ms += t3 - t2;
+    engine_time->kinematics_time_ms += t4 - t3;
+    sample_synth(synth, 0.0);
+    step_synth(synth);
+}
+
+static void
+run_engine(
+    struct engine_s* self,
+    struct engine_time_s* engine_time,
+    struct sampler_s* sampler,
+    struct synth_s* synth,
+    size_t audio_buffer_size)
+{
+    if(audio_buffer_size < g_synth_buffer_mid_size)
     {
-        sampler->channel_index = 0;
-        uint64_t t0 = engine_time->get_ms();
-        flow_engine(self, sampler);
-        uint64_t t1 = engine_time->get_ms();
-        uint64_t t2 = engine_time->get_ms();
-        uint64_t t3 = engine_time->get_ms();
-        move_engine(self, sampler);
-        compress_engine_pistons(self);
-        uint64_t t4 = engine_time->get_ms();
-        engine_time->fluids_time_ms += t1 - t0;
-        engine_time->thermo_time_ms += t2 - t1;
-        engine_time->tbd_time_ms += t3 - t2;
-        engine_time->kinematics_time_ms += t4 - t3;
+        for(size_t i = 0; i < g_synth_buffer_size; i++)
+        {
+            run_engine_once(self, engine_time, sampler, synth);
+        }
     }
 }

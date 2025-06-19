@@ -5,8 +5,8 @@ struct sdl_time_panel_s
     const char* title;
     const char* labels[g_sdl_time_panel_size];
     SDL_FRect rect;
-    float min_time_ms;
-    float max_time_ms;
+    float min_value;
+    float max_value;
     sdl_slide_buffer_t slide_buffer[g_sdl_time_panel_size];
 };
 
