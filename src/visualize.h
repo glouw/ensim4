@@ -4,18 +4,18 @@ visualize_gamma()
     FILE* file = fopen("visualize/gamma.txt", "w");
     for(double static_temperature_k = 0; static_temperature_k < 6'000; static_temperature_k += 100.0)
     {
-        double gamma_n2 = calc_gamma_n2(static_temperature_k);
-        double gamma_o2 = calc_gamma_o2(static_temperature_k);
-        double gamma_ar = calc_gamma_ar(static_temperature_k);
-        double gamma_c8h18 = calc_gamma_c8h18(static_temperature_k);
-        double gamma_co2 = calc_gamma_co2(static_temperature_k);
-        double gamma_h2o = calc_gamma_h2o(static_temperature_k);
-        double cp_n2_j_per_mol_k = calc_cp_n2_j_per_mol_k(static_temperature_k);
-        double cp_o2_j_per_mol_k = calc_cp_o2_j_per_mol_k(static_temperature_k);
-        double cp_ar_j_per_mol_k = calc_cp_ar_j_per_mol_k(static_temperature_k);
-        double cp_c8h18_j_per_mol_k = calc_cp_c8h18_j_per_mol_k(static_temperature_k);
-        double cp_co2_j_per_mol_k = calc_cp_co2_j_per_mol_k(static_temperature_k);
-        double cp_h2o_j_per_mol_k = calc_cp_h2o_j_per_mol_k(static_temperature_k);
+        double gamma_n2 = lookup_gamma_n2(static_temperature_k);
+        double gamma_o2 = lookup_gamma_o2(static_temperature_k);
+        double gamma_ar = lookup_gamma_ar(static_temperature_k);
+        double gamma_c8h18 = lookup_gamma_c8h18(static_temperature_k);
+        double gamma_co2 = lookup_gamma_co2(static_temperature_k);
+        double gamma_h2o = lookup_gamma_h2o(static_temperature_k);
+        double cp_n2_j_per_mol_k = lookup_cp_n2_j_per_mol_k(static_temperature_k);
+        double cp_o2_j_per_mol_k = lookup_cp_o2_j_per_mol_k(static_temperature_k);
+        double cp_ar_j_per_mol_k = lookup_cp_ar_j_per_mol_k(static_temperature_k);
+        double cp_c8h18_j_per_mol_k = lookup_cp_c8h18_j_per_mol_k(static_temperature_k);
+        double cp_co2_j_per_mol_k = lookup_cp_co2_j_per_mol_k(static_temperature_k);
+        double cp_h2o_j_per_mol_k = lookup_cp_h2o_j_per_mol_k(static_temperature_k);
         double cv_n2_j_per_mol_k = calc_cv_j_per_mol_k(cp_n2_j_per_mol_k);
         double cv_o2_j_per_mol_k = calc_cv_j_per_mol_k(cp_o2_j_per_mol_k);
         double cv_ar_j_per_mol_k = calc_cv_j_per_mol_k(cp_ar_j_per_mol_k);

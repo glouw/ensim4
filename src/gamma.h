@@ -157,6 +157,42 @@ calc_cv_j_per_mol_k(double cp_j_per_mol_k)
     return cp_j_per_mol_k - g_gamma_universal_gas_constant_j_per_mol_k;
 }
 
+static double
+lookup_cp_n2_j_per_mol_k(size_t static_temperature_k)
+{
+    return g_cp_n2_j_per_mol_k[static_temperature_k];
+}
+
+static double
+lookup_cp_o2_j_per_mol_k(size_t static_temperature_k)
+{
+    return g_cp_o2_j_per_mol_k[static_temperature_k];
+}
+
+static double
+lookup_cp_ar_j_per_mol_k(size_t static_temperature_k)
+{
+    return g_cp_ar_j_per_mol_k[static_temperature_k];
+}
+
+static double
+lookup_cp_c8h18_j_per_mol_k(size_t static_temperature_k)
+{
+    return g_cp_c8h18_j_per_mol_k[static_temperature_k];
+}
+
+static double
+lookup_cp_co2_j_per_mol_k(size_t static_temperature_k)
+{
+    return g_cp_co2_j_per_mol_k[static_temperature_k];
+}
+
+static double
+lookup_cp_h2o_j_per_mol_k(size_t static_temperature_k)
+{
+    return g_cp_h2o_j_per_mol_k[static_temperature_k];
+}
+
 /*
  *
  * y = cp / cv
@@ -164,45 +200,45 @@ calc_cv_j_per_mol_k(double cp_j_per_mol_k)
  */
 
 static double
-calc_gamma(double cp_j_per_mol_k)
+lookup_gamma(double cp_j_per_mol_k)
 {
     return cp_j_per_mol_k / calc_cv_j_per_mol_k(cp_j_per_mol_k);
 }
 
 static double
-calc_gamma_n2(size_t static_temperature_k)
+lookup_gamma_n2(double static_temperature_k)
 {
-    return calc_gamma(g_cp_n2_j_per_mol_k[static_temperature_k]);
+    return lookup_gamma(lookup_cp_n2_j_per_mol_k(static_temperature_k));
 }
 
 static double
-calc_gamma_o2(size_t static_temperature_k)
+lookup_gamma_o2(double static_temperature_k)
 {
-    return calc_gamma(g_cp_o2_j_per_mol_k[static_temperature_k]);
+    return lookup_gamma(lookup_cp_o2_j_per_mol_k(static_temperature_k));
 }
 
 static double
-calc_gamma_ar(size_t static_temperature_k)
+lookup_gamma_ar(double static_temperature_k)
 {
-    return calc_gamma(g_cp_ar_j_per_mol_k[static_temperature_k]);
+    return lookup_gamma(lookup_cp_ar_j_per_mol_k(static_temperature_k));
 }
 
 static double
-calc_gamma_c8h18(size_t static_temperature_k)
+lookup_gamma_c8h18(double static_temperature_k)
 {
-    return calc_gamma(g_cp_c8h18_j_per_mol_k[static_temperature_k]);
+    return lookup_gamma(lookup_cp_c8h18_j_per_mol_k(static_temperature_k));
 }
 
 static double
-calc_gamma_co2(size_t static_temperature_k)
+lookup_gamma_co2(double static_temperature_k)
 {
-    return calc_gamma(g_cp_co2_j_per_mol_k[static_temperature_k]);
+    return lookup_gamma(lookup_cp_co2_j_per_mol_k(static_temperature_k));
 }
 
 static double
-calc_gamma_h2o(size_t static_temperature_k)
+lookup_gamma_h2o(double static_temperature_k)
 {
-    return calc_gamma(g_cp_h2o_j_per_mol_k[static_temperature_k]);
+    return lookup_gamma(lookup_cp_h2o_j_per_mol_k(static_temperature_k));
 }
 
 /* [1] B. Mcbride, M. Zehe, and S. Gordon, “NASA Glenn Coefficients for Calculating Thermodynamic Properties of Individual Species”, 2002.

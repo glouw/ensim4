@@ -1,3 +1,7 @@
+#define engine_is(engine) \
+    .node = engine,       \
+    .size = len(engine)
+
 static constexpr size_t g_engine_cycles_per_frame = 512;
 
 struct engine_s
@@ -56,6 +60,7 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
             }
             mail_gas_mail(&nozzle_flow.gas_mail);
         }
+        sample_misc(sampler, &self->starter, &self->flywheel, &self->crankshaft);
     }
 }
 
@@ -73,7 +78,7 @@ calc_engine_torque_n_m(const struct engine_s* self)
             torque_n_m += calc_piston_friction_torque_n_m(&node->as.piston, &self->crankshaft);
         }
     }
-    torque_n_m += calc_starter_torque_n_m(&self->starter, &self->flywheel, &self->crankshaft);
+    torque_n_m += calc_starter_torque_on_flywheel_n_m(&self->starter, &self->flywheel, &self->crankshaft);
     return torque_n_m;
 }
 

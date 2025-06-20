@@ -415,19 +415,18 @@ static struct node_s g_node_8_cyl[] = {
 };
 
 static struct engine_s g_engine_8_cyl = {
-    .node = g_node_8_cyl,
-    .size = len(g_node_8_cyl),
+    engine_is(g_node_8_cyl),
     .crankshaft = {
         .mass_kg = 0.25,
         .radius_m = 0.01,
     },
     .flywheel = {
-        .mass_kg = 1.0,
+        .mass_kg = 2.0,
         .radius_m = 0.1,
     },
     .starter = {
-        .rated_torque_n_m = 30.0,
-        .no_load_speed_r_per_s = 1575.0,
+        .rated_torque_n_m = 10.0,
+        .no_load_angular_velocity_r_per_s = 800.0,
         .radius_m = 0.008,
     },
 };

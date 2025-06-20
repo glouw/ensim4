@@ -1,15 +1,15 @@
 #define debugf SDL_RenderDebugTextFormat
 
 static const char* const g_sdl_title = "ENSIM4";
-static constexpr float g_sdl_xres_p = 1800.0f;
-static constexpr float g_sdl_yres_p = 900.0f;
+static constexpr float g_sdl_xres_p = 1880.0f;
+static constexpr float g_sdl_yres_p = 1000.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
 static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
 static constexpr float g_sdl_radial_spacing = 2.5f;
 static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_demo_delay_ms = 75.0f;
-static constexpr float g_sdl_column_width_ratio = 0.5f;
+static constexpr float g_sdl_column_width_ratio = 0.55f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
 
 static constexpr SDL_FColor g_sdl_channel_color[] = {
@@ -71,9 +71,13 @@ draw_slide_buffer(const sdl_slide_buffer_t self, const SDL_FRect* rect, float mi
     float range = max_val - min_val;
     for (size_t i = 0; i < g_sdl_slide_buffer_size; i++)
     {
-        points[i].x = rect->x + (rect->w * i) / (g_sdl_slide_buffer_size - 1);
+        float x = rect->x + 1;
+        float y = rect->y + 1;
+        float w = rect->w - 2;
+        float h = rect->h - 2;
+        points[i].x = x + (w * i) / (g_sdl_slide_buffer_size - 1);
         float normalized_val = (self[i] - min_val) / range;
-        points[i].y = rect->y + rect->h * (1.0f - normalized_val);
+        points[i].y = y + h * (1.0f - normalized_val);
     }
     SDL_RenderLines(g_sdl_renderer, points, g_sdl_slide_buffer_size);
 }
@@ -81,8 +85,6 @@ draw_slide_buffer(const sdl_slide_buffer_t self, const SDL_FRect* rect, float mi
 static void
 draw_time_panel(const struct sdl_time_panel_s* self)
 {
-    set_render_color(g_sdl_container_color);
-    SDL_RenderRect(g_sdl_renderer, &self->rect);
     for(size_t i = 0; i < g_sdl_time_panel_size; i++)
     {
         const char* label = self->labels[i];
@@ -92,6 +94,8 @@ draw_time_panel(const struct sdl_time_panel_s* self)
             draw_slide_buffer(self->slide_buffer[i], &self->rect, self->min_value, self->max_value);
         }
     }
+    set_render_color(g_sdl_container_color);
+    SDL_RenderRect(g_sdl_renderer, &self->rect);
 }
 
 static void

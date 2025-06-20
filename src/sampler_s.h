@@ -2,16 +2,18 @@ static constexpr size_t g_sampler_max_channels = 16;
 static constexpr size_t g_sampler_max_samples = 8192;
 static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r * g_std_audio_sample_rate_hz / g_sampler_max_samples;
 
-#define SAMPLES                                \
-    X(g_sample_static_pressure_pa)             \
-    X(g_sample_total_pressure_pa)              \
-    X(g_sample_static_temperature_k)           \
-    X(g_sample_volume_m3)                      \
-    X(g_sample_nozzle_area_m2)                 \
-    X(g_sample_nozzle_mach)                    \
-    X(g_sample_nozzle_velocity_m_per_s)        \
-    X(g_sample_nozzle_mass_flow_rate_kg_per_s) \
-    X(g_sample_nozzle_speed_of_sound_m_per_s)  \
+#define SAMPLES                                  \
+    X(g_sample_static_pressure_pa)               \
+    X(g_sample_total_pressure_pa)                \
+    X(g_sample_static_temperature_k)             \
+    X(g_sample_volume_m3)                        \
+    X(g_sample_nozzle_area_m2)                   \
+    X(g_sample_nozzle_mach)                      \
+    X(g_sample_nozzle_velocity_m_per_s)          \
+    X(g_sample_nozzle_mass_flow_rate_kg_per_s)   \
+    X(g_sample_nozzle_speed_of_sound_m_per_s)    \
+    X(g_sample_starter_angular_velocity_r_per_s) \
+    X(g_sample_starter_gear_audio_sample)        \
 
 enum sample_name_e
 {
@@ -59,6 +61,13 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
         sample_value(self, g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
         self->channel_index++;
     }
+}
+
+static void
+sample_misc(struct sampler_s* self, struct starter_s* starter, struct flywheel_s* flywheel, struct crankshaft_s* crankshaft)
+{
+    sample_value(self, g_sample_starter_angular_velocity_r_per_s, calc_starter_angular_velocity_r_per_s(starter, flywheel, crankshaft));
+    sample_value(self, g_sample_starter_gear_audio_sample, calc_starter_gear_audio_sample(starter, flywheel, crankshaft));
 }
 
 static void

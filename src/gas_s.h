@@ -42,14 +42,13 @@ calc_mixed_molar_mass_kg_per_mol(const struct gas_s* self)
 static double
 calc_mixed_cp_j_per_mol_k(const struct gas_s* self)
 {
-    size_t static_temperature_k = self->static_temperature_k;
     return
-        self->mol_ratio_n2 * g_cp_n2_j_per_mol_k[static_temperature_k] +
-        self->mol_ratio_o2 * g_cp_o2_j_per_mol_k[static_temperature_k] +
-        self->mol_ratio_ar * g_cp_ar_j_per_mol_k[static_temperature_k] +
-        self->mol_ratio_c8h18 * g_cp_c8h18_j_per_mol_k[static_temperature_k] +
-        self->mol_ratio_co2 * g_cp_co2_j_per_mol_k[static_temperature_k] +
-        self->mol_ratio_h2o * g_cp_h2o_j_per_mol_k[static_temperature_k];
+        self->mol_ratio_n2 * lookup_cp_n2_j_per_mol_k(self->static_temperature_k) +
+        self->mol_ratio_o2 * lookup_cp_o2_j_per_mol_k(self->static_temperature_k) +
+        self->mol_ratio_ar * lookup_cp_ar_j_per_mol_k(self->static_temperature_k) +
+        self->mol_ratio_c8h18 * lookup_cp_c8h18_j_per_mol_k(self->static_temperature_k) +
+        self->mol_ratio_co2 * lookup_cp_co2_j_per_mol_k(self->static_temperature_k) +
+        self->mol_ratio_h2o * lookup_cp_h2o_j_per_mol_k(self->static_temperature_k);
 }
 
 static double
@@ -61,7 +60,7 @@ calc_mixed_cv_j_per_mol_k(const struct gas_s* self)
 static double
 calc_mixed_gamma(const struct gas_s* self)
 {
-    return calc_gamma(calc_mixed_cp_j_per_mol_k(self));
+    return lookup_gamma(calc_mixed_cp_j_per_mol_k(self));
 }
 
 /*
