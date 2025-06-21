@@ -1,5 +1,5 @@
 static constexpr size_t g_sampler_max_channels = 16;
-static constexpr size_t g_sampler_max_samples = 8192;
+static constexpr size_t g_sampler_max_samples = 2*16384;
 static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r * g_std_audio_sample_rate_hz / g_sampler_max_samples;
 
 #define SAMPLES                                  \
@@ -48,7 +48,7 @@ sample_value(struct sampler_s* self, enum sample_name_e sample_name, float sampl
 static void
 sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s* nozzle_flow)
 {
-    if(self->channel_index< g_sampler_max_channels)
+    if(self->channel_index < g_sampler_max_channels)
     {
         sample_value(self, g_sample_static_pressure_pa, calc_static_pressure_pa(&node->as.chamber));
         sample_value(self, g_sample_total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
@@ -66,8 +66,11 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
 static void
 sample_misc(struct sampler_s* self, struct starter_s* starter, struct flywheel_s* flywheel, struct crankshaft_s* crankshaft)
 {
-    sample_value(self, g_sample_starter_angular_velocity_r_per_s, calc_starter_angular_velocity_r_per_s(starter, flywheel, crankshaft));
-    sample_value(self, g_sample_starter_gear_audio_sample, calc_starter_gear_audio_sample(starter, flywheel, crankshaft));
+    if(self->channel_index < g_sampler_max_channels)
+    {
+        sample_value(self, g_sample_starter_angular_velocity_r_per_s, calc_starter_angular_velocity_r_per_s(starter, flywheel, crankshaft));
+        sample_value(self, g_sample_starter_gear_audio_sample, calc_starter_gear_audio_sample(starter, flywheel, crankshaft));
+    }
 }
 
 static void

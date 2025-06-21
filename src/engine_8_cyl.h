@@ -51,6 +51,10 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
             },
+            .valve = {
+                .engage_r = (-1.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
+            },
         },
         .next = {12}
     },
@@ -61,6 +65,10 @@ static struct node_s g_node_8_cyl[] = {
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (0.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
         },
         .next = {13}
@@ -73,6 +81,10 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
             },
+            .valve = {
+                .engage_r = (1.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
+            },
         },
         .next = {14}
     },
@@ -83,6 +95,10 @@ static struct node_s g_node_8_cyl[] = {
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (2.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
         },
         .next = {15}
@@ -95,6 +111,10 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
             },
+            .valve = {
+                .engage_r = (3.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
+            },
         },
         .next = {16}
     },
@@ -105,6 +125,10 @@ static struct node_s g_node_8_cyl[] = {
                 .volume_m3 = 1.0,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (4.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
         },
         .next = {17}
@@ -117,6 +141,10 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
             },
+            .valve = {
+                .engage_r = (5.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
+            },
         },
         .next = {18}
     },
@@ -128,6 +156,10 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
             },
+            .valve = {
+                .engage_r = (6.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
+            },
         },
         .next = {19}
     },
@@ -136,8 +168,11 @@ static struct node_s g_node_8_cyl[] = {
         .as.piston = {
             .chamber = {
                 .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (5.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
             .diameter_m = 0.08,
             .theta_r = (0.0 / 8.0) * g_std_four_pi_r,
@@ -156,8 +191,11 @@ static struct node_s g_node_8_cyl[] = {
         .as.piston = {
             .chamber = {
                 .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (6.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
             .diameter_m = 0.08,
             .theta_r = (1.0 / 8.0) * g_std_four_pi_r,
@@ -176,8 +214,11 @@ static struct node_s g_node_8_cyl[] = {
         .as.piston = {
             .chamber = {
                 .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (7.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
             .diameter_m = 0.08,
             .theta_r = (2.0 / 8.0) * g_std_four_pi_r,
@@ -196,8 +237,11 @@ static struct node_s g_node_8_cyl[] = {
         .as.piston = {
             .chamber = {
                 .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (0.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
             .diameter_m = 0.08,
             .theta_r = (3.0 / 8.0) * g_std_four_pi_r,
@@ -216,8 +260,11 @@ static struct node_s g_node_8_cyl[] = {
         .as.piston = {
             .chamber = {
                 .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (1.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
             .diameter_m = 0.08,
             .theta_r = (4.0 / 8.0) * g_std_four_pi_r,
@@ -236,8 +283,11 @@ static struct node_s g_node_8_cyl[] = {
         .as.piston = {
             .chamber = {
                 .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (2.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
             .diameter_m = 0.08,
             .theta_r = (5.0 / 8.0) * g_std_four_pi_r,
@@ -256,8 +306,11 @@ static struct node_s g_node_8_cyl[] = {
         .as.piston = {
             .chamber = {
                 .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (3.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
             .diameter_m = 0.08,
             .theta_r = (6.0 / 8.0) * g_std_four_pi_r,
@@ -276,8 +329,11 @@ static struct node_s g_node_8_cyl[] = {
         .as.piston = {
             .chamber = {
                 .volume_m3 = 1.0,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.0001
+            },
+            .valve = {
+                .engage_r = (4.0 / 8.0) * g_std_four_pi_r,
+                .ramp_r = g_std_pi_r,
             },
             .diameter_m = 0.08,
             .theta_r = (7.0 / 8.0) * g_std_four_pi_r,
@@ -425,8 +481,8 @@ static struct engine_s g_engine_8_cyl = {
         .radius_m = 0.1,
     },
     .starter = {
-        .rated_torque_n_m = 10.0,
-        .no_load_angular_velocity_r_per_s = 800.0,
-        .radius_m = 0.008,
+        .rated_torque_n_m = 50.0,
+        .no_load_angular_velocity_r_per_s = 1000.0,
+        .radius_m = 0.005,
     },
 };

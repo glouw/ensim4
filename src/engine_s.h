@@ -58,7 +58,10 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
             {
                 sample_channel(sampler, x, &nozzle_flow);
             }
-            mail_gas_mail(&nozzle_flow.gas_mail);
+            if(nozzle_flow.is_success)
+            {
+                mail_gas_mail(&nozzle_flow.gas_mail);
+            }
         }
         sample_misc(sampler, &self->starter, &self->flywheel, &self->crankshaft);
     }
@@ -140,6 +143,26 @@ compress_engine_pistons(struct engine_s* self)
 }
 
 static void
+update_engine_nozzle_open_ratios(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == is_piston)
+        {
+            double valve_nozzle_open_ratio = calc_valve_nozzle_open_ratio(&node->as.piston.valve, &self->crankshaft);
+            node->as.chamber.nozzle_open_ratio = valve_nozzle_open_ratio;
+        }
+        else
+        if(node->type == is_irunner)
+        {
+            double valve_nozzle_open_ratio = calc_valve_nozzle_open_ratio(&node->as.irunner.valve, &self->crankshaft);
+            node->as.chamber.nozzle_open_ratio = valve_nozzle_open_ratio;
+        }
+    }
+}
+
+static void
 reset_engine(struct engine_s* self)
 {
     rig_engine_pistons(self);
@@ -162,6 +185,7 @@ run_engine_once(
     size_t t3 = engine_time->get_ms();
     move_engine(self, sampler);
     compress_engine_pistons(self);
+    update_engine_nozzle_open_ratios(self);
     size_t t4 = engine_time->get_ms();
     engine_time->fluids_time_ms += t1 - t0;
     engine_time->thermo_time_ms += t2 - t1;

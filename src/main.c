@@ -4,9 +4,11 @@
 #include <stdint.h>
 #include <float.h>
 #include <math.h>
+
+/* engine sim common defs */
 #include "std.h"
 
-/* fluid mechanics */
+/* engine fluids */
 #include "gamma.h"
 #include "gas_s.h"
 #include "chamber_s.h"
@@ -14,27 +16,34 @@
 #include "nozzle_flow_s.h"
 #include "visualize.h"
 
-/* volumes and mechanics */
+/* engine peripherals */
+#include "crankshaft_s.h"
+#include "flywheel_s.h"
+#include "starter_s.h"
+#include "valve_s.h"
+
+/* engine nodes */
 #include "source_s.h"
 #include "filter_s.h"
 #include "iplenum_s.h"
 #include "throttle_s.h"
 #include "irunner_s.h"
-#include "crankshaft_s.h"
-#include "flywheel_s.h"
 #include "piston_s.h"
 #include "erunner_s.h"
 #include "eplenum_s.h"
 #include "exhaust_s.h"
 #include "sink_s.h"
 #include "node_s.h"
-#include "starter_s.h"
-#include "sampler_s.h"
+
+/* engine synth */
 #include "synth_s.h"
+#include "sampler_s.h"
+
+/* engine assembly */
 #include "engine_s.h"
 #include "engine_8_cyl.h"
 
-/* display and input */
+/* sdl3 (video, input, and audio access) */
 #include <SDL3/SDL.h>
 #include "normalized_s.h"
 #include "sdl_scroll_s.h"
@@ -44,10 +53,10 @@
 #include "sdl.h"
 #include "sdl_audio.h"
 
-static struct sampler_s sampler = {};
-static struct synth_s synth = {};
+static struct sampler_s g_sampler = {};
+static struct synth_s g_synth = {};
 
-static struct sdl_time_panel_s loop_time_panel = {
+static struct sdl_time_panel_s g_loop_time_panel = {
     .title = "loop_time_ms",
     .labels = {
         "engine",
@@ -61,7 +70,7 @@ static struct sdl_time_panel_s loop_time_panel = {
     .rect.h = 96,
 };
 
-static struct sdl_time_panel_s engine_time_panel = {
+static struct sdl_time_panel_s g_engine_time_panel = {
     .title = "engine_time_ms",
     .labels = {
         "fluids",
@@ -75,7 +84,7 @@ static struct sdl_time_panel_s engine_time_panel = {
     .rect.h = 96,
 };
 
-static struct sdl_time_panel_s audio_buffer_time_panel = {
+static struct sdl_time_panel_s g_audio_buffer_time_panel = {
     .title = "audio_buffer_size",
     .labels = {
         "buffer_size",
@@ -89,44 +98,42 @@ static struct sdl_time_panel_s audio_buffer_time_panel = {
     .rect.h = 96,
 };
 
+static struct sdl_progress_bar_s g_r_per_s_progress_bar = {
+    .title = "radians_per_second",
+    .max_value = 2000.0,
+    .rect.w = 192,
+    .rect.h = 16,
+};
+
+static struct sdl_progress_bar_s g_frames_per_sec_bar = {
+    .title = "frames_per_sec",
+    .max_value = 100.0,
+    .rect.w = 192,
+    .rect.h = 16,
+};
+
 int
 main(int argc, char* argv[])
 {
-    struct engine_s* engine = &g_engine_8_cyl;
-    double frames_per_sec = 0.0;
-    struct sdl_progress_bar_s r_per_s_progress_bar = {
-        .title = "radians_per_second",
-        .max_value = 2000.0,
-        .value = &engine->crankshaft.angular_velocity_r_per_s,
-        .rect.w = 192,
-        .rect.h = 16,
-    };
-    struct sdl_progress_bar_s frames_per_sec_bar = {
-        .title = "frames_per_sec",
-        .max_value = 100.0,
-        .value = &frames_per_sec,
-        .rect.w = 192,
-        .rect.h = 16,
-    };
     init_cp_precompute_buffer();
     visualize_gamma();
     visualize_chamber_s();
     size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
+    struct engine_s* engine = &g_engine_8_cyl;
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();
     for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
     {
-        struct engine_time_s engine_time = {
-            .get_ms = SDL_GetTicks
-        };
+        struct engine_time_s engine_time = { .get_ms = SDL_GetTicks };
         size_t t0 = SDL_GetTicks();
-        clear_synth(&synth);
-        size_t audio_buffer_size = get_audio_buffer_size();
-        run_engine(engine, &engine_time, &sampler, &synth, audio_buffer_size);
-        buffer_audio(&synth);
+        clear_synth(&g_synth);
+        size_t g_audio_buffer_size = get_audio_buffer_size();
+        run_engine(engine, &engine_time, &g_sampler, &g_synth, g_audio_buffer_size);
+        g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
+        buffer_audio(&g_synth);
         push_time_panel(
-            &engine_time_panel,
+            &g_engine_time_panel,
             (float[]) {
                 engine_time.fluids_time_ms,
                 engine_time.thermo_time_ms,
@@ -135,35 +142,35 @@ main(int argc, char* argv[])
             }
         );
         push_time_panel(
-            &audio_buffer_time_panel,
+            &g_audio_buffer_time_panel,
             (float[]) {
-                audio_buffer_size,
+                g_audio_buffer_size,
                 g_synth_buffer_min_size,
                 0.0,
                 0.0,
             }
         );
         size_t t1 = SDL_GetTicks();
-        if(handle_input(engine, &sampler))
+        if(handle_input(engine, &g_sampler))
         {
             break;
         }
         size_t t2 = SDL_GetTicks();
         clear_screen();
-        draw_plots(engine, &sampler);
+        draw_plots(engine, &g_sampler);
         draw_radial_chambers(engine);
         draw_info(
             engine,
-            &loop_time_panel,
-            &engine_time_panel,
-            &audio_buffer_time_panel,
-            &r_per_s_progress_bar,
-            &frames_per_sec_bar);
+            &g_loop_time_panel,
+            &g_engine_time_panel,
+            &g_audio_buffer_time_panel,
+            &g_r_per_s_progress_bar,
+            &g_frames_per_sec_bar);
         size_t t3 = SDL_GetTicks();
         present(0.0);
         size_t t4 = SDL_GetTicks();
         push_time_panel(
-            &loop_time_panel,
+            &g_loop_time_panel,
             (float[]) {
                 t1 - t0,
                 t2 - t1,
@@ -172,7 +179,7 @@ main(int argc, char* argv[])
             }
         );
         size_t t5 = SDL_GetTicks();
-        frames_per_sec = 1000.0 / (t5 - t0);
+        g_frames_per_sec_bar.value = 1000.0 / (t5 - t0);
     }
     exit_sdl_audio();
     exit_sdl();

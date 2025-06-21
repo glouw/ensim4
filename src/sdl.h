@@ -101,7 +101,7 @@ draw_time_panel(const struct sdl_time_panel_s* self)
 static void
 draw_progress_bar(struct sdl_progress_bar_s* self)
 {
-    double percent = (self->max_value > 0.0) ? (*self->value / self->max_value) : 0.0;
+    double percent = (self->max_value > 0.0) ? (self->value / self->max_value) : 0.0;
     percent = clamp(percent, 0.0, 1.0);
     SDL_FRect fill = self->rect;
     fill.w = self->rect.w * percent;
@@ -386,7 +386,7 @@ static void
 draw_progress_bar_info(struct sdl_progress_bar_s* self, struct sdl_scroll_s* scroll)
 {
     set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "%s %.1f", self->title, *self->value);
+    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "%s %.1f", self->title, self->value);
     self->rect.x = scroll->x_p;
     self->rect.y = scroll->y_p;
     newline(scroll);

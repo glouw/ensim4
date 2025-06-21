@@ -20,6 +20,7 @@
 struct piston_s
 {
     struct chamber_s chamber;
+    struct valve_s valve;
     double diameter_m;
     double pin_x_m;
     double pin_y_m;
