@@ -33,7 +33,8 @@ struct piston_s
     double head_mass_density_kg_per_m3;
     double head_compression_height_m;
     double head_clearance_height_m;
-    double friction_coefficient_n_m_s_per_r;
+    double dynamic_friction_coefficient_n_m_s_per_r;
+    double static_friction_coefficient_n_m_s_per_r;
 };
 
 static double
@@ -114,7 +115,16 @@ calc_piston_inertia_torque_n_m(const struct piston_s* self, const struct cranksh
 static double
 calc_piston_friction_torque_n_m(const struct piston_s* self, const struct crankshaft_s* crankshaft)
 {
-    return -crankshaft->angular_velocity_r_per_s * self->friction_coefficient_n_m_s_per_r;
+    double friction_coefficient_n_m_s_per_r = 0.0;
+    if(fabs(crankshaft->angular_velocity_r_per_s) < 10.0)
+    {
+        friction_coefficient_n_m_s_per_r = self->static_friction_coefficient_n_m_s_per_r;
+    }
+    else
+    {
+        friction_coefficient_n_m_s_per_r = self->dynamic_friction_coefficient_n_m_s_per_r;
+    }
+    return -crankshaft->angular_velocity_r_per_s * friction_coefficient_n_m_s_per_r;
 }
 
 static void

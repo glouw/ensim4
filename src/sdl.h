@@ -503,9 +503,20 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
     {
     case SDL_EVENT_QUIT:
         return true;
+    case SDL_EVENT_KEY_DOWN:
+        switch(event.key.key)
+        {
+        case SDLK_SPACE:
+            engine->starter.is_on = true;
+            break;
+        }
+        break;
     case SDL_EVENT_KEY_UP:
         switch(event.key.key)
         {
+        case SDLK_SPACE:
+            engine->starter.is_on = false;
+            break;
         case SDLK_F:
             draw_demo_engine(engine);
             break;

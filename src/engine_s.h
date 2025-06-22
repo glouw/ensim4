@@ -191,7 +191,8 @@ run_engine_once(
     engine_time->thermo_time_ms += t2 - t1;
     engine_time->tbd_time_ms += t3 - t2;
     engine_time->kinematics_time_ms += t4 - t3;
-    sample_synth(synth, 0.0);
+    double audio_sample = calc_starter_gear_audio_sample(&self->starter, &self->flywheel, &self->crankshaft);
+    sample_synth(synth, audio_sample);
     step_synth(synth);
 }
 
