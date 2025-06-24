@@ -77,7 +77,7 @@ draw_slide_buffer(const sdl_slide_buffer_t self, const SDL_FRect* rect, float mi
         float h = rect->h - 2;
         points[i].x = x + (w * i) / (g_sdl_slide_buffer_size - 1);
         float normalized_val = (self[i] - min_val) / range;
-        points[i].y = y + h * (1.0f - normalized_val);
+        points[i].y = y + h * (1.0 - normalized_val);
     }
     SDL_RenderLines(g_sdl_renderer, points, g_sdl_slide_buffer_size);
 }
@@ -308,10 +308,15 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
         }
         for(size_t i = 0; i < sampler->size; i++)
         {
-            buffer[buffered++] = (SDL_FPoint) {
+            float top_bar_ratio = 0.3 * rect->h;
+            float bot_bar_ratio = 0.0 * rect->h;
+            float height_p = rect->h - top_bar_ratio - bot_bar_ratio;
+            SDL_FPoint point = {
                 rect->x + (i / (sampler->size - 1.0f)) * (rect->w - 1.0f),
-                rect->y + (1.0f - samples[i]) * rect->h,
+                rect->y + top_bar_ratio + ((1.0f - samples[i]) * height_p),
             };
+            buffer[buffered++] = point;
+
         }
     }
     set_render_color(get_channel_color(channel));
@@ -466,19 +471,21 @@ draw_panel(struct sdl_panel_s* self, const SDL_FRect* rect)
         float w = rect->w - 2;
         float h = rect->h - 2;
         points[i].x = x + (w * i) / (self->size - 1);
-        points[i].y = y + h * (1.0f - self->sample[i]);
+        points[i].y = y + h * (1.0 - self->sample[i]);
     }
+    set_render_color(get_channel_color(0));
     SDL_RenderPoints(g_sdl_renderer, points, self->size);
 }
 
 static void
 draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
 {
+    float x_p = scroll->x_p - self->rect.w;
     set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "%s", self->title);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "max %f", self->normalized.is_success ? self->normalized.max_value : 0.0);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "min %f", self->normalized.is_success ? self->normalized.min_value : 0.0);
-    self->rect.x = scroll->x_p;
+    debugf(g_sdl_renderer, x_p, newline(scroll), "%s", self->title);
+    debugf(g_sdl_renderer, x_p, newline(scroll), "max %f", self->normalized.is_success ? self->normalized.max_value : 0.0);
+    debugf(g_sdl_renderer, x_p, newline(scroll), "min %f", self->normalized.is_success ? self->normalized.min_value : 0.0);
+    self->rect.x = x_p;
     self->rect.y = scroll->y_p;
     draw_panel(self, &self->rect);
     newline(scroll);
@@ -491,9 +498,8 @@ draw_right_info(
     struct sdl_panel_s* starter_panel_r_per_s,
     struct sdl_panel_s* synth_panel_signal)
 {
-    size_t width_p = 192;
     struct sdl_scroll_s scroll = {
-        .x_p = g_sdl_xres_p - compute_plot_column_width_p(engine) - g_sdl_line_spacing_p - width_p,
+        .x_p = g_sdl_xres_p - compute_plot_column_width_p(engine) - g_sdl_line_spacing_p,
         .y_p = g_sdl_line_spacing_p,
     };
     draw_panel_info(starter_panel_r_per_s, &scroll);
