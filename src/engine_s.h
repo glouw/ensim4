@@ -16,9 +16,9 @@ struct engine_s
 struct engine_time_s
 {
     uint64_t fluids_time_ms;
-    uint64_t thermo_time_ms;
-    uint64_t tbd_time_ms;
     uint64_t kinematics_time_ms;
+    uint64_t thermo_time_ms;
+    uint64_t synth_time_ms;
     uint64_t (*get_ms)();
 };
 
@@ -63,7 +63,6 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
                 mail_gas_mail(&nozzle_flow.gas_mail);
             }
         }
-        sample_misc(sampler, &self->starter, &self->flywheel, &self->crankshaft);
     }
 }
 
@@ -170,6 +169,21 @@ reset_engine(struct engine_s* self)
     select_nodes(self->node, self->size, is_piston);
 }
 
+static double
+calc_engine_eplenum_static_gauge_pressure_pa(struct engine_s* self)
+{
+    double eplenum_static_gauge_pressure_pa = 0.0;
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == is_eplenum)
+        {
+            eplenum_static_gauge_pressure_pa += calc_static_gauge_pressure_pa(&node->as.chamber);
+        }
+    }
+    return eplenum_static_gauge_pressure_pa;
+}
+
 static void
 run_engine_once(
     struct engine_s* self,
@@ -181,19 +195,20 @@ run_engine_once(
     size_t t0 = engine_time->get_ms();
     flow_engine(self, sampler);
     size_t t1 = engine_time->get_ms();
-    size_t t2 = engine_time->get_ms();
-    size_t t3 = engine_time->get_ms();
     move_engine(self, sampler);
     compress_engine_pistons(self);
     update_engine_nozzle_open_ratios(self);
+    double starter_angular_velocity_r_per_s = calc_starter_angular_velocity_r_per_s(&self->starter, &self->flywheel, &self->crankshaft);
+    size_t t2 = engine_time->get_ms();
+    size_t t3 = engine_time->get_ms();
+    double eplenum_static_gauge_pressure_pa = calc_engine_eplenum_static_gauge_pressure_pa(self);
+    double synth_sample = push_synth(synth, eplenum_static_gauge_pressure_pa);
+    sample_misc_values(sampler, starter_angular_velocity_r_per_s, synth_sample);
     size_t t4 = engine_time->get_ms();
     engine_time->fluids_time_ms += t1 - t0;
-    engine_time->thermo_time_ms += t2 - t1;
-    engine_time->tbd_time_ms += t3 - t2;
-    engine_time->kinematics_time_ms += t4 - t3;
-    double audio_sample = calc_starter_gear_audio_sample(&self->starter, &self->flywheel, &self->crankshaft);
-    sample_synth(synth, audio_sample);
-    step_synth(synth);
+    engine_time->kinematics_time_ms += t2 - t1;
+    engine_time->thermo_time_ms += t3 - t2;
+    engine_time->synth_time_ms += t4 - t3;
 }
 
 static void

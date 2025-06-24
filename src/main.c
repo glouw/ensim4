@@ -36,8 +36,11 @@
 #include "node_s.h"
 
 /* engine synth */
-#include "synth_s.h"
+#include "normalized_s.h"
+#include "convo_s.h"
+#include "dc_filter_s.h"
 #include "sampler_s.h"
+#include "synth_s.h"
 
 /* engine assembly */
 #include "engine_s.h"
@@ -45,10 +48,10 @@
 
 /* sdl3 (video, input, and audio access) */
 #include <SDL3/SDL.h>
-#include "normalized_s.h"
 #include "sdl_scroll_s.h"
 #include "sdl_slide_buffer_t.h"
 #include "sdl_time_panel_s.h"
+#include "sdl_panel_s.h"
 #include "sdl_progress_bar_s.h"
 #include "sdl.h"
 #include "sdl_audio.h"
@@ -74,9 +77,9 @@ static struct sdl_time_panel_s g_engine_time_panel = {
     .title = "engine_time_ms",
     .labels = {
         "fluids",
-        "thermo",
-        "TBD",
         "kinematics",
+        "thermo",
+        "synth",
     },
     .min_value = 0.0,
     .max_value = 40.0,
@@ -112,6 +115,18 @@ static struct sdl_progress_bar_s g_frames_per_sec_bar = {
     .rect.h = 16,
 };
 
+static struct sdl_panel_s g_starter_panel_r_per_s = {
+    .title = "starter_r_per_s",
+    .rect.w = 192,
+    .rect.h = 128,
+};
+
+static struct sdl_panel_s g_synth_panel_signal = {
+    .title = "synth_signal",
+    .rect.w = 192,
+    .rect.h = 128,
+};
+
 int
 main(int argc, char* argv[])
 {
@@ -131,14 +146,28 @@ main(int argc, char* argv[])
         size_t g_audio_buffer_size = get_audio_buffer_size();
         run_engine(engine, &engine_time, &g_sampler, &g_synth, g_audio_buffer_size);
         g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
-        buffer_audio(&g_synth);
+        if(g_synth.index > 0)
+        {
+            normalize_synth(&g_synth);
+            buffer_audio(&g_synth);
+        }
+        push_panel(
+            &g_starter_panel_r_per_s,
+            g_sampler.starter_angular_velocity_r_per_s,
+            g_sampler.size
+        );
+        push_panel(
+            &g_synth_panel_signal,
+            g_sampler.synth_sample,
+            g_sampler.size
+        );
         push_time_panel(
             &g_engine_time_panel,
             (float[]) {
                 engine_time.fluids_time_ms,
-                engine_time.thermo_time_ms,
-                engine_time.tbd_time_ms,
                 engine_time.kinematics_time_ms,
+                engine_time.thermo_time_ms,
+                engine_time.synth_time_ms,
             }
         );
         push_time_panel(
@@ -159,13 +188,17 @@ main(int argc, char* argv[])
         clear_screen();
         draw_plots(engine, &g_sampler);
         draw_radial_chambers(engine);
-        draw_info(
+        draw_left_info(
             engine,
             &g_loop_time_panel,
             &g_engine_time_panel,
             &g_audio_buffer_time_panel,
             &g_r_per_s_progress_bar,
             &g_frames_per_sec_bar);
+        draw_right_info(
+            engine,
+            &g_starter_panel_r_per_s,
+            &g_synth_panel_signal);
         size_t t3 = SDL_GetTicks();
         present(0.0);
         size_t t4 = SDL_GetTicks();

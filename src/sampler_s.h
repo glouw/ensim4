@@ -1,5 +1,5 @@
 static constexpr size_t g_sampler_max_channels = 16;
-static constexpr size_t g_sampler_max_samples = 2*16384;
+static constexpr size_t g_sampler_max_samples = 16384;
 static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r * g_std_audio_sample_rate_hz / g_sampler_max_samples;
 
 #define SAMPLES                                  \
@@ -12,8 +12,6 @@ static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r
     X(g_sample_nozzle_velocity_m_per_s)          \
     X(g_sample_nozzle_mass_flow_rate_kg_per_s)   \
     X(g_sample_nozzle_speed_of_sound_m_per_s)    \
-    X(g_sample_starter_angular_velocity_r_per_s) \
-    X(g_sample_starter_gear_audio_sample)        \
 
 enum sample_name_e
 {
@@ -34,10 +32,19 @@ static const char* g_sample_name_string[] = {
 struct sampler_s
 {
     float value[g_sampler_max_channels][g_sample_name_e_size][g_sampler_max_samples];
+    float starter_angular_velocity_r_per_s[g_sampler_max_samples];
+    float synth_sample[g_sampler_max_samples];
     size_t index;
     size_t channel_index;
     size_t size;
 };
+
+static void
+sample_misc_values(struct sampler_s* self, float starter_angular_velocity_r_per_s, float synth_sample)
+{
+    self->starter_angular_velocity_r_per_s[self->index] = starter_angular_velocity_r_per_s;
+    self->synth_sample[self->index] = synth_sample;
+}
 
 static void
 sample_value(struct sampler_s* self, enum sample_name_e sample_name, float sample)
@@ -60,16 +67,6 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
         sample_value(self, g_sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
         sample_value(self, g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
         self->channel_index++;
-    }
-}
-
-static void
-sample_misc(struct sampler_s* self, struct starter_s* starter, struct flywheel_s* flywheel, struct crankshaft_s* crankshaft)
-{
-    if(self->channel_index < g_sampler_max_channels)
-    {
-        sample_value(self, g_sample_starter_angular_velocity_r_per_s, calc_starter_angular_velocity_r_per_s(starter, flywheel, crankshaft));
-        sample_value(self, g_sample_starter_gear_audio_sample, calc_starter_gear_audio_sample(starter, flywheel, crankshaft));
     }
 }
 

@@ -67,7 +67,7 @@ set_render_color(SDL_FColor color)
 static void
 draw_slide_buffer(const sdl_slide_buffer_t self, const SDL_FRect* rect, float min_val, float max_val)
 {
-    SDL_FPoint points[g_sdl_slide_buffer_size];
+    static SDL_FPoint points[g_sdl_slide_buffer_size];
     float range = max_val - min_val;
     for (size_t i = 0; i < g_sdl_slide_buffer_size; i++)
     {
@@ -417,7 +417,7 @@ draw_time_panel_info(struct sdl_time_panel_s* self, struct sdl_scroll_s* scroll)
 }
 
 static void
-draw_engine_info(const struct engine_s* engine, struct sdl_scroll_s* scroll)
+draw_general_info(struct sdl_scroll_s* scroll)
 {
     set_render_color(g_sdl_text_color);
     debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s);
@@ -432,7 +432,7 @@ draw_info_title(struct sdl_scroll_s* scroll)
 }
 
 static void
-draw_info(
+draw_left_info(
     const struct engine_s* engine,
     struct sdl_time_panel_s* loop_time_panel,
     struct sdl_time_panel_s* engine_time_panel,
@@ -450,7 +450,54 @@ draw_info(
     draw_time_panel_info(audio_buffer_time_panel, &scroll);
     draw_progress_bar_info(rad_per_sec_progress_bar, &scroll);
     draw_progress_bar_info(frames_per_sec_progress_bar, &scroll);
-    draw_engine_info(engine, &scroll);
+    draw_general_info(&scroll);
+}
+
+static void
+draw_panel(struct sdl_panel_s* self, const SDL_FRect* rect)
+{
+    set_render_color(g_sdl_container_color);
+    SDL_RenderRect(g_sdl_renderer, &self->rect);
+    static SDL_FPoint points[g_sampler_max_samples];
+    for(size_t i = 0; i < self->size; i++)
+    {
+        float x = rect->x + 1;
+        float y = rect->y + 1;
+        float w = rect->w - 2;
+        float h = rect->h - 2;
+        points[i].x = x + (w * i) / (self->size - 1);
+        points[i].y = y + h * (1.0f - self->sample[i]);
+    }
+    SDL_RenderPoints(g_sdl_renderer, points, self->size);
+}
+
+static void
+draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
+{
+    set_render_color(g_sdl_text_color);
+    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "%s", self->title);
+    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "max %f", self->normalized.is_success ? self->normalized.max_value : 0.0);
+    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "min %f", self->normalized.is_success ? self->normalized.min_value : 0.0);
+    self->rect.x = scroll->x_p;
+    self->rect.y = scroll->y_p;
+    draw_panel(self, &self->rect);
+    newline(scroll);
+    scroll_by(scroll, self->rect.h);
+}
+
+static void
+draw_right_info(
+    const struct engine_s* engine,
+    struct sdl_panel_s* starter_panel_r_per_s,
+    struct sdl_panel_s* synth_panel_signal)
+{
+    size_t width_p = 192;
+    struct sdl_scroll_s scroll = {
+        .x_p = g_sdl_xres_p - compute_plot_column_width_p(engine) - g_sdl_line_spacing_p - width_p,
+        .y_p = g_sdl_line_spacing_p,
+    };
+    draw_panel_info(starter_panel_r_per_s, &scroll);
+    draw_panel_info(synth_panel_signal, &scroll);
 }
 
 static void

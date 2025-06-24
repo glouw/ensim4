@@ -3,7 +3,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_source,
         .as.source = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 1e6,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.006
             },
@@ -14,7 +14,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_filter,
         .as.filter = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0015,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.006
             },
@@ -25,7 +25,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_throttle,
         .as.throttle = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0005,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.006
             },
@@ -36,7 +36,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_iplenum,
         .as.iplenum = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.002,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.006
             },
@@ -47,7 +47,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -62,7 +62,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -77,7 +77,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -92,7 +92,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -107,7 +107,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -122,7 +122,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -137,7 +137,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -152,7 +152,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_irunner,
         .as.irunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -167,7 +167,6 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .volume_m3 = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
             .valve = {
@@ -191,7 +190,6 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .volume_m3 = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
             .valve = {
@@ -215,7 +213,6 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .volume_m3 = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
             .valve = {
@@ -239,7 +236,6 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .volume_m3 = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
             .valve = {
@@ -263,7 +259,6 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .volume_m3 = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
             .valve = {
@@ -287,7 +282,6 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .volume_m3 = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
             .valve = {
@@ -311,7 +305,6 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .volume_m3 = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
             .valve = {
@@ -335,7 +328,6 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_piston,
         .as.piston = {
             .chamber = {
-                .volume_m3 = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
             .valve = {
@@ -359,7 +351,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -370,7 +362,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -381,7 +373,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -392,7 +384,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -403,7 +395,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -414,7 +406,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -425,7 +417,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -436,7 +428,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.0003,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00075
             },
@@ -447,7 +439,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_eplenum,
         .as.eplenum = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.15,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.006
             },
@@ -458,7 +450,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_exhaust,
         .as.eplenum = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 0.1,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.006
             },
@@ -469,7 +461,7 @@ static struct node_s g_node_8_cyl[] = {
         .type = is_sink,
         .as.sink = {
             .chamber = {
-                .volume_m3 = 1.0,
+                .volume_m3 = 1e6,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.006
             },
@@ -489,8 +481,8 @@ static struct engine_s g_engine_8_cyl = {
         .radius_m = 0.18,
     },
     .starter = {
-        .rated_torque_n_m = 30.0,
-        .no_load_angular_velocity_r_per_s = 1000.0,
+        .rated_torque_n_m = 80.0,
+        .no_load_angular_velocity_r_per_s = 500.0,
         .radius_m = 0.015,
     },
 };

@@ -1,4 +1,4 @@
-static constexpr size_t g_starter_teeth = 8;
+static constexpr size_t g_starter_teeth = 7;
 
 struct starter_s
 {
@@ -48,23 +48,4 @@ calc_starter_torque_on_flywheel_n_m(
     double gear_ratio = calc_flywheel_to_starter_gear_ratio(self, flywheel);
     double flywheel_torque_n_m = starter_torque_n_m * gear_ratio;
     return flywheel_torque_n_m;
-}
-
-static double
-calc_starter_gear_audio_sample_function(double phase)
-{
-    return (fmod(phase, 2.0 * g_std_pi_r) / g_std_pi_r) - 1.0;
-}
-
-static double
-calc_starter_gear_audio_sample(
-   const struct starter_s* self,
-   const struct flywheel_s* flywheel,
-   const struct crankshaft_s* crankshaft)
-{
-   double gear_ratio = calc_flywheel_to_starter_gear_ratio(self, flywheel);
-   double starter_theta_r = crankshaft->theta_r * gear_ratio;
-   double phase = starter_theta_r * g_starter_teeth;
-   double gear_audio_sample = calc_starter_gear_audio_sample_function(phase);
-   return 0.01 * gear_audio_sample;
 }
