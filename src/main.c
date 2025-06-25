@@ -153,12 +153,12 @@ main(int argc, char* argv[])
         }
         push_panel(
             &g_starter_panel_r_per_s,
-            g_sampler.starter_angular_velocity_r_per_s,
+            g_sampler.starter,
             g_sampler.size
         );
         push_panel(
             &g_synth_panel_signal,
-            g_sampler.synth_sample,
+            g_sampler.synth,
             g_sampler.size
         );
         push_time_panel(

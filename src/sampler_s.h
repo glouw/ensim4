@@ -31,9 +31,9 @@ static const char* g_sample_name_string[] = {
 
 struct sampler_s
 {
-    float value[g_sampler_max_channels][g_sample_name_e_size][g_sampler_max_samples];
-    float starter_angular_velocity_r_per_s[g_sampler_max_samples];
-    float synth_sample[g_sampler_max_samples];
+    float channel[g_sampler_max_channels][g_sample_name_e_size][g_sampler_max_samples];
+    float starter[g_sampler_max_samples];
+    float synth[g_sampler_max_samples];
     size_t index;
     size_t channel_index;
     size_t size;
@@ -42,14 +42,14 @@ struct sampler_s
 static void
 sample_misc_values(struct sampler_s* self, float starter_angular_velocity_r_per_s, float synth_sample)
 {
-    self->starter_angular_velocity_r_per_s[self->index] = starter_angular_velocity_r_per_s;
-    self->synth_sample[self->index] = synth_sample;
+    self->starter[self->index] = starter_angular_velocity_r_per_s;
+    self->synth[self->index] = synth_sample;
 }
 
 static void
 sample_value(struct sampler_s* self, enum sample_name_e sample_name, float sample)
 {
-    self->value[self->channel_index][sample_name][self->index] = sample;
+    self->channel[self->channel_index][sample_name][self->index] = sample;
 }
 
 static void
@@ -71,9 +71,9 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
 }
 
 static void
-clear_sampler(struct sampler_s* self)
+clear_channel_sampler(struct sampler_s* self)
 {
-    clear(self->value);
+    clear(self->channel);
 }
 
 static void

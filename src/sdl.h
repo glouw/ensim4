@@ -288,7 +288,7 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
     {
         for(size_t i = 0; i < sampler->size; i++)
         {
-            samples[i] = sampler->value[channel][sample_name][i];
+            samples[i] = sampler->channel[channel][sample_name][i];
         }
         struct normalized_s normalized = normalize_samples(samples, sampler->size);
         const SDL_FRect* rect = &rects[sample_name];
@@ -540,7 +540,7 @@ toggle_node_at(struct engine_s* engine, struct sampler_s* sampler, float x_p, fl
         SDL_FPoint select = { x_p, y_p };
         if(SDL_PointInRectFloat(&select, &rect))
         {
-            clear_sampler(sampler);
+            clear_channel_sampler(sampler);
             node->is_selected ^= true;
             break;
         }
