@@ -6,6 +6,7 @@ static constexpr size_t g_engine_cycles_per_frame = 512;
 
 struct engine_s
 {
+    char* name;
     struct node_s* node;
     size_t size;
     struct crankshaft_s crankshaft;
@@ -37,7 +38,7 @@ rig_engine_pistons(struct engine_s* self)
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
-        if(node->type == is_piston)
+        if(node->type == g_is_piston)
         {
             rig_piston(&node->as.piston, &self->crankshaft);
         }
@@ -73,7 +74,7 @@ calc_engine_torque_n_m(const struct engine_s* self)
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
-        if(node->type == is_piston)
+        if(node->type == g_is_piston)
         {
             torque_n_m += calc_piston_gas_torque_n_m(&node->as.piston, &self->crankshaft);
             torque_n_m += calc_piston_inertia_torque_n_m(&node->as.piston, &self->crankshaft);
@@ -91,7 +92,7 @@ calc_engine_moment_of_inertia_kg_m2(const struct engine_s* self)
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
-        if(node->type == is_piston)
+        if(node->type == g_is_piston)
         {
             moment_of_inertia_kg_m2 += calc_piston_moment_of_inertia_kg_per_m2(&node->as.piston);
         }
@@ -134,7 +135,7 @@ compress_engine_pistons(struct engine_s* self)
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
-        if(node->type == is_piston)
+        if(node->type == g_is_piston)
         {
             compress_piston(&node->as.piston, &self->crankshaft);
         }
@@ -147,13 +148,13 @@ update_engine_nozzle_open_ratios(struct engine_s* self)
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
-        if(node->type == is_piston)
+        if(node->type == g_is_piston)
         {
             double valve_nozzle_open_ratio = calc_valve_nozzle_open_ratio(&node->as.piston.valve, &self->crankshaft);
             node->as.chamber.nozzle_open_ratio = valve_nozzle_open_ratio;
         }
         else
-        if(node->type == is_irunner)
+        if(node->type == g_is_irunner)
         {
             double valve_nozzle_open_ratio = calc_valve_nozzle_open_ratio(&node->as.irunner.valve, &self->crankshaft);
             node->as.chamber.nozzle_open_ratio = valve_nozzle_open_ratio;
@@ -166,7 +167,7 @@ reset_engine(struct engine_s* self)
 {
     rig_engine_pistons(self);
     normalize_engine(self);
-    select_nodes(self->node, self->size, is_piston);
+    select_nodes(self->node, self->size, g_is_piston);
 }
 
 static double
@@ -176,7 +177,7 @@ calc_engine_eplenum_static_gauge_pressure_pa(struct engine_s* self)
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
-        if(node->type == is_eplenum)
+        if(node->type == g_is_eplenum)
         {
             eplenum_static_gauge_pressure_pa += calc_static_gauge_pressure_pa(&node->as.chamber);
         }

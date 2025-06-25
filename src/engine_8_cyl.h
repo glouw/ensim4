@@ -1,6 +1,6 @@
 static struct node_s g_node_8_cyl[] = {
     [0] = {
-        .type = is_source,
+        .type = g_is_source,
         .as.source = {
             .chamber = {
                 .volume_m3 = 1e6,
@@ -11,7 +11,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {1}
     },
     [1] = {
-        .type = is_filter,
+        .type = g_is_filter,
         .as.filter = {
             .chamber = {
                 .volume_m3 = 0.0015,
@@ -22,7 +22,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {2}
     },
     [2] = {
-        .type = is_throttle,
+        .type = g_is_throttle,
         .as.throttle = {
             .chamber = {
                 .volume_m3 = 0.0005,
@@ -33,7 +33,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {3}
     },
     [3] = {
-        .type = is_iplenum,
+        .type = g_is_iplenum,
         .as.iplenum = {
             .chamber = {
                 .volume_m3 = 0.002,
@@ -44,7 +44,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {4, 5, 6, 7, 8, 9, 10, 11}
     },
     [4] = {
-        .type = is_irunner,
+        .type = g_is_irunner,
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -59,7 +59,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {12}
     },
     [5] = {
-        .type = is_irunner,
+        .type = g_is_irunner,
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -74,7 +74,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {13}
     },
     [6] = {
-        .type = is_irunner,
+        .type = g_is_irunner,
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -89,7 +89,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {14}
     },
     [7] = {
-        .type = is_irunner,
+        .type = g_is_irunner,
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -104,7 +104,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {15}
     },
     [8] = {
-        .type = is_irunner,
+        .type = g_is_irunner,
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -119,7 +119,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {16}
     },
     [9] = {
-        .type = is_irunner,
+        .type = g_is_irunner,
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -134,7 +134,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {17}
     },
     [10] = {
-        .type = is_irunner,
+        .type = g_is_irunner,
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -149,7 +149,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {18}
     },
     [11] = {
-        .type = is_irunner,
+        .type = g_is_irunner,
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -164,7 +164,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {19}
     },
     [12] = {
-        .type = is_piston,
+        .type = g_is_piston,
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = 0.00075
@@ -179,7 +179,7 @@ static struct node_s g_node_8_cyl[] = {
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
             .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
+            .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.001,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
             .static_friction_coefficient_n_m_s_per_r = 0.9,
@@ -187,7 +187,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {20}
     },
     [13] = {
-        .type = is_piston,
+        .type = g_is_piston,
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = 0.00075
@@ -202,7 +202,7 @@ static struct node_s g_node_8_cyl[] = {
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
             .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
+            .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.001,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
             .static_friction_coefficient_n_m_s_per_r = 0.9,
@@ -210,7 +210,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {21}
     },
     [14] = {
-        .type = is_piston,
+        .type = g_is_piston,
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = 0.00075
@@ -225,7 +225,7 @@ static struct node_s g_node_8_cyl[] = {
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
             .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
+            .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.001,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
             .static_friction_coefficient_n_m_s_per_r = 0.9,
@@ -233,7 +233,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {22}
     },
     [15] = {
-        .type = is_piston,
+        .type = g_is_piston,
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = 0.00075
@@ -248,7 +248,7 @@ static struct node_s g_node_8_cyl[] = {
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
             .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
+            .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.001,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
             .static_friction_coefficient_n_m_s_per_r = 0.9,
@@ -256,7 +256,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {23}
     },
     [16] = {
-        .type = is_piston,
+        .type = g_is_piston,
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = 0.00075
@@ -271,7 +271,7 @@ static struct node_s g_node_8_cyl[] = {
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
             .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
+            .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.001,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
             .static_friction_coefficient_n_m_s_per_r = 0.9,
@@ -279,7 +279,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {24}
     },
     [17] = {
-        .type = is_piston,
+        .type = g_is_piston,
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = 0.00075
@@ -294,7 +294,7 @@ static struct node_s g_node_8_cyl[] = {
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
             .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
+            .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.001,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
             .static_friction_coefficient_n_m_s_per_r = 0.9,
@@ -302,7 +302,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {25}
     },
     [18] = {
-        .type = is_piston,
+        .type = g_is_piston,
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = 0.00075
@@ -317,7 +317,7 @@ static struct node_s g_node_8_cyl[] = {
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
             .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
+            .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.001,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
             .static_friction_coefficient_n_m_s_per_r = 0.9,
@@ -325,7 +325,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {26}
     },
     [19] = {
-        .type = is_piston,
+        .type = g_is_piston,
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = 0.00075
@@ -340,7 +340,7 @@ static struct node_s g_node_8_cyl[] = {
             .connecting_rod_length_m = 0.12,
             .connecting_rod_mass_kg = 0.5,
             .head_mass_density_kg_per_m3 = 7800.0,
-            .head_compression_height_m = 0.01,
+            .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.001,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
             .static_friction_coefficient_n_m_s_per_r = 0.9,
@@ -348,7 +348,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {27}
     },
     [20] = {
-        .type = is_erunner,
+        .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -359,7 +359,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {28}
     },
     [21] = {
-        .type = is_erunner,
+        .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -370,7 +370,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {28}
     },
     [22] = {
-        .type = is_erunner,
+        .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -381,7 +381,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {28}
     },
     [23] = {
-        .type = is_erunner,
+        .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -392,7 +392,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {28}
     },
     [24] = {
-        .type = is_erunner,
+        .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -403,7 +403,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {28}
     },
     [25] = {
-        .type = is_erunner,
+        .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -414,7 +414,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {28}
     },
     [26] = {
-        .type = is_erunner,
+        .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -425,7 +425,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {28}
     },
     [27] = {
-        .type = is_erunner,
+        .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
                 .volume_m3 = 0.0003,
@@ -436,7 +436,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {28}
     },
     [28] = {
-        .type = is_eplenum,
+        .type = g_is_eplenum,
         .as.eplenum = {
             .chamber = {
                 .volume_m3 = 0.15,
@@ -447,7 +447,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {29}
     },
     [29] = {
-        .type = is_exhaust,
+        .type = g_is_exhaust,
         .as.eplenum = {
             .chamber = {
                 .volume_m3 = 0.1,
@@ -458,7 +458,7 @@ static struct node_s g_node_8_cyl[] = {
         .next = {30}
     },
     [30] = {
-        .type = is_sink,
+        .type = g_is_sink,
         .as.sink = {
             .chamber = {
                 .volume_m3 = 1e6,
@@ -471,6 +471,7 @@ static struct node_s g_node_8_cyl[] = {
 };
 
 static struct engine_s g_engine_8_cyl = {
+    "inline 8",
     engine_is(g_node_8_cyl),
     .crankshaft = {
         .mass_kg = 18.0,

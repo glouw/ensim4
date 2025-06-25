@@ -15,7 +15,7 @@ static constexpr size_t g_nodes_node_children = 16;
 
 enum node_type_e
 {
-#define X(type) is_##type,
+#define X(type) g_is_##type,
     TYPES
 #undef X
 };

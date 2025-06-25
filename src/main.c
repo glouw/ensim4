@@ -199,6 +199,7 @@ main(int argc, char* argv[])
             engine,
             &g_starter_panel_r_per_s,
             &g_synth_panel_signal);
+        draw_pistons(engine);
         size_t t3 = SDL_GetTicks();
         present(0.0);
         size_t t4 = SDL_GetTicks();

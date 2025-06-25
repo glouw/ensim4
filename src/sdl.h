@@ -301,6 +301,7 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
             set_render_color(get_channel_color(channel));
             debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "max: %+.3e", normalized.max_value);
             debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "min: %+.3e", normalized.min_value);
+            debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "div: %3.3f", normalized.max_value / normalized.min_value);
         }
         if(normalized.is_success == false)
         {
@@ -308,8 +309,8 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
         }
         for(size_t i = 0; i < sampler->size; i++)
         {
-            float top_bar_ratio = 0.3 * rect->h;
-            float bot_bar_ratio = 0.0 * rect->h;
+            float top_bar_ratio = 0.35 * rect->h;
+            float bot_bar_ratio = 0.00 * rect->h;
             float height_p = rect->h - top_bar_ratio - bot_bar_ratio;
             SDL_FPoint point = {
                 rect->x + (i / (sampler->size - 1.0f)) * (rect->w - 1.0f),
@@ -547,6 +548,42 @@ toggle_node_at(struct engine_s* engine, struct sampler_s* sampler, float x_p, fl
     }
 }
 
+static void
+draw_pistons(struct engine_s* engine)
+{
+    float x0_p = g_sdl_mid_x_p;
+    float y0_p = g_sdl_mid_y_p;
+    set_render_color(g_sdl_text_color);
+    debugf(g_sdl_renderer, x0_p, y0_p, engine->name);
+    float scale_p_per_m = 256.0;
+    float space_p = 4.0;
+    set_render_color(g_sdl_container_color);
+    float x_p = 0.0;
+    for(size_t i = 0; i < engine->size; i++)
+    {
+        struct node_s* node = &engine->node[i];
+        if(node->type == g_is_piston)
+        {
+            float y_p = scale_p_per_m * node->as.piston.pin_y_m;
+            SDL_FRect head = {
+                x0_p + x_p,
+                y0_p + y_p,
+                scale_p_per_m * node->as.piston.diameter_m,
+                scale_p_per_m * node->as.piston.head_compression_height_m * 2.0,
+            };
+            SDL_FRect conrod = {
+                head.x + head.w / 3,
+                head.y + head.h,
+                head.w / 3,
+                scale_p_per_m * node->as.piston.connecting_rod_length_m,
+            };
+            SDL_RenderRect(g_sdl_renderer, &head);
+            SDL_RenderRect(g_sdl_renderer, &conrod);
+            x_p += space_p + head.w;
+        }
+    }
+}
+
 static bool
 handle_input(struct engine_s* engine, struct sampler_s* sampler)
 {
@@ -587,20 +624,20 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
             break;
         case SDLK_P:
             deselect_all_nodes(engine->node, engine->size);
-            select_nodes(engine->node, engine->size, is_piston);
+            select_nodes(engine->node, engine->size, g_is_piston);
             break;
         case SDLK_I:
             deselect_all_nodes(engine->node, engine->size);
-            select_nodes(engine->node, engine->size, is_filter);
-            select_nodes(engine->node, engine->size, is_throttle);
-            select_nodes(engine->node, engine->size, is_iplenum);
-            select_nodes(engine->node, engine->size, is_irunner);
+            select_nodes(engine->node, engine->size, g_is_filter);
+            select_nodes(engine->node, engine->size, g_is_throttle);
+            select_nodes(engine->node, engine->size, g_is_iplenum);
+            select_nodes(engine->node, engine->size, g_is_irunner);
             break;
         case SDLK_E:
             deselect_all_nodes(engine->node, engine->size);
-            select_nodes(engine->node, engine->size, is_eplenum);
-            select_nodes(engine->node, engine->size, is_erunner);
-            select_nodes(engine->node, engine->size, is_exhaust);
+            select_nodes(engine->node, engine->size, g_is_eplenum);
+            select_nodes(engine->node, engine->size, g_is_erunner);
+            select_nodes(engine->node, engine->size, g_is_exhaust);
             break;
         case SDLK_C:
             deselect_all_nodes(engine->node, engine->size);
