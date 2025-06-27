@@ -12,6 +12,7 @@ static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r
     X(g_sample_nozzle_velocity_m_per_s)          \
     X(g_sample_nozzle_mass_flow_rate_kg_per_s)   \
     X(g_sample_nozzle_speed_of_sound_m_per_s)    \
+    X(g_sample_gamma)                            \
 
 enum sample_name_e
 {
@@ -66,6 +67,7 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
         sample_value(self, g_sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
         sample_value(self, g_sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
         sample_value(self, g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
+        sample_value(self, g_sample_gamma, calc_mixed_gamma(&node->as.chamber.gas));
         self->channel_index++;
     }
 }

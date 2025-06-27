@@ -12,12 +12,6 @@ struct synth_s
 };
 
 static void
-normalize_synth(struct synth_s* self)
-{
-    normalize_samples(self->value, self->index);
-}
-
-static void
 sample_synth(struct synth_s* self, double value)
 {
     self->value[self->index] += value;
@@ -37,11 +31,26 @@ clear_synth(struct synth_s* self)
 }
 
 static double
-push_synth(struct synth_s* self, double sample)
+clamp_synth(struct synth_s* self, double value)
 {
-    sample = filter_dc(&self->dc_filter, sample);
-    sample = filter_convo(&self->convo, sample);
-    sample_synth(self, sample);
+    return clamp(value, -1.0, 1.0);
+}
+
+static double
+adjust_gain_synth(struct synth_s* self, double value)
+{
+    value /= 5e4;
+    return value;
+}
+
+static double
+push_synth(struct synth_s* self, double value)
+{
+    value = filter_dc(&self->dc_filter, value);
+    value = filter_convo(&self->convo, value);
+    value = adjust_gain_synth(self, value);
+    value = clamp_synth(self, value);
+    sample_synth(self, value);
     step_synth(self);
-    return sample;
+    return value;
 }

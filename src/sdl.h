@@ -6,7 +6,7 @@ static constexpr float g_sdl_yres_p = 1000.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
 static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
-static constexpr float g_sdl_radial_spacing = 2.5f;
+static constexpr float g_sdl_radial_spacing = 2.7f;
 static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_demo_delay_ms = 75.0f;
 static constexpr float g_sdl_column_width_ratio = 0.55f;
@@ -64,20 +64,30 @@ set_render_color(SDL_FColor color)
     SDL_SetRenderDrawColorFloat(g_sdl_renderer, color.r, color.g, color.b, color.a);
 }
 
+static SDL_FPoint
+calc_point_in_rect(float value, SDL_FRect rect, size_t index, size_t size)
+{
+    float border_p = 1.0;
+    float x_p = rect.x + border_p;
+    float y_p = rect.y + border_p;
+    float w_p = rect.w - border_p * 2.0;
+    float h_p = rect.h - border_p * 2.0;
+    SDL_FPoint point = {
+        x_p + (w_p * index) / (size - 1),
+        y_p + h_p * (1.0 - value),
+    };
+    return point;
+}
+
 static void
-draw_slide_buffer(const sdl_slide_buffer_t self, const SDL_FRect* rect, float min_val, float max_val)
+draw_slide_buffer(const sdl_slide_buffer_t self, SDL_FRect rect, float min_val, float max_val)
 {
     static SDL_FPoint points[g_sdl_slide_buffer_size];
     float range = max_val - min_val;
     for (size_t i = 0; i < g_sdl_slide_buffer_size; i++)
     {
-        float x = rect->x + 1;
-        float y = rect->y + 1;
-        float w = rect->w - 2;
-        float h = rect->h - 2;
-        points[i].x = x + (w * i) / (g_sdl_slide_buffer_size - 1);
-        float normalized_val = (self[i] - min_val) / range;
-        points[i].y = y + h * (1.0 - normalized_val);
+        float normalized_value = (self[i] - min_val) / range;
+        points[i] = calc_point_in_rect(normalized_value, rect, i, g_sdl_slide_buffer_size);
     }
     SDL_RenderLines(g_sdl_renderer, points, g_sdl_slide_buffer_size);
 }
@@ -91,7 +101,7 @@ draw_time_panel(const struct sdl_time_panel_s* self)
         if(label)
         {
             set_render_color(get_channel_color(i));
-            draw_slide_buffer(self->slide_buffer[i], &self->rect, self->min_value, self->max_value);
+            draw_slide_buffer(self->slide_buffer[i], self->rect, self->min_value, self->max_value);
         }
     }
     set_render_color(g_sdl_container_color);
@@ -309,14 +319,13 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
         }
         for(size_t i = 0; i < sampler->size; i++)
         {
-            float top_bar_ratio = 0.35 * rect->h;
-            float bot_bar_ratio = 0.00 * rect->h;
-            float height_p = rect->h - top_bar_ratio - bot_bar_ratio;
-            SDL_FPoint point = {
-                rect->x + (i / (sampler->size - 1.0f)) * (rect->w - 1.0f),
-                rect->y + top_bar_ratio + ((1.0f - samples[i]) * height_p),
+            float top_bar_h_p = 0.35 * rect->h;
+            float bot_bar_h_p = 0.05 * rect->h;
+            float h_p = rect->h - top_bar_h_p - bot_bar_h_p;
+            SDL_FRect barred_rect = {
+                rect->x, rect->y + top_bar_h_p, rect->w, h_p
             };
-            buffer[buffered++] = point;
+            buffer[buffered++] = calc_point_in_rect(samples[i], barred_rect, i, sampler->size);
 
         }
     }
@@ -460,19 +469,14 @@ draw_left_info(
 }
 
 static void
-draw_panel(struct sdl_panel_s* self, const SDL_FRect* rect)
+draw_panel(struct sdl_panel_s* self, SDL_FRect rect)
 {
     set_render_color(g_sdl_container_color);
     SDL_RenderRect(g_sdl_renderer, &self->rect);
     static SDL_FPoint points[g_sampler_max_samples];
     for(size_t i = 0; i < self->size; i++)
     {
-        float x = rect->x + 1;
-        float y = rect->y + 1;
-        float w = rect->w - 2;
-        float h = rect->h - 2;
-        points[i].x = x + (w * i) / (self->size - 1);
-        points[i].y = y + h * (1.0 - self->sample[i]);
+        points[i] = calc_point_in_rect(self->sample[i], rect, i, self->size);
     }
     set_render_color(get_channel_color(0));
     SDL_RenderPoints(g_sdl_renderer, points, self->size);
@@ -488,7 +492,7 @@ draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
     debugf(g_sdl_renderer, x_p, newline(scroll), "min %f", self->normalized.is_success ? self->normalized.min_value : 0.0);
     self->rect.x = x_p;
     self->rect.y = scroll->y_p;
-    draw_panel(self, &self->rect);
+    draw_panel(self, self->rect);
     newline(scroll);
     scroll_by(scroll, self->rect.h);
 }
@@ -571,10 +575,11 @@ draw_pistons(struct engine_s* engine)
                 scale_p_per_m * node->as.piston.diameter_m,
                 scale_p_per_m * node->as.piston.head_compression_height_m * 2.0,
             };
+            size_t w_p = head.w / 3;
             SDL_FRect conrod = {
-                head.x + head.w / 3,
+                head.x + w_p,
                 head.y + head.h,
-                head.w / 3,
+                w_p,
                 scale_p_per_m * node->as.piston.connecting_rod_length_m,
             };
             SDL_RenderRect(g_sdl_renderer, &head);
@@ -647,7 +652,7 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
             break;
         }
         break;
-    case SDL_EVENT_MOUSE_BUTTON_UP:
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
         switch(event.button.button)
         {
         case SDL_BUTTON_LEFT:

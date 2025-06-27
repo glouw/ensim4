@@ -44,6 +44,7 @@
 
 /* engine assembly */
 #include "engine_s.h"
+#include "engine_1_cyl.h"
 #include "engine_8_cyl.h"
 
 /* sdl3 (video, input, and audio access) */
@@ -82,7 +83,7 @@ static struct sdl_time_panel_s g_engine_time_panel = {
         "synth",
     },
     .min_value = 0.0,
-    .max_value = 40.0,
+    .max_value = 30.0,
     .rect.w = 192,
     .rect.h = 96,
 };
@@ -134,7 +135,7 @@ main(int argc, char* argv[])
     visualize_gamma();
     visualize_chamber_s();
     size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
-    struct engine_s* engine = &g_engine_8_cyl;
+    struct engine_s* engine = &g_engine_1_cyl;
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();
@@ -146,11 +147,7 @@ main(int argc, char* argv[])
         size_t g_audio_buffer_size = get_audio_buffer_size();
         run_engine(engine, &engine_time, &g_sampler, &g_synth, g_audio_buffer_size);
         g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
-        if(g_synth.index > 0)
-        {
-            normalize_synth(&g_synth);
-            buffer_audio(&g_synth);
-        }
+        buffer_audio(&g_synth);
         push_panel(
             &g_starter_panel_r_per_s,
             g_sampler.starter,
