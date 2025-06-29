@@ -575,11 +575,11 @@ draw_pistons(struct engine_s* engine)
                 scale_p_per_m * node->as.piston.diameter_m,
                 scale_p_per_m * node->as.piston.head_compression_height_m * 2.0,
             };
-            size_t w_p = head.w / 3;
+            float conrod_w_p = head.w / 3;
             SDL_FRect conrod = {
-                head.x + w_p,
+                head.x + conrod_w_p,
                 head.y + head.h,
-                w_p,
+                conrod_w_p,
                 scale_p_per_m * node->as.piston.connecting_rod_length_m,
             };
             SDL_RenderRect(g_sdl_renderer, &head);

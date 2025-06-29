@@ -67,6 +67,20 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
     }
 }
 
+static void
+update_eplenum_waves(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* x = &self->node[i];
+        if(x->type == g_is_eplenum)
+        {
+            double pressure_pa = calc_static_gauge_pressure_pa(&x->as.chamber);
+            wave_update(&x->as.eplenum.wave, pressure_pa);
+        }
+    }
+}
+
 static double
 calc_engine_torque_n_m(const struct engine_s* self)
 {
@@ -172,18 +186,18 @@ reset_engine(struct engine_s* self)
 }
 
 static double
-calc_engine_eplenum_static_gauge_pressure_pa(struct engine_s* self)
+calc_engine_eplenum_wave_signal(struct engine_s* self)
 {
-    double eplenum_static_gauge_pressure_pa = 0.0;
+    double wave_signal = 0.0;
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
         if(node->type == g_is_eplenum)
         {
-            eplenum_static_gauge_pressure_pa += calc_static_gauge_pressure_pa(&node->as.chamber);
+            wave_signal += sample_wave_static_gauge_pressure_pa(&node->as.eplenum.wave);
         }
     }
-    return eplenum_static_gauge_pressure_pa;
+    return wave_signal;
 }
 
 static void
@@ -203,8 +217,9 @@ run_engine_once(
     double starter_angular_velocity_r_per_s = calc_starter_angular_velocity_r_per_s(&self->starter, &self->flywheel, &self->crankshaft);
     size_t t2 = engine_time->get_ms();
     size_t t3 = engine_time->get_ms();
-    double eplenum_static_gauge_pressure_pa = calc_engine_eplenum_static_gauge_pressure_pa(self);
-    double synth_sample = push_synth(synth, eplenum_static_gauge_pressure_pa);
+    update_eplenum_waves(self);
+    double eplenum_wave_signal = calc_engine_eplenum_wave_signal(self);
+    double synth_sample = push_synth(synth, eplenum_wave_signal);
     sample_misc_values(sampler, starter_angular_velocity_r_per_s, synth_sample);
     size_t t4 = engine_time->get_ms();
     engine_time->fluids_time_ms += t1 - t0;

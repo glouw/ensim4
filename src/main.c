@@ -15,6 +15,7 @@
 #include "gas_mail_s.h"
 #include "nozzle_flow_s.h"
 #include "visualize.h"
+#include "wave_s.h"
 
 /* engine peripherals */
 #include "crankshaft_s.h"
@@ -146,9 +147,8 @@ main(int argc, char* argv[])
     for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
     {
         struct engine_time_s engine_time = { .get_ms = SDL_GetTicks };
-        size_t g_audio_buffer_size = get_audio_buffer_size();
         size_t t0 = SDL_GetTicks();
-        run_engine(engine, &engine_time, &g_sampler, &g_synth, g_audio_buffer_size);
+        run_engine(engine, &engine_time, &g_sampler, &g_synth, get_audio_buffer_size());
         buffer_audio(&g_synth);
         size_t t1 = SDL_GetTicks();
         if(handle_input(engine, &g_sampler))
@@ -180,7 +180,7 @@ main(int argc, char* argv[])
         push_time_panel(
             &g_audio_buffer_time_panel,
             (float[]) {
-                g_audio_buffer_size,
+                get_audio_buffer_size(),
                 g_synth_buffer_min_size,
                 0.0,
                 0.0,
