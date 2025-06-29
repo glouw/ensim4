@@ -1,6 +1,10 @@
-CC = gcc
+CC = clang
 
 CFLAGS = -std=c23 -Ofast -march=native
+
+ifeq (0,1)
+CFLAGS += -Rpass=loop-vectorize
+endif
 
 ifeq (0,1)
 CFLAGS+= -fsanitize=address,undefined -g

@@ -220,6 +220,7 @@ run_engine(
     struct synth_s* synth,
     size_t audio_buffer_size)
 {
+    clear_synth(synth);
     if(audio_buffer_size < g_synth_buffer_mid_size)
     {
         for(size_t i = 0; i < g_synth_buffer_size; i++)

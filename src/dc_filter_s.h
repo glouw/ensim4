@@ -4,7 +4,7 @@ struct dc_filter_s
     double prev_output;
 };
 
-static float
+static double
 filter_dc(struct dc_filter_s* self, double sample)
 {
     double alpha = 0.9957;

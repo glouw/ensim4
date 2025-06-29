@@ -6,7 +6,9 @@ static constexpr size_t g_synth_buffer_max_size = 7 * g_synth_buffer_size;
 struct synth_s
 {
     struct dc_filter_s dc_filter;
-    struct convo_s convo;
+    struct gain_filter_s gain_filter;
+    struct convo_filter_s convo_filter;
+    double clamp;
     float value[g_synth_buffer_size];
     size_t index;
 };
@@ -14,13 +16,7 @@ struct synth_s
 static void
 sample_synth(struct synth_s* self, double value)
 {
-    self->value[self->index] += value;
-}
-
-static void
-step_synth(struct synth_s* self)
-{
-    self->index += 1;
+    self->value[self->index++] += value;
 }
 
 static void
@@ -33,24 +29,16 @@ clear_synth(struct synth_s* self)
 static double
 clamp_synth(struct synth_s* self, double value)
 {
-    return clamp(value, -1.0, 1.0);
-}
-
-static double
-adjust_gain_synth(struct synth_s* self, double value)
-{
-    value /= 5e4;
-    return value;
+    return clamp(value, -self->clamp, self->clamp);
 }
 
 static double
 push_synth(struct synth_s* self, double value)
 {
     value = filter_dc(&self->dc_filter, value);
-    value = filter_convo(&self->convo, value);
-    value = adjust_gain_synth(self, value);
+    value = filter_convo(&self->convo_filter, value);
+    value = filter_gain(&self->gain_filter, value);
     value = clamp_synth(self, value);
     sample_synth(self, value);
-    step_synth(self);
     return value;
 }

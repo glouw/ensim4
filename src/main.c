@@ -37,7 +37,8 @@
 
 /* engine synth */
 #include "normalized_s.h"
-#include "convo_s.h"
+#include "gain_filter_s.h"
+#include "convo_filter_s.h"
 #include "dc_filter_s.h"
 #include "sampler_s.h"
 #include "synth_s.h"
@@ -58,7 +59,10 @@
 #include "sdl_audio.h"
 
 static struct sampler_s g_sampler = {};
-static struct synth_s g_synth = {};
+
+static struct synth_s g_synth = {
+    .clamp = 1.0,
+};
 
 static struct sdl_time_panel_s g_loop_time_panel = {
     .title = "loop_time_ms",
@@ -142,12 +146,18 @@ main(int argc, char* argv[])
     for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
     {
         struct engine_time_s engine_time = { .get_ms = SDL_GetTicks };
-        size_t t0 = SDL_GetTicks();
-        clear_synth(&g_synth);
         size_t g_audio_buffer_size = get_audio_buffer_size();
+        size_t t0 = SDL_GetTicks();
         run_engine(engine, &engine_time, &g_sampler, &g_synth, g_audio_buffer_size);
-        g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
         buffer_audio(&g_synth);
+        size_t t1 = SDL_GetTicks();
+        if(handle_input(engine, &g_sampler))
+        {
+            break;
+        }
+        size_t t2 = SDL_GetTicks();
+        clear_screen();
+        g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
         push_panel(
             &g_starter_panel_r_per_s,
             g_sampler.starter,
@@ -176,13 +186,6 @@ main(int argc, char* argv[])
                 0.0,
             }
         );
-        size_t t1 = SDL_GetTicks();
-        if(handle_input(engine, &g_sampler))
-        {
-            break;
-        }
-        size_t t2 = SDL_GetTicks();
-        clear_screen();
         draw_plots(engine, &g_sampler);
         draw_radial_chambers(engine);
         draw_left_info(
