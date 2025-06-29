@@ -1,5 +1,5 @@
 static constexpr size_t g_gain_filter_size = 8192;
-static constexpr double g_gain_filter_pre_gain = 0.25;
+static constexpr double g_gain_filter_pre_gain = 0.1;
 
 struct gain_filter_s
 {

@@ -1,6 +1,6 @@
 CC = clang
 
-CFLAGS = -std=c23 -Ofast -march=native
+CFLAGS = -std=c23 -O3 -ffast-math -march=native
 
 ifeq (0,1)
 CFLAGS += -Rpass=loop-vectorize

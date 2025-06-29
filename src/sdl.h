@@ -558,7 +558,7 @@ draw_pistons(struct engine_s* engine)
     float x0_p = g_sdl_mid_x_p;
     float y0_p = g_sdl_mid_y_p;
     set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, x0_p, y0_p, engine->name);
+    debugf(g_sdl_renderer, x0_p, y0_p, "%s", engine->name);
     float scale_p_per_m = 256.0;
     float space_p = 4.0;
     set_render_color(g_sdl_container_color);

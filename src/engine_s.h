@@ -82,6 +82,7 @@ calc_engine_torque_n_m(const struct engine_s* self)
         }
     }
     torque_n_m += calc_starter_torque_on_flywheel_n_m(&self->starter, &self->flywheel, &self->crankshaft);
+    torque_n_m += calc_crankshaft_friction_torque_n_m(&self->crankshaft);
     return torque_n_m;
 }
 
