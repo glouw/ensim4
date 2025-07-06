@@ -11,6 +11,7 @@ static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_demo_delay_ms = 75.0f;
 static constexpr float g_sdl_column_width_ratio = 0.55f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
+static constexpr float g_plot_lowpass_filter_hz = 200.0f;
 
 static constexpr SDL_FColor g_sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
@@ -111,7 +112,7 @@ draw_time_panel(const struct sdl_time_panel_s* self)
 static void
 draw_progress_bar(struct sdl_progress_bar_s* self)
 {
-    double percent = (self->max_value > 0.0) ? (self->value / self->max_value) : 0.0;
+    float percent = (self->max_value > 0.0) ? (self->value / self->max_value) : 0.0;
     percent = clamp(percent, 0.0, 1.0);
     SDL_FRect fill = self->rect;
     fill.w = self->rect.w * percent;
@@ -296,9 +297,11 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
     static float samples[g_sampler_max_samples];
     for(enum sample_name_e sample_name = 0; sample_name < g_sample_name_e_size; sample_name++)
     {
+        struct lowpass_filter_s lowpass_filter = {};
         for(size_t i = 0; i < sampler->size; i++)
         {
             samples[i] = sampler->channel[channel][sample_name][i];
+            samples[i] = filter_lowpass(&lowpass_filter, g_plot_lowpass_filter_hz, samples[i]);
         }
         struct normalized_s normalized = normalize_samples(samples, sampler->size);
         const SDL_FRect* rect = &rects[sample_name];
