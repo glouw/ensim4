@@ -8,6 +8,13 @@
 /* engine sim common defs */
 #include "std.h"
 
+/* signal processing */
+#include "normalized_s.h"
+#include "gain_filter_s.h"
+#include "convo_filter_s.h"
+#include "lowpass_filter_s.h"
+#include "highpass_filter_s.h"
+
 /* engine fluids */
 #include "gamma.h"
 #include "gas_s.h"
@@ -37,10 +44,6 @@
 #include "node_s.h"
 
 /* engine synth */
-#include "normalized_s.h"
-#include "gain_filter_s.h"
-#include "convo_filter_s.h"
-#include "dc_filter_s.h"
 #include "sampler_s.h"
 #include "synth_s.h"
 

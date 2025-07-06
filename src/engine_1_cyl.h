@@ -48,7 +48,6 @@ static struct node_s g_node_1_cyl[] = {
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 1e-4,
-                .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.000075
             },
             .valve = {
@@ -62,7 +61,7 @@ static struct node_s g_node_1_cyl[] = {
         .type = g_is_piston,
         .as.piston = {
             .chamber = {
-                .nozzle_max_flow_area_m2 = 0.000075
+                .nozzle_max_flow_area_m2 = 0.00005
             },
             .valve = {
                 .engage_r = (5.5 / 8.0) * g_std_four_pi_r,
@@ -107,9 +106,9 @@ static struct node_s g_node_1_cyl[] = {
         .type = g_is_exhaust,
         .as.eplenum = {
             .chamber = {
-                .volume_m3 = 2e-4,
+                .volume_m3 = 1e-3,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
+                .nozzle_max_flow_area_m2 = 0.00005
             },
         },
         .next = {9}

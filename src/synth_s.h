@@ -2,10 +2,11 @@ static constexpr size_t g_synth_buffer_size = g_std_audio_sample_rate_hz / g_std
 static constexpr size_t g_synth_buffer_min_size = 1 * g_synth_buffer_size;
 static constexpr size_t g_synth_buffer_mid_size = 3 * g_synth_buffer_size;
 static constexpr size_t g_synth_buffer_max_size = 5 * g_synth_buffer_size;
+static constexpr double g_dc_filter_cutoff_frequency_hz = 10.0;
 
 struct synth_s
 {
-    struct dc_filter_s dc_filter;
+    struct highpass_filter_s dc_filter;
     struct gain_filter_s gain_filter;
     struct convo_filter_s convo_filter;
     double clamp;
@@ -35,8 +36,8 @@ clamp_synth(struct synth_s* self, double value)
 static double
 push_synth(struct synth_s* self, double value)
 {
-    value = filter_dc(&self->dc_filter, value);
-    value = filter_convo(&self->convo_filter, value);
+    value = filter_highpass(&self->dc_filter, g_dc_filter_cutoff_frequency_hz, value);
+    //value = filter_convo(&self->convo_filter, value);
     value = filter_gain(&self->gain_filter, value);
     value = clamp_synth(self, value);
     sample_synth(self, value);
