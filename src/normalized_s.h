@@ -1,6 +1,7 @@
 struct normalized_s
 {
     float max_value;
+    float avg_value;
     float min_value;
     bool is_success;
 };
@@ -17,6 +18,11 @@ normalize_samples(float samples[], size_t size)
     {
         normalized.max_value = max(normalized.max_value, samples[i]);
     }
+    for(size_t i = 0; i < size; i++)
+    {
+        normalized.avg_value = samples[i];
+    }
+    normalized.avg_value /= size;
     for(size_t i = 0; i < size; i++)
     {
         normalized.min_value = min(normalized.min_value, samples[i]);

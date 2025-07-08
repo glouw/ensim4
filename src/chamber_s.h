@@ -195,7 +195,7 @@ static void
 remove_gas(struct chamber_s* self, const struct gas_s* mail)
 {
     self->gas.mass_kg -= mail->mass_kg;
-    self->gas.momentum_kg_m_per_s -= mail->momentum_kg_m_per_s;
+    add_momentum(&self->gas, -mail->momentum_kg_m_per_s);
 }
 
 static void

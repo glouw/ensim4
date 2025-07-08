@@ -16,11 +16,11 @@ struct engine_s
 
 struct engine_time_s
 {
-    uint64_t fluids_time_ms;
-    uint64_t kinematics_time_ms;
-    uint64_t thermo_time_ms;
-    uint64_t synth_time_ms;
-    uint64_t (*get_ms)();
+    double fluids_time_ms;
+    double kinematics_time_ms;
+    double thermo_time_ms;
+    double synth_time_ms;
+    double (*get_ticks_ms)();
 };
 
 static void
@@ -208,24 +208,42 @@ run_engine_once(
     struct synth_s* synth)
 {
     reset_sampler_channel(sampler);
-    size_t t0 = engine_time->get_ms();
+    double t0 = engine_time->get_ticks_ms();
     flow_engine(self, sampler);
-    size_t t1 = engine_time->get_ms();
+    double t1 = engine_time->get_ticks_ms();
     move_engine(self, sampler);
     compress_engine_pistons(self);
     update_engine_nozzle_open_ratios(self);
     double starter_angular_velocity_r_per_s = calc_starter_angular_velocity_r_per_s(&self->starter, &self->flywheel, &self->crankshaft);
-    size_t t2 = engine_time->get_ms();
-    size_t t3 = engine_time->get_ms();
+    double t2 = engine_time->get_ticks_ms();
+    /* ... thermo work goes here ... */
+    double t3 = engine_time->get_ticks_ms();
     update_eplenum_waves(self);
     double eplenum_wave_signal = calc_engine_eplenum_wave_signal(self);
     double synth_sample = push_synth(synth, eplenum_wave_signal);
     sample_misc_values(sampler, starter_angular_velocity_r_per_s, synth_sample);
-    size_t t4 = engine_time->get_ms();
+    double t4 = engine_time->get_ticks_ms();
     engine_time->fluids_time_ms += t1 - t0;
     engine_time->kinematics_time_ms += t2 - t1;
     engine_time->thermo_time_ms += t3 - t2;
     engine_time->synth_time_ms += t4 - t3;
+}
+
+static void
+run_engine_to_satisfy_synth(
+    struct engine_s* self,
+    struct engine_time_s* engine_time,
+    struct sampler_s* sampler,
+    struct synth_s* synth,
+    size_t audio_buffer_size)
+{
+    if(audio_buffer_size < g_synth_buffer_mid_size)
+    {
+        for(size_t i = 0; i < g_synth_buffer_size; i++)
+        {
+            run_engine_once(self, engine_time, sampler, synth);
+        }
+    }
 }
 
 static void
@@ -237,11 +255,5 @@ run_engine(
     size_t audio_buffer_size)
 {
     clear_synth(synth);
-    if(audio_buffer_size < g_synth_buffer_mid_size)
-    {
-        for(size_t i = 0; i < g_synth_buffer_size; i++)
-        {
-            run_engine_once(self, engine_time, sampler, synth);
-        }
-    }
+    run_engine_to_satisfy_synth(self, engine_time, sampler, synth, audio_buffer_size);
 }

@@ -77,7 +77,7 @@ static struct sdl_time_panel_s g_loop_time_panel = {
         "vsync",
     },
     .min_value = 0.0,
-    .max_value = 40.0,
+    .max_value = 20.0,
     .rect.w = 192,
     .rect.h = 96,
 };
@@ -91,7 +91,7 @@ static struct sdl_time_panel_s g_engine_time_panel = {
         "synth",
     },
     .min_value = 0.0,
-    .max_value = 30.0,
+    .max_value = 15.0,
     .rect.w = 192,
     .rect.h = 96,
 };
@@ -136,6 +136,25 @@ static struct sdl_panel_s g_synth_panel_signal = {
     .rect.h = 128,
 };
 
+static double
+get_ticks_ms()
+{
+    double ticks_ns = SDL_GetTicksNS();
+    return SDL_NS_TO_MS(ticks_ns);
+}
+
+static void
+throttle_144hz_incase(double frame_time_ms)
+{
+    double target_frame_time_ms = 1000.0 / g_std_assumed_refresh_rate;
+    if(frame_time_ms < target_frame_time_ms)
+    {
+        double delay_time_ms = target_frame_time_ms - frame_time_ms;
+        double delay_time_ns = SDL_MS_TO_NS(delay_time_ms);
+        SDL_DelayPrecise(delay_time_ns);
+    }
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -149,16 +168,16 @@ main(int argc, char* argv[])
     init_sdl_audio();
     for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
     {
-        struct engine_time_s engine_time = { .get_ms = SDL_GetTicks };
-        size_t t0 = SDL_GetTicks();
+        struct engine_time_s engine_time = { .get_ticks_ms = get_ticks_ms };
+        double t0 = get_ticks_ms();
         run_engine(engine, &engine_time, &g_sampler, &g_synth, get_audio_buffer_size());
         buffer_audio(&g_synth);
-        size_t t1 = SDL_GetTicks();
+        double t1 = get_ticks_ms();
         if(handle_input(engine, &g_sampler))
         {
             break;
         }
-        size_t t2 = SDL_GetTicks();
+        double t2 = get_ticks_ms();
         clear_screen();
         g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
         push_panel(
@@ -203,9 +222,9 @@ main(int argc, char* argv[])
             &g_starter_panel_r_per_s,
             &g_synth_panel_signal);
         draw_pistons(engine);
-        size_t t3 = SDL_GetTicks();
+        double t3 = get_ticks_ms();
         present(0.0);
-        size_t t4 = SDL_GetTicks();
+        double t4 = get_ticks_ms();
         push_time_panel(
             &g_loop_time_panel,
             (float[]) {
@@ -215,8 +234,10 @@ main(int argc, char* argv[])
                 t4 - t0,
             }
         );
-        size_t t5 = SDL_GetTicks();
-        g_frames_per_sec_bar.value = 1000.0 / (t5 - t0);
+        double t5 = get_ticks_ms();
+        throttle_144hz_incase(t5 - t0);
+        double t6 = get_ticks_ms();
+        g_frames_per_sec_bar.value = 1000.0 / (t6 - t0);
     }
     exit_sdl_audio();
     exit_sdl();

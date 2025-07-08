@@ -6,6 +6,7 @@ static constexpr double g_gas_molar_mass_kg_per_mol_co2 = 0.0440095000;
 static constexpr double g_gas_molar_mass_kg_per_mol_h2o = 0.0180152800;
 static constexpr double g_gas_ambient_static_temperature_k = 300.0;
 static constexpr double g_gas_ambient_static_pressure_pa = 101325.0;
+static constexpr double g_gas_momentum_damping_time_constant_s = 0.1;
 
 struct gas_s
 {
@@ -171,6 +172,14 @@ calc_mix(double value1, double weight1, double value2, double weight2)
 }
 
 static void
+add_momentum(struct gas_s* self, double momentum_kg_m_per_s)
+{
+    self->momentum_kg_m_per_s += momentum_kg_m_per_s;
+    double momentum_damping_coeffecient = expf(-g_std_dt_s / g_gas_momentum_damping_time_constant_s);
+    self->momentum_kg_m_per_s *= momentum_damping_coeffecient;
+}
+
+static void
 mix_in_gas(struct gas_s* self, const struct gas_s* mail)
 {
     double self_moles = calc_moles(self);
@@ -185,7 +194,7 @@ mix_in_gas(struct gas_s* self, const struct gas_s* mail)
     self->mol_ratio_h2o = calc_mix(self->mol_ratio_h2o, self_moles, mail->mol_ratio_h2o, mail_moles);
     self->static_temperature_k = calc_mix(self->static_temperature_k, self_total_cv_j_per_k, mail->static_temperature_k, mail_total_cv_j_per_k);
     self->mass_kg += mail->mass_kg;
-    self->momentum_kg_m_per_s += mail->momentum_kg_m_per_s;
+    add_momentum(self, mail->momentum_kg_m_per_s);
 }
 
 static void

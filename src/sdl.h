@@ -11,7 +11,7 @@ static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_demo_delay_ms = 75.0f;
 static constexpr float g_sdl_column_width_ratio = 0.55f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_plot_lowpass_filter_hz = 200.0f;
+static constexpr float g_plot_lowpass_filter_hz = 250.0f;
 
 static constexpr SDL_FColor g_sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
@@ -290,6 +290,28 @@ draw_radial_chambers(const struct engine_s* engine)
 }
 
 static void
+cleanup_samples(float samples[], size_t size)
+{
+    struct lowpass_filter_s lowpass_filter = {
+        .prev_input = samples[0],
+        .prev_output = lowpass_filter.prev_input,
+    };
+    for(size_t i = 0; i < size; i++)
+    {
+        samples[i] = filter_lowpass(&lowpass_filter, g_plot_lowpass_filter_hz, samples[i]);
+    }
+}
+
+static void
+copy_samples(float samples[], const float other[], size_t size)
+{
+    for(size_t i = 0; i < size; i++)
+    {
+        samples[i] = other[i];
+    }
+}
+
+static void
 draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_s* sampler)
 {
     size_t buffered = 0;
@@ -297,12 +319,8 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
     static float samples[g_sampler_max_samples];
     for(enum sample_name_e sample_name = 0; sample_name < g_sample_name_e_size; sample_name++)
     {
-        struct lowpass_filter_s lowpass_filter = {};
-        for(size_t i = 0; i < sampler->size; i++)
-        {
-            samples[i] = sampler->channel[channel][sample_name][i];
-            samples[i] = filter_lowpass(&lowpass_filter, g_plot_lowpass_filter_hz, samples[i]);
-        }
+        copy_samples(samples, sampler->channel[channel][sample_name], sampler->size);
+        cleanup_samples(samples, sampler->size);
         struct normalized_s normalized = normalize_samples(samples, sampler->size);
         const SDL_FRect* rect = &rects[sample_name];
         struct sdl_scroll_s scroll = {
@@ -313,6 +331,7 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
         {
             set_render_color(get_channel_color(channel));
             debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "max: %+.3e", normalized.max_value);
+            debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "avg: %+.3e", normalized.avg_value);
             debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "min: %+.3e", normalized.min_value);
             debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "div: %3.3f", normalized.max_value / normalized.min_value);
         }
