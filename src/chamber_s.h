@@ -175,11 +175,22 @@ calc_nozzle_flow_area_m2(const struct chamber_s* self)
     return self->nozzle_max_flow_area_m2 * self->nozzle_open_ratio;
 }
 
+/*         .
+ *         m
+ * ps = -------
+ *      (A * u)
+ */
+
+static double
+calc_nozzle_static_density_kg_per_m3(double nozzle_mass_flow_rate_kg_per_s, double nozzle_flow_area_m2, double nozzle_flow_velocity_m_per_s)
+{
+    return nozzle_mass_flow_rate_kg_per_s / (nozzle_flow_area_m2 * nozzle_flow_velocity_m_per_s);
+}
+
 /*                   y - 1
  *               V1
  * Ts2 = Ts1 * (----)
  *               V2
- *
  */
 
 static double

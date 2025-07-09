@@ -97,7 +97,10 @@ visualize_chamber_s()
     for(size_t cycle = 0; cycle < 3'000; cycle++)
     {
         struct nozzle_flow_s nozzle_flow = flow(&x, &y);
-        mail_gas_mail(&nozzle_flow.gas_mail);
+        if(nozzle_flow.is_success)
+        {
+            mail_gas_mail(&nozzle_flow.gas_mail);
+        }
         fprintf(
             file_mix,
             "%f " /*  1 */

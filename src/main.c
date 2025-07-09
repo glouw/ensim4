@@ -158,11 +158,11 @@ throttle_144hz_incase(double frame_time_ms)
 int
 main(int argc, char* argv[])
 {
+    size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
+    struct engine_s* engine = &g_engine_1_cyl;
     init_cp_precompute_buffer();
     visualize_gamma();
     visualize_chamber_s();
-    size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
-    struct engine_s* engine = &g_engine_1_cyl;
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();
