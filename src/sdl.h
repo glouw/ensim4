@@ -459,6 +459,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
     set_render_color(g_sdl_text_color);
     debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s);
     debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "node_s_bytes: %ld", sizeof(struct node_s));
+    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "max_supported_channels: %lu", g_sampler_max_channels);
 }
 
 static void

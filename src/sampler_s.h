@@ -1,4 +1,4 @@
-static constexpr size_t g_sampler_max_channels = 16;
+static constexpr size_t g_sampler_max_channels = 4;
 static constexpr size_t g_sampler_max_samples = 16384;
 static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r * g_std_audio_sample_rate_hz / g_sampler_max_samples;
 
