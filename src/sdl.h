@@ -11,7 +11,7 @@ static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_demo_delay_ms = 75.0f;
 static constexpr float g_sdl_column_width_ratio = 0.55f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_plot_lowpass_filter_hz = 250.0f;
+static constexpr float g_plot_lowpass_filter_hz = 200.0f;
 
 static constexpr SDL_FColor g_sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
@@ -458,7 +458,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
 {
     set_render_color(g_sdl_text_color);
     debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "chamber_s_bytes: %ld", sizeof(struct chamber_s));
+    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "node_s_bytes: %ld", sizeof(struct node_s));
 }
 
 static void

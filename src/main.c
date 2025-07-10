@@ -69,12 +69,12 @@ static struct synth_s g_synth = {
 };
 
 static struct sdl_time_panel_s g_loop_time_panel = {
-    .title = "loop_time_ms",
+    .title = "loop_time_ms (t)hread, (m)ain thread;",
     .labels = {
-        "engine",
-        "input",
-        "draw",
-        "vsync",
+        "fluids (t)",
+        "engine (m)",
+        "draw (m)",
+        "vsync (m)",
     },
     .min_value = 0.0,
     .max_value = 20.0,
@@ -170,14 +170,14 @@ main(int argc, char* argv[])
     {
         struct engine_time_s engine_time = { .get_ticks_ms = get_ticks_ms };
         double t0 = get_ticks_ms();
+        double t1 = get_ticks_ms();
         run_engine(engine, &engine_time, &g_sampler, &g_synth, get_audio_buffer_size());
         buffer_audio(&g_synth);
-        double t1 = get_ticks_ms();
+        double t2 = get_ticks_ms();
         if(handle_input(engine, &g_sampler))
         {
             break;
         }
-        double t2 = get_ticks_ms();
         clear_screen();
         g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
         push_panel(

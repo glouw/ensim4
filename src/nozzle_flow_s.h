@@ -63,6 +63,7 @@ flow(struct chamber_s* x, struct chamber_s* y)
         }
     }
     return (struct nozzle_flow_s) {
+        .area_m2 = nozzle_flow_area_m2,
         .is_success = false
     };
 }

@@ -1,4 +1,4 @@
-static constexpr size_t g_wave_cell_count = 512;
+static constexpr size_t g_wave_cell_count = 1;
 
 struct wave_s
 {
