@@ -303,7 +303,7 @@ cleanup_samples(float samples[], size_t size)
 }
 
 static void
-copy_samples(float samples[], const float other[], size_t size)
+copy_samples(float samples[g_sampler_max_samples], const float other[g_sampler_max_samples], size_t size)
 {
     for(size_t i = 0; i < size; i++)
     {
@@ -311,44 +311,74 @@ copy_samples(float samples[], const float other[], size_t size)
     }
 }
 
+static size_t
+down_sample_samples(float samples[g_sampler_max_samples], size_t size)
+{
+    size_t display_cap = g_sampler_max_samples / 4;
+    if(size > display_cap)
+    {
+        size_t step = (size + display_cap - 1) / display_cap;
+        size_t j = 0;
+        for(size_t i = 0; i < size; i += step)
+        {
+            samples[j++] = samples[i];
+        }
+        return j;
+    }
+    return size;
+}
+
 static void
 draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_s* sampler)
 {
     size_t buffered = 0;
-    static SDL_FPoint buffer[g_sample_name_e_size * g_sampler_max_samples];
+    static constexpr size_t max_buffer_size = g_sample_name_e_size * g_sampler_max_samples;
+    static SDL_FPoint buffer[max_buffer_size];
     static float samples[g_sampler_max_samples];
     for(enum sample_name_e sample_name = 0; sample_name < g_sample_name_e_size; sample_name++)
     {
-        copy_samples(samples, sampler->channel[channel][sample_name], sampler->size);
-        cleanup_samples(samples, sampler->size);
-        struct normalized_s normalized = normalize_samples(samples, sampler->size);
+        size_t sampler_size = sampler->size;
+        copy_samples(samples, sampler->channel[channel][sample_name], sampler_size);
+        sampler_size = down_sample_samples(samples, sampler_size);
+        cleanup_samples(samples, sampler_size);
+        struct normalized_s normalized = normalize_samples(samples, sampler_size);
         const SDL_FRect* rect = &rects[sample_name];
-        struct sdl_scroll_s scroll = {
-            rect->x + 1 * g_sdl_line_spacing_p,
-            rect->y + 2 * g_sdl_line_spacing_p,
+        struct
+        {
+            char* name;
+            float value;
+        }
+        lines[] = {
+            { "max: %+.3e", normalized.max_value },
+            { "avg: %+.3e", normalized.avg_value },
+            { "min: %+.3e", normalized.min_value },
+            { "div: %3.3f", normalized.min_value < 1e-6 ? 0.0 : normalized.max_value / normalized.min_value },
         };
         if(channel == sampler->channel_index - 1)
         {
-            set_render_color(get_channel_color(channel));
-            debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "max: %+.3e", normalized.max_value);
-            debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "avg: %+.3e", normalized.avg_value);
-            debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "min: %+.3e", normalized.min_value);
-            debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), "div: %3.3f", normalized.max_value / normalized.min_value);
-        }
-        if(normalized.is_success == false)
-        {
-            continue;
-        }
-        for(size_t i = 0; i < sampler->size; i++)
-        {
-            float top_bar_h_p = 0.35 * rect->h;
-            float bot_bar_h_p = 0.05 * rect->h;
-            float h_p = rect->h - top_bar_h_p - bot_bar_h_p;
-            SDL_FRect barred_rect = {
-                rect->x, rect->y + top_bar_h_p, rect->w, h_p
+            struct sdl_scroll_s scroll = {
+                rect->x + 1 * g_sdl_line_spacing_p,
+                rect->y + 2 * g_sdl_line_spacing_p,
             };
-            buffer[buffered++] = calc_point_in_rect(samples[i], barred_rect, i, sampler->size);
-
+            set_render_color(get_channel_color(channel));
+            for(size_t i = 0; i < len(lines); i++)
+            {
+                debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), lines[i].name, lines[i].value);
+            }
+        }
+        if(normalized.is_success)
+        {
+            for(size_t i = 0; i < sampler_size; i++)
+            {
+                size_t h_offset_p = calc_scroll_newline_pixels_p(len(lines));
+                SDL_FRect barred_rect = {
+                    rect->x,
+                    rect->y + h_offset_p,
+                    rect->w,
+                    rect->h - h_offset_p,
+                };
+                buffer[buffered++] = calc_point_in_rect(samples[i], barred_rect, i, sampler_size);
+            }
         }
     }
     set_render_color(get_channel_color(channel));
@@ -459,7 +489,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
     set_render_color(g_sdl_text_color);
     debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s);
     debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "node_s_bytes: %ld", sizeof(struct node_s));
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "max_supported_channels: %lu", g_sampler_max_channels);
+    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "supported_channels: %lu", g_sampler_max_channels);
 }
 
 static void

@@ -21,3 +21,9 @@ newline(struct sdl_scroll_s* self)
 {
     return scroll_by(self, g_sdl_line_spacing_p);
 }
+
+static float
+calc_scroll_newline_pixels_p(size_t newlines)
+{
+    return newlines * g_sdl_char_size_p + newlines * g_sdl_line_spacing_p;
+}

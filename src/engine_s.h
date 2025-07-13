@@ -20,6 +20,7 @@ struct engine_time_s
     double kinematics_time_ms;
     double thermo_time_ms;
     double synth_time_ms;
+    double wave_time_ms;
     double (*get_ticks_ms)();
 };
 
@@ -247,6 +248,32 @@ run_engine_to_satisfy_synth(
 }
 
 static void
+launch_engine_waves(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == g_is_eplenum)
+        {
+            launch_eplenum_wave_thread(&node->as.eplenum);
+        }
+    }
+}
+
+static void
+wait_for_engine_waves(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == g_is_eplenum)
+        {
+            wait_for_eplenum_wave_thread(&node->as.eplenum);
+        }
+    }
+}
+
+static void
 run_engine(
     struct engine_s* self,
     struct engine_time_s* engine_time,
@@ -255,5 +282,10 @@ run_engine(
     size_t audio_buffer_size)
 {
     clear_synth(synth);
+    double t0 = engine_time->get_ticks_ms();
+    launch_engine_waves(self);
     run_engine_to_satisfy_synth(self, engine_time, sampler, synth, audio_buffer_size);
+    wait_for_engine_waves(self);
+    double t1 = engine_time->get_ticks_ms();
+    engine_time->wave_time_ms += t1 - t0;
 }

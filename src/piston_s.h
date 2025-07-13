@@ -50,12 +50,6 @@ calc_piston_top_dead_center_m(const struct piston_s* self)
 }
 
 static double
-calc_piston_bot_dead_center_m(const struct piston_s* self)
-{
-    return self->connecting_rod_length_m - self->crank_throw_length_m + self->head_compression_height_m;
-}
-
-static double
 calc_piston_block_deck_surface_m(const struct piston_s* self)
 {
     return calc_piston_top_dead_center_m(self) + self->head_clearance_height_m;

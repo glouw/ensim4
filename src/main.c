@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <float.h>
 #include <math.h>
+#include <threads.h>
 
 /* engine sim common defs */
 #include "std.h"
@@ -69,12 +70,12 @@ static struct synth_s g_synth = {
 };
 
 static struct sdl_time_panel_s g_loop_time_panel = {
-    .title = "loop_time_ms (t)hread, (m)ain thread;",
+    .title = "loop_time_ms",
     .labels = {
-        "fluids (t)",
-        "engine (m)",
-        "draw (m)",
-        "vsync (m)",
+        "n/a",
+        "engine",
+        "draw",
+        "vsync",
     },
     .min_value = 0.0,
     .max_value = 20.0,
@@ -89,6 +90,7 @@ static struct sdl_time_panel_s g_engine_time_panel = {
         "kinematics",
         "thermo",
         "synth",
+        "waves",
     },
     .min_value = 0.0,
     .max_value = 15.0,
@@ -197,6 +199,7 @@ main(int argc, char* argv[])
                 engine_time.kinematics_time_ms,
                 engine_time.thermo_time_ms,
                 engine_time.synth_time_ms,
+                engine_time.wave_time_ms,
             }
         );
         push_time_panel(
