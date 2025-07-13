@@ -646,75 +646,77 @@ static bool
 handle_input(struct engine_s* engine, struct sampler_s* sampler)
 {
     SDL_Event event;
-    SDL_PollEvent(&event);
-    switch(event.type)
+    while(SDL_PollEvent(&event))
     {
-    case SDL_EVENT_QUIT:
-        return true;
-    case SDL_EVENT_KEY_DOWN:
-        switch(event.key.key)
+        switch(event.type)
         {
-        case SDLK_SPACE:
-            engine->starter.is_on = true;
+        case SDL_EVENT_QUIT:
+            return true;
+        case SDL_EVENT_KEY_DOWN:
+            switch(event.key.key)
+            {
+            case SDLK_SPACE:
+                engine->starter.is_on = true;
+                break;
+            }
+            break;
+        case SDL_EVENT_KEY_UP:
+            switch(event.key.key)
+            {
+            case SDLK_SPACE:
+                engine->starter.is_on = false;
+                break;
+            case SDLK_F:
+                draw_demo_engine(engine);
+                break;
+            case SDLK_1:
+                break;
+            case SDLK_2:
+                break;
+            case SDLK_3:
+                break;
+            case SDLK_4:
+                break;
+            case SDLK_5:
+                break;
+            case SDLK_6:
+                break;
+            case SDLK_P:
+                deselect_all_nodes(engine->node, engine->size);
+                select_nodes(engine->node, engine->size, g_is_piston);
+                break;
+            case SDLK_I:
+                deselect_all_nodes(engine->node, engine->size);
+                select_nodes(engine->node, engine->size, g_is_filter);
+                select_nodes(engine->node, engine->size, g_is_throttle);
+                select_nodes(engine->node, engine->size, g_is_iplenum);
+                select_nodes(engine->node, engine->size, g_is_irunner);
+                break;
+            case SDLK_E:
+                deselect_all_nodes(engine->node, engine->size);
+                select_nodes(engine->node, engine->size, g_is_eplenum);
+                select_nodes(engine->node, engine->size, g_is_erunner);
+                select_nodes(engine->node, engine->size, g_is_exhaust);
+                break;
+            case SDLK_C:
+                deselect_all_nodes(engine->node, engine->size);
+                break;
+            case SDLK_N:
+                select_next(engine->node, engine->size);
+                break;
+            }
+            break;
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            switch(event.button.button)
+            {
+            case SDL_BUTTON_LEFT:
+                toggle_node_at(engine, sampler, event.button.x, event.button.y);
+                break;
+            case SDL_BUTTON_RIGHT:
+                break;
+            }
             break;
         }
-        break;
-    case SDL_EVENT_KEY_UP:
-        switch(event.key.key)
-        {
-        case SDLK_SPACE:
-            engine->starter.is_on = false;
-            break;
-        case SDLK_F:
-            draw_demo_engine(engine);
-            break;
-        case SDLK_1:
-            break;
-        case SDLK_2:
-            break;
-        case SDLK_3:
-            break;
-        case SDLK_4:
-            break;
-        case SDLK_5:
-            break;
-        case SDLK_6:
-            break;
-        case SDLK_P:
-            deselect_all_nodes(engine->node, engine->size);
-            select_nodes(engine->node, engine->size, g_is_piston);
-            break;
-        case SDLK_I:
-            deselect_all_nodes(engine->node, engine->size);
-            select_nodes(engine->node, engine->size, g_is_filter);
-            select_nodes(engine->node, engine->size, g_is_throttle);
-            select_nodes(engine->node, engine->size, g_is_iplenum);
-            select_nodes(engine->node, engine->size, g_is_irunner);
-            break;
-        case SDLK_E:
-            deselect_all_nodes(engine->node, engine->size);
-            select_nodes(engine->node, engine->size, g_is_eplenum);
-            select_nodes(engine->node, engine->size, g_is_erunner);
-            select_nodes(engine->node, engine->size, g_is_exhaust);
-            break;
-        case SDLK_C:
-            deselect_all_nodes(engine->node, engine->size);
-            break;
-        case SDLK_N:
-            select_next(engine->node, engine->size);
-            break;
-        }
-        break;
-    case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        switch(event.button.button)
-        {
-        case SDL_BUTTON_LEFT:
-            toggle_node_at(engine, sampler, event.button.x, event.button.y);
-            break;
-        case SDL_BUTTON_RIGHT:
-            break;
-        }
-        break;
     }
     return false;
 }
