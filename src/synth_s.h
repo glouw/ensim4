@@ -1,4 +1,5 @@
-static constexpr size_t g_synth_buffer_size = g_std_audio_sample_rate_hz / g_std_assumed_refresh_rate;
+static constexpr size_t g_synth_buffer_forgiveness_size = 32;
+static constexpr size_t g_synth_buffer_size = g_std_audio_sample_rate_hz / g_std_assumed_refresh_rate + g_synth_buffer_forgiveness_size;
 static constexpr size_t g_synth_buffer_min_size = 1 * g_synth_buffer_size;
 static constexpr size_t g_synth_buffer_mid_size = 4 * g_synth_buffer_size;
 static constexpr size_t g_synth_buffer_max_size = 5 * g_synth_buffer_size;
