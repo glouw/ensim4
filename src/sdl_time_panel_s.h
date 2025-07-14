@@ -15,6 +15,9 @@ push_time_panel(struct sdl_time_panel_s* self, float sample[])
 {
     for(size_t i = 0; i < g_sdl_time_panel_size; i++)
     {
-        push_slide_buffer(self->slide_buffer[i], sample[i]);
+        if(self->labels[i] != nullptr)
+        {
+            push_slide_buffer(self->slide_buffer[i], sample[i]);
+        }
     }
 }

@@ -6,7 +6,7 @@ static constexpr size_t g_engine_cycles_per_frame = 512;
 
 struct engine_s
 {
-    char* name;
+    const char* name;
     struct node_s* node;
     size_t size;
     struct crankshaft_s crankshaft;

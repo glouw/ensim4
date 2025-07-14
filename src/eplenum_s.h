@@ -8,13 +8,14 @@ struct eplenum_s
 static int
 run_eplenum_wave_thread(void* argument)
 {
+    struct eplenum_s* self = argument;
     return 0;
 }
 
 static void
 launch_eplenum_wave_thread(struct eplenum_s* self)
 {
-    thrd_create(&self->thread, run_eplenum_wave_thread, nullptr);
+    thrd_create(&self->thread, run_eplenum_wave_thread, self);
 }
 
 static void

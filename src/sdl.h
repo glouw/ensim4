@@ -1,8 +1,6 @@
-#define debugf SDL_RenderDebugTextFormat
-
 static const char* const g_sdl_title = "ENSIM4";
-static constexpr float g_sdl_xres_p = 1880.0f;
-static constexpr float g_sdl_yres_p = 1000.0f;
+static constexpr float g_sdl_xres_p = 1920.0f;
+static constexpr float g_sdl_yres_p = 1080.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
 static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
@@ -11,7 +9,8 @@ static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_demo_delay_ms = 75.0f;
 static constexpr float g_sdl_column_width_ratio = 0.55f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_plot_lowpass_filter_hz = 200.0f;
+static constexpr float g_plot_lowpass_filter_hz = 300.0f;
+static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
 
 static constexpr SDL_FColor g_sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
@@ -65,6 +64,59 @@ set_render_color(SDL_FColor color)
     SDL_SetRenderDrawColorFloat(g_sdl_renderer, color.r, color.g, color.b, color.a);
 }
 
+static void
+draw_rect(SDL_FRect rect, SDL_FColor color)
+{
+    set_render_color(color);
+    SDL_RenderRect(g_sdl_renderer, &rect);
+}
+
+static void
+draw_filled_rect(SDL_FRect rect, SDL_FColor color)
+{
+    set_render_color(color);
+    SDL_RenderFillRect(g_sdl_renderer, &rect);
+}
+
+static void
+draw_filled_outline_rect(SDL_FRect rect, SDL_FColor inner, SDL_FColor outer)
+{
+    draw_filled_rect(rect, inner);
+    draw_rect(rect, outer);
+}
+
+static SDL_FPoint
+add_point(SDL_FPoint self, SDL_FPoint other)
+{
+    self.x += other.x;
+    self.y += other.y;
+    return self;
+}
+
+static void
+draw_line(SDL_FPoint from, SDL_FPoint to, SDL_FColor color)
+{
+    struct SDL_FPoint shift = { g_sdl_node_half_w_p, g_sdl_node_half_w_p };
+    from = add_point(from, shift);
+    to = add_point(to, shift);
+    set_render_color(color);
+    SDL_RenderLine(g_sdl_renderer, from.x, from.y, to.x, to.y);
+}
+
+static void
+draw_lines(const SDL_FPoint points[], size_t size, SDL_FColor color)
+{
+    set_render_color(color);
+    SDL_RenderLines(g_sdl_renderer, points, size);
+}
+
+static void
+draw_points(const SDL_FPoint points[], size_t size, SDL_FColor color)
+{
+    set_render_color(color);
+    SDL_RenderPoints(g_sdl_renderer, points, size);
+}
+
 static SDL_FPoint
 calc_point_in_rect(float value, SDL_FRect rect, size_t index, size_t size)
 {
@@ -81,7 +133,7 @@ calc_point_in_rect(float value, SDL_FRect rect, size_t index, size_t size)
 }
 
 static void
-draw_slide_buffer(const sdl_slide_buffer_t self, SDL_FRect rect, float min_val, float max_val)
+draw_slide_buffer(const sdl_slide_buffer_t self, SDL_FRect rect, float min_val, float max_val, SDL_FColor color)
 {
     static SDL_FPoint points[g_sdl_slide_buffer_size];
     float range = max_val - min_val;
@@ -90,7 +142,7 @@ draw_slide_buffer(const sdl_slide_buffer_t self, SDL_FRect rect, float min_val, 
         float normalized_value = (self[i] - min_val) / range;
         points[i] = calc_point_in_rect(normalized_value, rect, i, g_sdl_slide_buffer_size);
     }
-    SDL_RenderLines(g_sdl_renderer, points, g_sdl_slide_buffer_size);
+    draw_lines(points, g_sdl_slide_buffer_size, color);
 }
 
 static void
@@ -101,40 +153,32 @@ draw_time_panel(const struct sdl_time_panel_s* self)
         const char* label = self->labels[i];
         if(label)
         {
-            set_render_color(get_channel_color(i));
-            draw_slide_buffer(self->slide_buffer[i], self->rect, self->min_value, self->max_value);
+            draw_slide_buffer(self->slide_buffer[i], self->rect, self->min_value, self->max_value, get_channel_color(i));
         }
     }
-    set_render_color(g_sdl_container_color);
-    SDL_RenderRect(g_sdl_renderer, &self->rect);
+    draw_rect(self->rect, g_sdl_container_color);
 }
 
 static void
-draw_progress_bar(struct sdl_progress_bar_s* self)
+draw_progress_bar(const struct sdl_progress_bar_s* self)
 {
     float percent = (self->max_value > 0.0) ? (self->value / self->max_value) : 0.0;
     percent = clamp(percent, 0.0, 1.0);
     SDL_FRect fill = self->rect;
     fill.w = self->rect.w * percent;
-    set_render_color(g_sdl_line_color);
-    SDL_RenderFillRect(g_sdl_renderer, &fill);
-    set_render_color(g_sdl_container_color);
-    SDL_RenderRect(g_sdl_renderer, &self->rect);
+    draw_filled_rect(fill, g_sdl_line_color);
+    draw_rect(self->rect, g_sdl_container_color);
 }
 
-static void
-add_point(SDL_FPoint* self, const SDL_FPoint* other)
-{
-    self->x += other->x;
-    self->y += other->y;
-}
+#include "SDL3/SDL.h"
 
 static void
 init_sdl()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    SDL_CreateWindowAndRenderer(g_sdl_title, g_sdl_xres_p, g_sdl_yres_p, 0, &g_sdl_window, &g_sdl_renderer);
+    SDL_CreateWindowAndRenderer(g_sdl_title, g_sdl_xres_p, g_sdl_yres_p, SDL_WINDOW_FULLSCREEN, &g_sdl_window, &g_sdl_renderer);
     SDL_SetRenderVSync(g_sdl_renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
+    SDL_SetCurrentThreadPriority(SDL_THREAD_PRIORITY_TIME_CRITICAL);
 }
 
 static void
@@ -163,33 +207,21 @@ present(float delay_ms)
 }
 
 static float
-compute_radial_radius_p(const struct engine_s* engine)
+calc_radial_radius_p(const struct engine_s* engine)
 {
     return g_sdl_radial_spacing * (engine->size * g_sdl_node_w_p) / (2.0f * g_std_pi_r);
 }
 
 static float
-compute_radial_diameter_p(const struct engine_s* engine)
+calc_radial_diameter_p(const struct engine_s* engine)
 {
-    return 2.0f * compute_radial_radius_p(engine);
+    return 2.0f * calc_radial_radius_p(engine);
 }
 
 static float
-compute_plot_column_width_p(const struct engine_s* engine)
+calc_plot_column_width_p(const struct engine_s* engine)
 {
-    return g_sdl_column_width_ratio * (g_sdl_xres_p - compute_radial_diameter_p(engine)) / 2.0f;
-}
-
-static void
-compute_radials(const struct engine_s* engine, SDL_FPoint points[])
-{
-    float radius_p = compute_radial_radius_p(engine);
-    for(size_t i = 0; i < engine->size; i++)
-    {
-        float theta_r = 2.0f * g_std_pi_r * i / engine->size;
-        points[i].x = g_sdl_mid_x_p + radius_p * cos(theta_r) - g_sdl_node_half_w_p;
-        points[i].y = g_sdl_mid_y_p + radius_p * sin(theta_r) - g_sdl_node_half_w_p;
-    }
+    return g_sdl_column_width_ratio * (g_sdl_xres_p - calc_radial_diameter_p(engine)) / 2.0f;
 }
 
 static SDL_FPoint
@@ -202,58 +234,54 @@ center_text(SDL_FPoint point, const char* text)
 }
 
 static void
-draw_node_at(struct node_s* node, SDL_FPoint point, SDL_FColor node_color)
+draw_node_at(const struct node_s* node, SDL_FPoint point, SDL_FColor color)
 {
     SDL_FRect rect = { point.x, point.y, g_sdl_node_w_p, g_sdl_node_w_p };
-    set_render_color(g_sdl_black_color);
-    SDL_RenderFillRect(g_sdl_renderer, &rect);
-    set_render_color(node_color);
-    SDL_RenderRect(g_sdl_renderer, &rect);
+    draw_filled_outline_rect(rect, g_sdl_black_color, color);
     size_t cycle = node->as.chamber.flow_cycles / g_sdl_flow_cycle_spinner_divisor;
     size_t index = cycle % len(g_sdl_spinner);
     const char* spinner = g_sdl_spinner[index];
     SDL_FPoint mid = point;
     mid = center_text(mid, spinner);
-    debugf(g_sdl_renderer, mid.x, mid.y, "%s", spinner);
+    set_render_color(g_sdl_text_color);
+    SDL_RenderDebugTextFormat(g_sdl_renderer, mid.x, mid.y, "%s", spinner);
 }
 
 static void
-draw_line_by(SDL_FPoint from, SDL_FPoint to)
+calc_radials(const struct engine_s* engine, SDL_FPoint points[], size_t size)
 {
-    struct SDL_FPoint shift = {
-        g_sdl_node_half_w_p,
-        g_sdl_node_half_w_p,
-    };
-    add_point(&from, &shift);
-    add_point(&to, &shift);
-    set_render_color(g_sdl_line_color);
-    SDL_RenderLine(g_sdl_renderer, from.x, from.y, to.x, to.y);
+    float radius_p = calc_radial_radius_p(engine);
+    for(size_t i = 0; i < size; i++)
+    {
+        float theta_r = 2.0f * g_std_pi_r * i / size;
+        points[i].x = g_sdl_mid_x_p + radius_p * cos(theta_r) - g_sdl_node_half_w_p;
+        points[i].y = g_sdl_mid_y_p + radius_p * sin(theta_r) - g_sdl_node_half_w_p;
+    }
 }
 
 static void
-draw_radial_lines(const struct engine_s* engine, const SDL_FPoint points[])
+draw_radial_lines(const struct engine_s* engine, const SDL_FPoint points[], size_t size)
 {
-    for(size_t i = 0; i < engine->size; i++)
+    for(size_t i = 0; i < size; i++)
     {
         for(size_t next, j = 0; (next = engine->node[i].next[j]); j++)
         {
-            draw_line_by(points[i], points[next]);
+            draw_line(points[i], points[next], g_sdl_line_color);
         }
     }
 }
 
 static void
-draw_radial_nodes(const struct engine_s* engine, const SDL_FPoint points[])
+draw_radial_nodes(const struct engine_s* engine, const SDL_FPoint points[], size_t size)
 {
     size_t color_index = 0;
-    for(size_t i = 0; i < engine->size; i++)
+    for(size_t i = 0; i < size; i++)
     {
         struct node_s* node = &engine->node[i];
         SDL_FPoint point = points[i];
         if(node->is_selected)
         {
-            SDL_FColor node_color = get_channel_color(color_index);
-            draw_node_at(node, point, node_color);
+            draw_node_at(node, point, get_channel_color(color_index));
             color_index += count_node_edges(node);
         }
         else
@@ -264,9 +292,9 @@ draw_radial_nodes(const struct engine_s* engine, const SDL_FPoint points[])
 }
 
 static void
-draw_radial_names(const struct engine_s* engine, const SDL_FPoint points[])
+draw_radial_names(const struct engine_s* engine, const SDL_FPoint points[], size_t size)
 {
-    for(size_t i = 0; i < engine->size; i++)
+    for(size_t i = 0; i < size; i++)
     {
         struct node_s* node = &engine->node[i];
         const char* node_name = g_node_name_string[node->type];
@@ -275,18 +303,19 @@ draw_radial_names(const struct engine_s* engine, const SDL_FPoint points[])
         point.y -= g_sdl_line_spacing_p;
         point.y -= g_sdl_node_half_w_p;
         set_render_color(g_sdl_text_color);
-        debugf(g_sdl_renderer, point.x, point.y, "%s", node_name);
+        SDL_RenderDebugTextFormat(g_sdl_renderer, point.x, point.y, "%s", node_name);
     }
 }
 
 static void
 draw_radial_chambers(const struct engine_s* engine)
 {
-    SDL_FPoint points[engine->size];
-    compute_radials(engine, points);
-    draw_radial_lines(engine, points);
-    draw_radial_nodes(engine, points);
-    draw_radial_names(engine, points);
+    size_t size = engine->size;
+    SDL_FPoint points[size];
+    calc_radials(engine, points, size);
+    draw_radial_lines(engine, points, size);
+    draw_radial_nodes(engine, points, size);
+    draw_radial_names(engine, points, size);
 }
 
 static void
@@ -303,7 +332,7 @@ cleanup_samples(float samples[], size_t size)
 }
 
 static void
-copy_samples(float samples[g_sampler_max_samples], const float other[g_sampler_max_samples], size_t size)
+copy_samples(float samples[], const float other[], size_t size)
 {
     for(size_t i = 0; i < size; i++)
     {
@@ -312,12 +341,11 @@ copy_samples(float samples[g_sampler_max_samples], const float other[g_sampler_m
 }
 
 static size_t
-down_sample_samples(float samples[g_sampler_max_samples], size_t size)
+down_sample_samples(float samples[], size_t size, size_t cap)
 {
-    size_t display_cap = g_sampler_max_samples / 4;
-    if(size > display_cap)
+    if(size > cap)
     {
-        size_t step = (size + display_cap - 1) / display_cap;
+        size_t step = (size + cap - 1) / cap;
         size_t j = 0;
         for(size_t i = 0; i < size; i += step)
         {
@@ -332,20 +360,20 @@ static void
 draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_s* sampler)
 {
     size_t buffered = 0;
-    static constexpr size_t max_buffer_size = g_sample_name_e_size * g_sampler_max_samples;
+    static constexpr size_t max_buffer_size = g_sample_name_e_size * g_sdl_max_display_samples;
     static SDL_FPoint buffer[max_buffer_size];
     static float samples[g_sampler_max_samples];
     for(enum sample_name_e sample_name = 0; sample_name < g_sample_name_e_size; sample_name++)
     {
         size_t sampler_size = sampler->size;
         copy_samples(samples, sampler->channel[channel][sample_name], sampler_size);
-        sampler_size = down_sample_samples(samples, sampler_size);
+        sampler_size = down_sample_samples(samples, sampler_size, g_sdl_max_display_samples);
         cleanup_samples(samples, sampler_size);
         struct normalized_s normalized = normalize_samples(samples, sampler_size);
         const SDL_FRect* rect = &rects[sample_name];
         struct
         {
-            char* name;
+            const char* name;
             float value;
         }
         lines[] = {
@@ -360,10 +388,10 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
                 rect->x + 1 * g_sdl_line_spacing_p,
                 rect->y + 2 * g_sdl_line_spacing_p,
             };
-            set_render_color(get_channel_color(channel));
             for(size_t i = 0; i < len(lines); i++)
             {
-                debugf(g_sdl_renderer, scroll.x_p, newline(&scroll), lines[i].name, lines[i].value);
+                set_render_color(get_channel_color(channel));
+                SDL_RenderDebugTextFormat(g_sdl_renderer, scroll.x_p, newline(&scroll), lines[i].name, lines[i].value);
             }
         }
         if(normalized.is_success)
@@ -381,48 +409,45 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
             }
         }
     }
-    set_render_color(get_channel_color(channel));
-    SDL_RenderPoints(g_sdl_renderer, buffer, buffered);
+    draw_points(buffer, buffered, get_channel_color(channel));
 }
 
 static void
-draw_plot_channels(const SDL_FRect rects[], const struct sampler_s* sampler)
+draw_plot_channels(const SDL_FRect rects[], const struct sampler_s* sampler, size_t channels)
 {
-    for(size_t channel = 0; channel < sampler->channel_index; channel++)
+    for(size_t channel = 0; channel < channels; channel++)
     {
         draw_plot_channel(rects, channel, sampler);
     }
 }
 
 static void
-draw_plot_container(const SDL_FRect rect, const char* name_string)
+draw_plot_container(SDL_FRect rect, const char* name_string)
 {
-    set_render_color(g_sdl_container_color);
-    SDL_RenderRect(g_sdl_renderer, &rect);
-    set_render_color(g_sdl_text_color);
+    draw_rect(rect, g_sdl_container_color);
     float x_p = rect.x + g_sdl_line_spacing_p;
     float y_p = rect.y + g_sdl_line_spacing_p;
-    debugf(g_sdl_renderer, x_p, y_p, "%s", name_string);
+    set_render_color(g_sdl_text_color);
+    SDL_RenderDebugTextFormat(g_sdl_renderer, x_p, y_p, "%s", name_string);
 }
 
 static void
 draw_plot_containers(const SDL_FRect rects[])
 {
-    for(enum sample_name_e sample_name = 0; sample_name < g_sample_name_e_size; sample_name++)
+    for(enum sample_name_e name = 0; name < g_sample_name_e_size; name++)
     {
-        const SDL_FRect rect = rects[sample_name];
-        const char* name_string = skip_sample_namespace(g_sample_name_string[sample_name]);
-        draw_plot_container(rect, name_string);
+        const SDL_FRect rect = rects[name];
+        draw_plot_container(rect, skip_sample_namespace(g_sample_name_string[name]));
     }
 }
 
 static void
-position_plot_container(float x_p, float w_p, float h_p, enum sample_name_e* sample_name, SDL_FRect rects[])
+position_plot_container(float x_p, float w_p, float h_p, enum sample_name_e* name, SDL_FRect rects[])
 {
     float y_p = 0.0;
     while(y_p < g_sdl_yres_p)
     {
-        rects[(*sample_name)++] = (SDL_FRect) { x_p, y_p, w_p, h_p };
+        rects[(*name)++] = (SDL_FRect) { x_p, y_p, w_p, h_p };
         y_p += h_p;
     }
 }
@@ -431,7 +456,7 @@ static void
 position_plot_containers(const struct engine_s* engine, SDL_FRect rects[])
 {
     enum sample_name_e sample_name = 0;
-    float w_p = compute_plot_column_width_p(engine);
+    float w_p = calc_plot_column_width_p(engine);
     float left_samples = roundf(g_sample_name_e_size / 2.0f);
     float right_samples = g_sample_name_e_size - left_samples;
     float left_h = ceilf(g_sdl_yres_p / left_samples);
@@ -445,7 +470,7 @@ draw_plots(const struct engine_s* engine, const struct sampler_s* sampler)
 {
     static SDL_FRect rects[g_sample_name_e_size];
     position_plot_containers(engine, rects);
-    draw_plot_channels(rects, sampler);
+    draw_plot_channels(rects, sampler, sampler->channel_index);
     draw_plot_containers(rects);
 }
 
@@ -453,7 +478,7 @@ static void
 draw_progress_bar_info(struct sdl_progress_bar_s* self, struct sdl_scroll_s* scroll)
 {
     set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "%s %.1f", self->title, self->value);
+    SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "%s %.1f", self->title, self->value);
     self->rect.x = scroll->x_p;
     self->rect.y = scroll->y_p;
     newline(scroll);
@@ -465,15 +490,15 @@ static void
 draw_time_panel_info(struct sdl_time_panel_s* self, struct sdl_scroll_s* scroll)
 {
     set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "%s", self->title);
+    SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "%s", self->title);
     for(size_t i = 0; i < g_sdl_time_panel_size; i++)
     {
-        set_render_color(get_channel_color(i));
         float average = calc_slide_buffer_average(self->slide_buffer[i]);
         const char* label = self->labels[i];
         if(label)
         {
-            debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "%12s: %6.3f", label, average);
+            set_render_color(get_channel_color(i));
+            SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "%12s: %6.3f", label, average);
         }
     }
     self->rect.x = scroll->x_p;
@@ -486,17 +511,36 @@ draw_time_panel_info(struct sdl_time_panel_s* self, struct sdl_scroll_s* scroll)
 static void
 draw_general_info(struct sdl_scroll_s* scroll)
 {
-    set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "node_s_bytes: %ld", sizeof(struct node_s));
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "supported_channels: %lu", g_sampler_max_channels);
+    struct
+    {
+        const char* name;
+        float value;
+    }
+    lines[] = {
+        { "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s },
+        { "node_s_bytes: %.0f", sizeof(struct node_s) },
+        { "supported_channels: %.0f", g_sampler_max_channels },
+    };
+    for(size_t i = 0; i < len(lines); i++)
+    {
+        set_render_color(g_sdl_text_color);
+        SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), lines[i].name, lines[i].value);
+    }
 }
 
 static void
 draw_info_title(struct sdl_scroll_s* scroll)
 {
-    set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, scroll->x_p, newline(scroll), "%s", g_sdl_title);
+    const char* lines[] = {
+        g_sdl_title,
+        "the inline engine simulator",
+        "",
+    };
+    for(size_t i = 0; i < len(lines); i++)
+    {
+        set_render_color(g_sdl_text_color);
+        SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "%s", lines[i]);
+    }
 }
 
 static void
@@ -509,7 +553,7 @@ draw_left_info(
     struct sdl_progress_bar_s* frames_per_sec_progress_bar)
 {
     struct sdl_scroll_s scroll = {
-        .x_p = compute_plot_column_width_p(engine) + g_sdl_line_spacing_p,
+        .x_p = calc_plot_column_width_p(engine) + g_sdl_line_spacing_p,
         .y_p = g_sdl_line_spacing_p,
     };
     draw_info_title(&scroll);
@@ -522,17 +566,22 @@ draw_left_info(
 }
 
 static void
-draw_panel(struct sdl_panel_s* self, SDL_FRect rect)
+draw_panel(struct sdl_panel_s* self, SDL_FRect rect, SDL_FColor color)
 {
-    set_render_color(g_sdl_container_color);
-    SDL_RenderRect(g_sdl_renderer, &self->rect);
-    static SDL_FPoint points[g_sampler_max_samples];
-    for(size_t i = 0; i < self->size; i++)
+    static float samples[g_sampler_max_samples];
+    draw_rect(self->rect, g_sdl_container_color);
+    size_t size = self->size;
+    if(size > 0)
     {
-        points[i] = calc_point_in_rect(self->sample[i], rect, i, self->size);
+        copy_samples(samples, self->sample, size);
+        size = down_sample_samples(samples, size, g_sdl_max_display_samples);
+        static SDL_FPoint points[g_sdl_max_display_samples];
+        for(size_t i = 0; i < size; i++)
+        {
+            points[i] = calc_point_in_rect(samples[i], rect, i, size);
+        }
+        draw_points(points, size, color);
     }
-    set_render_color(get_channel_color(0));
-    SDL_RenderPoints(g_sdl_renderer, points, self->size);
 }
 
 static void
@@ -540,12 +589,25 @@ draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
 {
     float x_p = scroll->x_p - self->rect.w;
     set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, x_p, newline(scroll), "%s", self->title);
-    debugf(g_sdl_renderer, x_p, newline(scroll), "max %f", self->normalized.is_success ? self->normalized.max_value : 0.0);
-    debugf(g_sdl_renderer, x_p, newline(scroll), "min %f", self->normalized.is_success ? self->normalized.min_value : 0.0);
+    SDL_RenderDebugTextFormat(g_sdl_renderer, x_p, newline(scroll), "%s", self->title);
+    struct
+    {
+        const char* name;
+        float value;
+    }
+    lines[] = {
+        { "max %f", self->normalized.is_success ? self->normalized.max_value : 0.0 },
+        { "min %f", self->normalized.is_success ? self->normalized.min_value : 0.0 },
+    };
+    SDL_FColor color = get_channel_color(6);
+    for(size_t i = 0; i < len(lines); i++)
+    {
+        set_render_color(color);
+        SDL_RenderDebugTextFormat(g_sdl_renderer, x_p, newline(scroll), lines[i].name, lines[i].value);
+    }
     self->rect.x = x_p;
     self->rect.y = scroll->y_p;
-    draw_panel(self, self->rect);
+    draw_panel(self, self->rect, color);
     newline(scroll);
     scroll_by(scroll, self->rect.h);
 }
@@ -557,7 +619,7 @@ draw_right_info(
     struct sdl_panel_s* synth_panel_signal)
 {
     struct sdl_scroll_s scroll = {
-        .x_p = g_sdl_xres_p - compute_plot_column_width_p(engine) - g_sdl_line_spacing_p,
+        .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p,
         .y_p = g_sdl_line_spacing_p,
     };
     draw_panel_info(starter_panel_r_per_s, &scroll);
@@ -567,15 +629,16 @@ draw_right_info(
 static void
 draw_demo_engine(const struct engine_s* engine)
 {
-    SDL_FPoint points[engine->size];
-    compute_radials(engine, points);
+    size_t size = engine->size;
+    SDL_FPoint points[size];
+    calc_radials(engine, points, size);
     clear_screen();
     present(g_sdl_demo_delay_ms);
-    for(size_t i = 0; i < engine->size; i++)
+    for(size_t i = 0; i < size; i++)
     {
         for(size_t next, j = 0; (next = engine->node[i].next[j]); j++)
         {
-            draw_line_by(points[i], points[next]);
+            draw_line(points[i], points[next], g_sdl_line_color);
             struct node_s* x = &engine->node[i];
             struct node_s* y = &engine->node[j];
             draw_node_at(x, points[i], g_sdl_container_color);
@@ -588,9 +651,10 @@ draw_demo_engine(const struct engine_s* engine)
 static void
 toggle_node_at(struct engine_s* engine, struct sampler_s* sampler, float x_p, float y_p)
 {
-    SDL_FPoint points[engine->size];
-    compute_radials(engine, points);
-    for(size_t i = 0; i < engine->size; i++)
+    size_t size = engine->size;
+    SDL_FPoint points[size];
+    calc_radials(engine, points, size);
+    for(size_t i = 0; i < size; i++)
     {
         struct node_s* node = &engine->node[i];
         SDL_FPoint point = points[i];
@@ -611,10 +675,9 @@ draw_pistons(struct engine_s* engine)
     float x0_p = g_sdl_mid_x_p;
     float y0_p = g_sdl_mid_y_p;
     set_render_color(g_sdl_text_color);
-    debugf(g_sdl_renderer, x0_p, y0_p, "%s", engine->name);
+    SDL_RenderDebugTextFormat(g_sdl_renderer, x0_p, y0_p, "%s", engine->name);
     float scale_p_per_m = 256.0;
     float space_p = 4.0;
-    set_render_color(g_sdl_container_color);
     float x_p = 0.0;
     for(size_t i = 0; i < engine->size; i++)
     {
@@ -628,15 +691,15 @@ draw_pistons(struct engine_s* engine)
                 scale_p_per_m * node->as.piston.diameter_m,
                 scale_p_per_m * node->as.piston.head_compression_height_m * 2.0,
             };
-            float conrod_w_p = head.w / 3;
+            float conrod_w_p = head.w / 3.0f;
             SDL_FRect conrod = {
                 head.x + conrod_w_p,
                 head.y + head.h,
                 conrod_w_p,
                 scale_p_per_m * node->as.piston.connecting_rod_length_m,
             };
-            SDL_RenderRect(g_sdl_renderer, &head);
-            SDL_RenderRect(g_sdl_renderer, &conrod);
+            draw_filled_outline_rect(head, g_sdl_line_color, g_sdl_text_color);
+            draw_filled_outline_rect(conrod, g_sdl_line_color, g_sdl_text_color);
             x_p += space_p + head.w;
         }
     }
