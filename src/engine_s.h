@@ -79,6 +79,10 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
             {
                 mail_gas_mail(&nozzle_flow.gas_mail);
             }
+            if(x->type == g_is_eplenum)
+            {
+                stage_wave(x->as.eplenum.wave_index, calc_static_pressure_pa(&x->as.chamber));
+            }
         }
     }
 }
@@ -190,62 +194,66 @@ reset_engine(struct engine_s* self)
 }
 
 static void
-for_each_wave(struct engine_s* self, void exec(struct node_s*))
+unstage_engine_waves(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
         if(node->type == g_is_eplenum)
         {
-            exec(node);
+            unstage_wave(node->as.eplenum.wave_index);
         }
     }
 }
 
 static void
-unstage_engine_wave(struct node_s* self)
+launch_engine_waves(struct engine_s* self)
 {
-    unstage_wave(self->as.eplenum.wave_index);
-}
-
-static void
-stage_engine_wave(struct node_s* self)
-{
-    double static_pressure_pa = calc_static_pressure_pa(&self->as.chamber);
-    stage_wave(self->as.eplenum.wave_index, static_pressure_pa);
-}
-
-static void
-launch_engine_wave(struct node_s* self)
-{
-    launch_eplenum_wave_thread(&self->as.eplenum);
-}
-
-static void
-wait_for_engine_wave(struct node_s* self)
-{
-    wait_for_eplenum_wave_thread(&self->as.eplenum);
-}
-
-static void
-sum_engine_wave(struct node_s* self)
-{
-    struct eplenum_s* eplenum = &self->as.eplenum;
-    struct wave_s* wave = &g_waves[eplenum->wave_index];
-    for(size_t j = 0; j < g_synth_buffer_size; j++)
+    for(size_t i = 0; i < self->size; i++)
     {
-        g_wave_static_pressure_pa[j] += wave->static_pressure_out_pa[j];
+        struct node_s* node = &self->node[i];
+        if(node->type == g_is_eplenum)
+        {
+            launch_eplenum_wave_thread(&node->as.eplenum);
+        }
     }
 }
 
 static void
-push_engine_waves_to_synth(struct engine_s* self, struct synth_s* synth)
+wait_for_engine_waves(struct engine_s* self)
 {
-    clear(g_wave_static_pressure_pa);
-    for_each_wave(self, sum_engine_wave);
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == g_is_eplenum)
+        {
+            wait_for_eplenum_wave_thread(&node->as.eplenum);
+        }
+    }
+}
+
+static void
+sum_engine_waves(struct engine_s* self)
+{
+    clear_wave_buffer();
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == g_is_eplenum)
+        {
+            struct eplenum_s* eplenum = &node->as.eplenum;
+            add_to_wave_buffer(eplenum->wave_index);
+        }
+    }
+}
+
+static void
+push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth)
+{
+    sum_engine_waves(self);
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
-        push_synth(synth, g_wave_static_pressure_pa[i]);
+        push_synth(synth, &self->crankshaft, g_wave_buffer_pa[i]);
     }
 }
 
@@ -281,7 +289,6 @@ stage_engine(
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
         run_engine_once(self, engine_time, sampler);
-        for_each_wave(self, stage_engine_wave);
     }
 }
 
@@ -296,12 +303,12 @@ run_engine(
     double t0 = engine_time->get_ticks_ms();
     if(audio_buffer_size < g_synth_buffer_mid_size)
     {
-        for_each_wave(self, unstage_engine_wave);
-        for_each_wave(self, launch_engine_wave);
+        unstage_engine_waves(self);
+        launch_engine_waves(self);
         stage_engine(self, engine_time, sampler);
-        for_each_wave(self, wait_for_engine_wave);
+        wait_for_engine_waves(self);
         double t1 = engine_time->get_ticks_ms();
-        push_engine_waves_to_synth(self, synth);
+        push_engine_wave_buffer_to_synth(self, synth);
         double t2 = engine_time->get_ticks_ms();
         engine_time->synth_time_ms = t2 - t1;
     }

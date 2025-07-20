@@ -9,7 +9,22 @@ struct wave_s
 }
 g_waves[g_max_waves];
 
-static double g_wave_static_pressure_pa[g_synth_buffer_size];
+static double g_wave_buffer_pa[g_synth_buffer_size];
+
+static void
+clear_wave_buffer()
+{
+    clear(g_wave_buffer_pa);
+}
+
+static void
+add_to_wave_buffer(size_t wave_index)
+{
+    for(size_t index = 0; index < g_synth_buffer_size; index++)
+    {
+        g_wave_buffer_pa[index] += g_waves[wave_index].static_pressure_out_pa[index];
+    }
+}
 
 static void
 clear_waves()
