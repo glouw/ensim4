@@ -1,7 +1,7 @@
 struct eplenum_s
 {
     struct chamber_s chamber;
-    struct wave_s wave;
+    size_t wave_index;
     thrd_t thread;
 };
 
@@ -9,6 +9,7 @@ static int
 run_eplenum_wave_thread(void* argument)
 {
     struct eplenum_s* self = argument;
+    run_wave(self->wave_index);
     return 0;
 }
 

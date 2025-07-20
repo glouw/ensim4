@@ -35,17 +35,15 @@ struct sampler_s
 {
     float channel[g_sampler_max_channels][g_sample_name_e_size][g_sampler_max_samples];
     float starter[g_sampler_max_samples];
-    float synth[g_sampler_max_samples];
     size_t index;
     size_t channel_index;
     size_t size;
 };
 
 static void
-sample_misc_values(struct sampler_s* self, float starter_angular_velocity_r_per_s, float synth_sample)
+sample_starter(struct sampler_s* self, float starter_angular_velocity_r_per_s)
 {
     self->starter[self->index] = starter_angular_velocity_r_per_s;
-    self->synth[self->index] = synth_sample;
 }
 
 static void
@@ -87,7 +85,13 @@ reset_sampler_channel(struct sampler_s* self)
 }
 
 static const char*
+till_underscore(const char* string)
+{
+    return strchr(string, '_') + 1;
+}
+
+static const char*
 skip_sample_namespace(const char* string)
 {
-    return strchr(strchr(string, '_') + 1, '_') + 1;
+    return till_underscore(till_underscore(string));
 }

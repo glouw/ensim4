@@ -618,15 +618,13 @@ draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
 static void
 draw_right_info(
     const struct engine_s* engine,
-    struct sdl_panel_s* starter_panel_r_per_s,
-    struct sdl_panel_s* synth_panel_signal)
+    struct sdl_panel_s* starter_panel_r_per_s)
 {
     struct sdl_scroll_s scroll = {
         .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p,
         .y_p = g_sdl_line_spacing_p,
     };
     draw_panel_info(starter_panel_r_per_s, &scroll);
-    draw_panel_info(synth_panel_signal, &scroll);
 }
 
 static void

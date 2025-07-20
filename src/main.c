@@ -23,7 +23,6 @@
 #include "gas_mail_s.h"
 #include "nozzle_flow_s.h"
 #include "visualize.h"
-#include "wave_s.h"
 
 /* engine peripherals */
 #include "crankshaft_s.h"
@@ -39,14 +38,17 @@
 #include "irunner_s.h"
 #include "piston_s.h"
 #include "erunner_s.h"
+
+/* engine synth */
+#include "synth_s.h"
+#include "wave_s.h"
+
 #include "eplenum_s.h"
 #include "exhaust_s.h"
 #include "sink_s.h"
 #include "node_s.h"
 
-/* engine synth */
 #include "sampler_s.h"
-#include "synth_s.h"
 
 /* engine assembly */
 #include "engine_s.h"
@@ -132,12 +134,6 @@ static struct sdl_panel_s g_starter_panel_r_per_s = {
     .rect.h = 128,
 };
 
-static struct sdl_panel_s g_synth_panel_signal = {
-    .title = "synth_signal",
-    .rect.w = 192,
-    .rect.h = 128,
-};
-
 static double
 get_ticks_ms()
 {
@@ -173,6 +169,7 @@ main(int argc, char* argv[])
         struct engine_time_s engine_time = { .get_ticks_ms = get_ticks_ms };
         double t0 = get_ticks_ms();
         double t1 = get_ticks_ms();
+        clear_synth(&g_synth);
         run_engine(engine, &engine_time, &g_sampler, &g_synth, get_audio_buffer_size());
         buffer_audio(&g_synth);
         double t2 = get_ticks_ms();
@@ -185,11 +182,6 @@ main(int argc, char* argv[])
         push_panel(
             &g_starter_panel_r_per_s,
             g_sampler.starter,
-            g_sampler.size
-        );
-        push_panel(
-            &g_synth_panel_signal,
-            g_sampler.synth,
             g_sampler.size
         );
         push_time_panel(
@@ -222,8 +214,7 @@ main(int argc, char* argv[])
             &g_frames_per_sec_bar);
         draw_right_info(
             engine,
-            &g_starter_panel_r_per_s,
-            &g_synth_panel_signal);
+            &g_starter_panel_r_per_s);
         draw_pistons(engine);
         double t3 = get_ticks_ms();
         present(0.0);
