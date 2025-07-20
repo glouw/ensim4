@@ -6,6 +6,7 @@ static constexpr double g_gas_molar_mass_kg_per_mol_co2 = 0.0440095000;
 static constexpr double g_gas_molar_mass_kg_per_mol_h2o = 0.0180152800;
 static constexpr double g_gas_ambient_static_temperature_k = 300.0;
 static constexpr double g_gas_ambient_static_pressure_pa = 101325.0;
+static constexpr double g_gas_ambient_static_density_kg_per_m3 = 1.225;
 static constexpr double g_gas_momentum_damping_time_constant_s = 0.1;
 
 struct gas_s

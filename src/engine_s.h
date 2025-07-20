@@ -1,7 +1,3 @@
-#define engine_is(engine) \
-    .node = engine,       \
-    .size = len(engine)
-
 static constexpr size_t g_engine_cycles_per_frame = 512;
 
 struct engine_s
@@ -23,6 +19,25 @@ struct engine_time_s
     double wave_time_ms;
     double (*get_ticks_ms)();
 };
+
+#define engine_is(engine) .node = engine, .size = len(engine)
+
+static void
+analyze_engine(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == g_is_eplenum)
+        {
+            if(count_node_edges(node) != 1)
+            {
+                fprintf(stderr, "eplenum[%lu] requires exactly one next[] edge\n", i);
+                exit(1);
+            }
+        }
+    }
+}
 
 static void
 normalize_engine(struct engine_s* self)
@@ -167,6 +182,7 @@ update_engine_nozzle_open_ratios(struct engine_s* self)
 static void
 reset_engine(struct engine_s* self)
 {
+    analyze_engine(self);
     clear_waves();
     rig_engine_pistons(self);
     normalize_engine(self);
