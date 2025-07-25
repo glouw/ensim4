@@ -522,6 +522,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
         { "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s },
         { "node_s_bytes: %.0f", sizeof(struct node_s) },
         { "supported_channels: %.0f", g_sampler_max_channels },
+        { "hllc_speed_m_per_s: %.0f", g_wave_max_wave_speed_m_per_s },
     };
     for(size_t i = 0; i < len(lines); i++)
     {
@@ -618,13 +619,33 @@ draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
 static void
 draw_right_info(
     const struct engine_s* engine,
-    struct sdl_panel_s* starter_panel_r_per_s)
+    struct sdl_panel_s* starter_panel_r_per_s,
+    struct sdl_panel_s wave_panel[],
+    size_t wave_panel_size)
 {
     struct sdl_scroll_s scroll = {
         .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p,
         .y_p = g_sdl_line_spacing_p,
     };
     draw_panel_info(starter_panel_r_per_s, &scroll);
+    size_t wave_index = 0;
+    for(size_t i = 0; i < engine->size; i++)
+    {
+        struct node_s* node = &engine->node[i];
+        if(node->type == g_is_eplenum)
+        {
+            struct eplenum_s* eplenum = &node->as.eplenum;
+            struct wave_s* wave = &g_waves[eplenum->wave_index];
+            if(wave_index == wave_panel_size)
+            {
+                break;
+            }
+            struct sdl_panel_s* panel = &wave_panel[wave_index];
+            push_panel_double(panel, wave->data.wave_sub_buffer_pa, g_synth_buffer_size);
+            draw_panel_info(panel, &scroll);
+            wave_index++;
+        }
+    }
 }
 
 static void

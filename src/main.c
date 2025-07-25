@@ -134,6 +134,15 @@ static struct sdl_panel_s g_starter_panel_r_per_s = {
     .rect.h = 128,
 };
 
+static struct sdl_panel_s g_wave_panel[] = {
+    { .title = "hllc_wave_0_pa", .rect.w = 192, .rect.h = 96 },
+    { .title = "hllc_wave_1_pa", .rect.w = 192, .rect.h = 96 },
+    { .title = "hllc_wave_2_pa", .rect.w = 192, .rect.h = 96 },
+    { .title = "hllc_wave_3_pa", .rect.w = 192, .rect.h = 96 },
+};
+
+static constexpr size_t g_wave_panel_size = len(g_wave_panel);
+
 static double
 get_ticks_ms()
 {
@@ -157,7 +166,7 @@ int
 main(int argc, char* argv[])
 {
     size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
-    struct engine_s* engine = &g_engine_1_cyl;
+    struct engine_s* engine = &g_engine_8_cyl;
     init_cp_precompute_buffer();
     visualize_gamma();
     visualize_chamber_s();
@@ -214,7 +223,9 @@ main(int argc, char* argv[])
             &g_frames_per_sec_bar);
         draw_right_info(
             engine,
-            &g_starter_panel_r_per_s);
+            &g_starter_panel_r_per_s,
+            g_wave_panel,
+            g_wave_panel_size);
         draw_pistons(engine);
         double t3 = get_ticks_ms();
         present(0.0);

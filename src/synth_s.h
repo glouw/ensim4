@@ -35,7 +35,7 @@ clamp_synth(struct synth_s* self, double value)
 }
 
 static double
-push_synth(struct synth_s* self, struct crankshaft_s* crankshaft, double value)
+push_synth(struct synth_s* self, double value)
 {
     value = filter_highpass(&self->dc_filter, g_dc_filter_cutoff_frequency_hz, value);
     value = filter_convo(&self->convo_filter, value);
