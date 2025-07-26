@@ -35,10 +35,17 @@ struct sampler_s
 {
     float channel[g_sampler_max_channels][g_sample_name_e_size][g_sampler_max_samples];
     float starter[g_sampler_max_samples];
+    float synth[g_synth_buffer_size];
     size_t index;
     size_t channel_index;
     size_t size;
 };
+
+static void
+sample_synth_sample(struct sampler_s* self, size_t index, float synth_sample)
+{
+    self->synth[index] = synth_sample;
+}
 
 static void
 sample_starter(struct sampler_s* self, float starter_angular_velocity_r_per_s)

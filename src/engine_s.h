@@ -261,12 +261,13 @@ sum_engine_waves(const struct engine_s* self)
 }
 
 static void
-push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth)
+push_engine_wave_buffer_to_synth(struct engine_s* self, struct sampler_s* sampler, struct synth_s* synth)
 {
     sum_engine_waves(self);
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
-        push_synth(synth, g_wave_buffer_pa[i]);
+        double synth_sample = push_synth(synth, g_wave_buffer_pa[i]);
+        sample_synth_sample(sampler, i, synth_sample);
     }
 }
 
@@ -311,7 +312,7 @@ run_engine_with_waves(
         }
         wait_for_engine_waves(self);
         double t1 = engine_time->get_ticks_ms();
-        push_engine_wave_buffer_to_synth(self, synth);
+        push_engine_wave_buffer_to_synth(self, sampler, synth);
         double t2 = engine_time->get_ticks_ms();
         engine_time->synth_time_ms = t2 - t1;
     }

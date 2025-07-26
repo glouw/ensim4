@@ -564,7 +564,6 @@ draw_left_info(
     struct sdl_time_panel_s* loop_time_panel,
     struct sdl_time_panel_s* engine_time_panel,
     struct sdl_time_panel_s* audio_buffer_time_panel,
-    struct sdl_progress_bar_s* rad_per_sec_progress_bar,
     struct sdl_progress_bar_s* frames_per_sec_progress_bar)
 {
     struct sdl_scroll_s scroll = {
@@ -575,7 +574,6 @@ draw_left_info(
     draw_time_panel_info(loop_time_panel, &scroll);
     draw_time_panel_info(engine_time_panel, &scroll);
     draw_time_panel_info(audio_buffer_time_panel, &scroll);
-    draw_progress_bar_info(rad_per_sec_progress_bar, &scroll);
     draw_progress_bar_info(frames_per_sec_progress_bar, &scroll);
     draw_general_info(&scroll);
 }
@@ -603,7 +601,7 @@ draw_panel(struct sdl_panel_s* self, SDL_FRect rect, SDL_FColor color)
 static void
 draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
 {
-    float x_p = scroll->x_p - self->rect.w;
+    float x_p = scroll->x_p;
     set_render_color(g_sdl_text_color);
     SDL_RenderDebugTextFormat(g_sdl_renderer, x_p, newline(scroll), "%s", self->title);
     struct
@@ -659,15 +657,20 @@ static void
 draw_right_info(
     const struct engine_s* engine,
     struct sdl_panel_s* starter_panel_r_per_s,
+    struct sdl_progress_bar_s* rad_per_sec_progress_bar,
     struct sdl_panel_s wave_panel[],
-    size_t wave_panel_size)
+    size_t wave_panel_size,
+    struct sdl_panel_s* synth_sample_panel)
 {
+    size_t supported_w_p = 192;
     struct sdl_scroll_s scroll = {
-        .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p,
+        .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p - supported_w_p,
         .y_p = g_sdl_line_spacing_p,
     };
     draw_panel_info(starter_panel_r_per_s, &scroll);
+    draw_progress_bar_info(rad_per_sec_progress_bar, &scroll);
     draw_right_info_waves(engine, wave_panel, wave_panel_size, &scroll);
+    draw_panel_info(synth_sample_panel, &scroll);
 }
 
 static void
@@ -745,13 +748,14 @@ draw_everything(
     struct sdl_progress_bar_s* frames_per_sec_progress_bar,
     struct sdl_panel_s* starter_panel_r_per_s,
     struct sdl_panel_s wave_panel[],
-    size_t wave_panel_size)
+    size_t wave_panel_size,
+    struct sdl_panel_s* synth_sample_panel)
 {
     clear_screen();
     draw_plots(engine, sampler);
     draw_radial_chambers(engine);
-    draw_left_info(engine, loop_time_panel, engine_time_panel, audio_buffer_time_panel, r_per_s_progress_bar, frames_per_sec_progress_bar);
-    draw_right_info(engine, starter_panel_r_per_s, wave_panel, wave_panel_size);
+    draw_left_info(engine, loop_time_panel, engine_time_panel, audio_buffer_time_panel, frames_per_sec_progress_bar);
+    draw_right_info(engine, starter_panel_r_per_s, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel);
     draw_pistons(engine);
 }
 

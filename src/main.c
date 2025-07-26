@@ -132,14 +132,20 @@ static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
 static struct sdl_panel_s g_starter_panel_r_per_s = {
     .title = "starter_r_per_s",
     .rect.w = 192,
-    .rect.h = 128,
+    .rect.h = 64,
 };
 
 static struct sdl_panel_s g_wave_panel[] = {
-    { .title = "hllc_wave_0_pa", .rect.w = 192, .rect.h = 96 },
-    { .title = "hllc_wave_1_pa", .rect.w = 192, .rect.h = 96 },
-    { .title = "hllc_wave_2_pa", .rect.w = 192, .rect.h = 96 },
-    { .title = "hllc_wave_3_pa", .rect.w = 192, .rect.h = 96 },
+    { .title = "hllc_wave_0_pa", .rect.w = 192, .rect.h = 128 },
+    { .title = "hllc_wave_1_pa", .rect.w = 192, .rect.h = 128 },
+    { .title = "hllc_wave_2_pa", .rect.w = 192, .rect.h = 128 },
+    { .title = "hllc_wave_3_pa", .rect.w = 192, .rect.h = 128 },
+};
+
+static struct sdl_panel_s g_synth_sample_panel = {
+    .title = "synth_samples",
+    .rect.w = 192,
+    .rect.h = 64,
 };
 
 static constexpr size_t g_wave_panel_size = len(g_wave_panel);
@@ -182,6 +188,10 @@ main(int argc, char* argv[])
             &g_starter_panel_r_per_s,
             g_sampler.starter,
             g_sampler.size);
+        push_panel(
+            &g_synth_sample_panel,
+            g_sampler.synth,
+            g_synth_buffer_size);
         push_time_panel(
             &g_engine_time_panel,
             (float[]) {
@@ -211,7 +221,8 @@ main(int argc, char* argv[])
             &g_frames_per_sec_progress_bar,
             &g_starter_panel_r_per_s,
             g_wave_panel,
-            g_wave_panel_size);
+            g_wave_panel_size,
+            &g_synth_sample_panel);
         double t3 = get_ticks_ms();
         present(0.0);
         double t4 = get_ticks_ms();
