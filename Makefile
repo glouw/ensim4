@@ -1,6 +1,11 @@
+MONITOR_REFRESH_RATE_HZ = 60
+
 CC = clang
 
 CFLAGS = -std=c23 -O3 -ffast-math -march=native
+WFLAGS = -Wall -Wextra -Wpedantic
+LDFLAGS = -lm -lSDL3
+DFLAGS = -DENSIM4_MONITOR_REFRESH_RATE_HZ=$(MONITOR_REFRESH_RATE_HZ)
 
 ifeq (0,1)
 CFLAGS += -Rpass=loop-vectorize
@@ -10,15 +15,15 @@ ifeq (0,1)
 CFLAGS+= -fsanitize=address,undefined -g
 endif
 
-WFLAGS = -Wall -Wextra -Wpedantic
-LDFLAGS = -lm -lSDL3
+ifeq ($(MAKECMDGOALS),check)
+DFLAGS += -DENSIM4_VISUALIZE
+endif
+
 BIN = ensim4
 SRC = src/main.c
 
-MONITOR_REFRESH_RATE_HZ = 60
-
 all:
-	$(CC) $(CFLAGS) $(WFLAGS) $(SRC) $(LDFLAGS) -DENSIM4_MONITOR_REFRESH_RATE_HZ=$(MONITOR_REFRESH_RATE_HZ) -o $(BIN)
+	$(CC) $(CFLAGS) $(WFLAGS) $(DFLAGS) $(SRC) $(LDFLAGS) -o $(BIN)
 	@echo -e "\033[0;32m"
 	@echo -e "Remember to set your monitor refresh rate in the Makefile"
 	@echo -e "\033[0m"

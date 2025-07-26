@@ -1,4 +1,4 @@
-static void
+static inline void
 visualize_gamma()
 {
     FILE* file = fopen("visualize/gamma.txt", "w");
@@ -68,7 +68,7 @@ visualize_gamma()
     fclose(file);
 }
 
-static void
+static inline void
 visualize_chamber_s()
 {
     struct chamber_s x = {

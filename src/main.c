@@ -156,8 +156,10 @@ main(int argc, char* argv[])
 {
     size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
     init_cp_precompute_buffer();
+#ifdef ENSIM4_VISUALIZE
     visualize_gamma();
     visualize_chamber_s();
+#endif
     struct engine_s* engine = &g_engine_8_cyl;
     reset_engine(engine);
     init_sdl();
