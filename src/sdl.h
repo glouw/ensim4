@@ -617,17 +617,12 @@ draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
 }
 
 static void
-draw_right_info(
+draw_right_info_waves(
     const struct engine_s* engine,
-    struct sdl_panel_s* starter_panel_r_per_s,
     struct sdl_panel_s wave_panel[],
-    size_t wave_panel_size)
+    size_t wave_panel_size,
+    struct sdl_scroll_s* scroll)
 {
-    struct sdl_scroll_s scroll = {
-        .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p,
-        .y_p = g_sdl_line_spacing_p,
-    };
-    draw_panel_info(starter_panel_r_per_s, &scroll);
     size_t wave_index = 0;
     for(size_t i = 0; i < engine->size; i++)
     {
@@ -641,11 +636,26 @@ draw_right_info(
                 break;
             }
             struct sdl_panel_s* panel = &wave_panel[wave_index];
-            push_panel_double(panel, wave->data.wave_sub_buffer_pa, g_synth_buffer_size);
-            draw_panel_info(panel, &scroll);
+            push_panel_prim(panel, wave->hllc.prim, g_wave_cells);
+            draw_panel_info(panel, scroll);
             wave_index++;
         }
     }
+}
+
+static void
+draw_right_info(
+    const struct engine_s* engine,
+    struct sdl_panel_s* starter_panel_r_per_s,
+    struct sdl_panel_s wave_panel[],
+    size_t wave_panel_size)
+{
+    struct sdl_scroll_s scroll = {
+        .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p,
+        .y_p = g_sdl_line_spacing_p,
+    };
+    draw_panel_info(starter_panel_r_per_s, &scroll);
+    draw_right_info_waves(engine, wave_panel, wave_panel_size, &scroll);
 }
 
 static void
@@ -747,6 +757,9 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
             case SDLK_5:
                 break;
             case SDLK_6:
+                break;
+            case SDLK_F:
+                engine->is_slowmo ^= true;
                 break;
             case SDLK_P:
                 deselect_all_nodes(engine->node, engine->size);

@@ -8,6 +8,7 @@ struct engine_s
     struct crankshaft_s crankshaft;
     struct flywheel_s flywheel;
     struct starter_s starter;
+    bool is_slowmo;
 };
 
 struct engine_time_s
@@ -81,11 +82,20 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
             }
             if(x->type == g_is_eplenum)
             {
-                stage_wave(
-                    x->as.eplenum.wave_index,
-                    calc_static_pressure_pa(&x->as.chamber),
-                    nozzle_flow.flow_field.static_density_kg_per_m3,
-                    nozzle_flow.flow_field.velocity_m_per_s);
+                size_t wave_index = x->as.eplenum.wave_index;
+                struct wave_prim_s prim = {
+                    .rho = nozzle_flow.flow_field.static_density_kg_per_m3,
+                    .u = nozzle_flow.flow_field.velocity_m_per_s,
+                    .p = calc_static_pressure_pa(&x->as.chamber),
+                };
+                if(self->is_slowmo)
+                {
+                    step_wave(wave_index, prim);
+                }
+                else
+                {
+                    stage_wave(wave_index, prim);
+                }
             }
         }
     }
@@ -128,7 +138,7 @@ calc_engine_moment_of_inertia_kg_m2(const struct engine_s* self)
 }
 
 static void
-move_engine(struct engine_s* self, struct sampler_s* sampler)
+crank_engine(struct engine_s* self, struct sampler_s* sampler)
 {
     double torque_n_m = calc_engine_torque_n_m(self);
     double moment_of_inertia_kg_m2 = calc_engine_moment_of_inertia_kg_m2(self);
@@ -245,8 +255,7 @@ sum_engine_waves(const struct engine_s* self)
         struct node_s* node = &self->node[i];
         if(node->type == g_is_eplenum)
         {
-            struct eplenum_s* eplenum = &node->as.eplenum;
-            add_to_wave_buffer(eplenum->wave_index);
+            add_to_wave_buffer(node->as.eplenum.wave_index);
         }
     }
 }
@@ -262,7 +271,7 @@ push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth)
 }
 
 static void
-run_engine_once(
+step_engine(
     struct engine_s* self,
     struct engine_time_s* engine_time,
     struct sampler_s* sampler)
@@ -271,7 +280,7 @@ run_engine_once(
     double t0 = engine_time->get_ticks_ms();
     flow_engine(self, sampler);
     double t1 = engine_time->get_ticks_ms();
-    move_engine(self, sampler);
+    crank_engine(self, sampler);
     compress_engine_pistons(self);
     update_engine_nozzle_open_ratios(self);
     double starter_angular_velocity_r_per_s = calc_starter_angular_velocity_r_per_s(&self->starter, &self->flywheel, &self->crankshaft);
@@ -285,14 +294,26 @@ run_engine_once(
 }
 
 static void
-run_engine_many(
+run_engine_with_waves(
     struct engine_s* self,
     struct engine_time_s* engine_time,
-    struct sampler_s* sampler)
+    struct sampler_s* sampler,
+    struct synth_s* synth,
+    size_t audio_buffer_size)
 {
-    for(size_t i = 0; i < g_synth_buffer_size; i++)
+    if(audio_buffer_size < g_synth_buffer_mid_size)
     {
-        run_engine_once(self, engine_time, sampler);
+        flip_engine_waves(self);
+        launch_engine_waves(self);
+        for(size_t i = 0; i < g_synth_buffer_size; i++)
+        {
+            step_engine(self, engine_time, sampler);
+        }
+        wait_for_engine_waves(self);
+        double t1 = engine_time->get_ticks_ms();
+        push_engine_wave_buffer_to_synth(self, synth);
+        double t2 = engine_time->get_ticks_ms();
+        engine_time->synth_time_ms = t2 - t1;
     }
 }
 
@@ -305,15 +326,13 @@ run_engine(
     size_t audio_buffer_size)
 {
     double t0 = engine_time->get_ticks_ms();
-    if(audio_buffer_size < g_synth_buffer_mid_size)
+    if(self->is_slowmo)
     {
-        flip_engine_waves(self);
-        launch_engine_waves(self);
-        run_engine_many(self, engine_time, sampler); wait_for_engine_waves(self);
-        double t1 = engine_time->get_ticks_ms();
-        push_engine_wave_buffer_to_synth(self, synth);
-        double t2 = engine_time->get_ticks_ms();
-        engine_time->synth_time_ms = t2 - t1;
+        step_engine(self, engine_time, sampler);
+    }
+    else
+    {
+        run_engine_with_waves(self, engine_time, sampler, synth, audio_buffer_size);
     }
     double t3 = engine_time->get_ticks_ms();
     engine_time->wave_time_ms += t3 - t0;

@@ -166,10 +166,10 @@ int
 main(int argc, char* argv[])
 {
     size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
-    struct engine_s* engine = &g_engine_8_cyl;
     init_cp_precompute_buffer();
     visualize_gamma();
     visualize_chamber_s();
+    struct engine_s* engine = &g_engine_8_cyl;
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();

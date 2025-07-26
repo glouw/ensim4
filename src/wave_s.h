@@ -1,12 +1,13 @@
 static constexpr size_t g_wave_max_waves = 8;
 static constexpr size_t g_wave_cells = 128;
-static constexpr size_t g_wave_substeps = 5;
+static constexpr size_t g_wave_substeps = 4;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.4;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
 static constexpr double g_wave_pipe_length_m = 1.0;
 static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
 static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
+static constexpr double g_wave_mic_position_ratio = 0.75;
 
 struct wave_prim_s
 {
@@ -215,7 +216,7 @@ step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s in, struct wave_prim
 static double
 sample_hllc_wave(struct wave_hllc_s* self)
 {
-    size_t index = g_wave_cells / 2;
+    size_t index = g_wave_cells * g_wave_mic_position_ratio;
     return self->prim[index].p;
 }
 
@@ -258,18 +259,6 @@ reset_all_waves()
 }
 
 static void
-stage_wave(size_t wave_index, double static_pressure_pa, double static_density_kg_per_m3, double velocity_m_per_s)
-{
-    struct wave_s* self = &g_waves[wave_index];
-    struct wave_prim_s prim = {
-        .p = static_pressure_pa,
-        .rho = static_density_kg_per_m3,
-        .u = velocity_m_per_s,
-    };
-    self->data.buffer0[self->data.index++] = prim;
-}
-
-static void
 flip_wave(size_t wave_index)
 {
     struct wave_s* self = &g_waves[wave_index];
@@ -281,7 +270,7 @@ flip_wave(size_t wave_index)
 }
 
 static void
-run_wave(size_t wave_index)
+batch_step_wave(size_t wave_index)
 {
     struct wave_s* self = &g_waves[wave_index];
     for(size_t i = 0; i < g_synth_buffer_size; i++)
@@ -289,4 +278,18 @@ run_wave(size_t wave_index)
         step_hllc_wave(&self->hllc, self->data.buffer1[i], g_ambient_wave_cell);
         self->data.wave_sub_buffer_pa[i] = sample_hllc_wave(&self->hllc);
     }
+}
+
+static void
+stage_wave(size_t wave_index, struct wave_prim_s prim)
+{
+    struct wave_s* self = &g_waves[wave_index];
+    self->data.buffer0[self->data.index++] = prim;
+}
+
+static void
+step_wave(size_t wave_index, struct wave_prim_s prim)
+{
+    struct wave_s* wave = &g_waves[wave_index];
+    step_hllc_wave(&wave->hllc, prim, g_ambient_wave_cell);
 }

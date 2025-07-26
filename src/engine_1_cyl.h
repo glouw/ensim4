@@ -99,6 +99,7 @@ static struct node_s g_node_1_cyl[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.000075
             },
+            .wave_index = 0,
         },
         .next = {8}
     },

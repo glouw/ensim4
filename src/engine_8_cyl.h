@@ -443,12 +443,13 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.006
             },
+            .wave_index = 0,
         },
         .next = {29}
     },
     [29] = {
         .type = g_is_exhaust,
-        .as.eplenum = {
+        .as.exhaust = {
             .chamber = {
                 .volume_m3 = 0.1,
                 .nozzle_open_ratio = 1.0,
