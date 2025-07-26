@@ -22,4 +22,3 @@ push_slide_buffer(sdl_slide_buffer_t self, float value)
     }
     self[g_sdl_slide_buffer_size - 1] = value;
 }
-

@@ -472,7 +472,7 @@ static struct node_s g_node_8_cyl[] = {
 };
 
 static struct engine_s g_engine_8_cyl = {
-    "inline 8",
+    "inline 8 - single exhaust",
     engine_is(g_node_8_cyl),
     .crankshaft = {
         .mass_kg = 18.0,

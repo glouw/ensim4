@@ -1,3 +1,4 @@
+/* c23 standard lib */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +31,10 @@
 #include "starter_s.h"
 #include "valve_s.h"
 
+/* engine synth */
+#include "synth_s.h"
+#include "wave_s.h"
+
 /* engine nodes */
 #include "source_s.h"
 #include "filter_s.h"
@@ -38,16 +43,12 @@
 #include "irunner_s.h"
 #include "piston_s.h"
 #include "erunner_s.h"
-
-/* engine synth */
-#include "synth_s.h"
-#include "wave_s.h"
-
 #include "eplenum_s.h"
 #include "exhaust_s.h"
 #include "sink_s.h"
 #include "node_s.h"
 
+/* engine data collection */
 #include "sampler_s.h"
 
 /* engine assembly */
@@ -55,7 +56,7 @@
 #include "engine_1_cyl.h"
 #include "engine_8_cyl.h"
 
-/* sdl3 (video, input, and audio access) */
+/* sdl3 (video, input, and audio access) + helpers */
 #include <SDL3/SDL.h>
 #include "sdl_scroll_s.h"
 #include "sdl_slide_buffer_t.h"
@@ -121,7 +122,7 @@ static struct sdl_progress_bar_s g_r_per_s_progress_bar = {
     .rect.h = 16,
 };
 
-static struct sdl_progress_bar_s g_frames_per_sec_bar = {
+static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
     .title = "frames_per_sec",
     .max_value = 100.0,
     .rect.w = 192,
@@ -150,18 +151,6 @@ get_ticks_ms()
     return SDL_NS_TO_MS(ticks_ns);
 }
 
-static void
-throttle_144hz_incase(double frame_time_ms)
-{
-    double target_frame_time_ms = 1000.0 / g_std_assumed_refresh_rate;
-    if(frame_time_ms < target_frame_time_ms)
-    {
-        double delay_time_ms = target_frame_time_ms - frame_time_ms;
-        double delay_time_ns = SDL_MS_TO_NS(delay_time_ms);
-        SDL_DelayPrecise(delay_time_ns);
-    }
-}
-
 int
 main(int argc, char* argv[])
 {
@@ -173,11 +162,12 @@ main(int argc, char* argv[])
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();
-    for(size_t cycle = 0; cycles == (size_t) -1 ? true : cycle < cycles; cycle++)
+    for(size_t cycle = 0; cycle < cycles; cycle++)
     {
         struct engine_time_s engine_time = { .get_ticks_ms = get_ticks_ms };
         double t0 = get_ticks_ms();
         double t1 = get_ticks_ms();
+        g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
         clear_synth(&g_synth);
         run_engine(engine, &engine_time, &g_sampler, &g_synth, get_audio_buffer_size());
         buffer_audio(&g_synth);
@@ -186,13 +176,10 @@ main(int argc, char* argv[])
         {
             break;
         }
-        clear_screen();
-        g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
         push_panel(
             &g_starter_panel_r_per_s,
             g_sampler.starter,
-            g_sampler.size
-        );
+            g_sampler.size);
         push_time_panel(
             &g_engine_time_panel,
             (float[]) {
@@ -212,21 +199,17 @@ main(int argc, char* argv[])
                 0.0,
             }
         );
-        draw_plots(engine, &g_sampler);
-        draw_radial_chambers(engine);
-        draw_left_info(
+        draw_everything(
             engine,
+            &g_sampler,
             &g_loop_time_panel,
             &g_engine_time_panel,
             &g_audio_buffer_time_panel,
             &g_r_per_s_progress_bar,
-            &g_frames_per_sec_bar);
-        draw_right_info(
-            engine,
+            &g_frames_per_sec_progress_bar,
             &g_starter_panel_r_per_s,
             g_wave_panel,
             g_wave_panel_size);
-        draw_pistons(engine);
         double t3 = get_ticks_ms();
         present(0.0);
         double t4 = get_ticks_ms();
@@ -240,9 +223,7 @@ main(int argc, char* argv[])
             }
         );
         double t5 = get_ticks_ms();
-        throttle_144hz_incase(t5 - t0);
-        double t6 = get_ticks_ms();
-        g_frames_per_sec_bar.value = 1000.0 / (t6 - t0);
+        g_frames_per_sec_progress_bar.value = 1000.0 / (t5 - t0);
     }
     exit_sdl_audio();
     exit_sdl();

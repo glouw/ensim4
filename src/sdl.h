@@ -175,7 +175,6 @@ init_sdl()
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_CreateWindowAndRenderer(g_sdl_title, g_sdl_xres_p, g_sdl_yres_p, SDL_WINDOW_FULLSCREEN, &g_sdl_window, &g_sdl_renderer);
     SDL_SetRenderVSync(g_sdl_renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
-    SDL_SetCurrentThreadPriority(SDL_THREAD_PRIORITY_TIME_CRITICAL);
 }
 
 static void
@@ -520,6 +519,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
     }
     lines[] = {
         { "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s },
+        { "monitor_hz: %.0f", g_std_monitor_refresh_rate },
         { "node_s_bytes: %.0f", sizeof(struct node_s) },
         { "supported_channels: %.0f", g_sampler_max_channels },
         { "hllc_speed_m_per_s: %.0f", g_wave_max_wave_speed_m_per_s },
@@ -532,17 +532,29 @@ draw_general_info(struct sdl_scroll_s* scroll)
 }
 
 static void
-draw_info_title(struct sdl_scroll_s* scroll)
+draw_info_title(
+    const struct engine_s* engine,
+    struct sdl_scroll_s* scroll)
 {
-    const char* lines[] = {
-        g_sdl_title,
-        "the inline engine simulator",
-        "",
+    SDL_FColor active = get_channel_color(0);
+    SDL_FColor simple = g_sdl_text_color;
+    struct
+    {
+        const char* name;
+        SDL_FColor color;
+    }
+    lines[] = {
+        { g_sdl_title                   , simple                                  },
+        { "the inline engine simulator" , simple                                  },
+        { ""                            , simple                                  },
+        { "    f: slowmo"               , engine->is_slowmo     ? active : simple },
+        { "space: starter"              , engine->starter.is_on ? active : simple },
+        { ""                            , simple                                  },
     };
     for(size_t i = 0; i < len(lines); i++)
     {
-        set_render_color(g_sdl_text_color);
-        SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "%s", lines[i]);
+        set_render_color(lines[i].color);
+        SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "%s", lines[i].name);
     }
 }
 
@@ -559,7 +571,7 @@ draw_left_info(
         .x_p = calc_plot_column_width_p(engine) + g_sdl_line_spacing_p,
         .y_p = g_sdl_line_spacing_p,
     };
-    draw_info_title(&scroll);
+    draw_info_title(engine, &scroll);
     draw_time_panel_info(loop_time_panel, &scroll);
     draw_time_panel_info(engine_time_panel, &scroll);
     draw_time_panel_info(audio_buffer_time_panel, &scroll);
@@ -722,6 +734,27 @@ draw_pistons(struct engine_s* engine)
     }
 }
 
+static void
+draw_everything(
+    struct engine_s* engine,
+    struct sampler_s* sampler,
+    struct sdl_time_panel_s* loop_time_panel,
+    struct sdl_time_panel_s* engine_time_panel,
+    struct sdl_time_panel_s* audio_buffer_time_panel,
+    struct sdl_progress_bar_s* r_per_s_progress_bar,
+    struct sdl_progress_bar_s* frames_per_sec_progress_bar,
+    struct sdl_panel_s* starter_panel_r_per_s,
+    struct sdl_panel_s wave_panel[],
+    size_t wave_panel_size)
+{
+    clear_screen();
+    draw_plots(engine, sampler);
+    draw_radial_chambers(engine);
+    draw_left_info(engine, loop_time_panel, engine_time_panel, audio_buffer_time_panel, r_per_s_progress_bar, frames_per_sec_progress_bar);
+    draw_right_info(engine, starter_panel_r_per_s, wave_panel, wave_panel_size);
+    draw_pistons(engine);
+}
+
 static bool
 handle_input(struct engine_s* engine, struct sampler_s* sampler)
 {
@@ -737,6 +770,9 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
             {
             case SDLK_SPACE:
                 engine->starter.is_on = true;
+                break;
+            case SDLK_F:
+                engine->is_slowmo = true;
                 break;
             }
             break;
@@ -759,7 +795,7 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
             case SDLK_6:
                 break;
             case SDLK_F:
-                engine->is_slowmo ^= true;
+                engine->is_slowmo = false;
                 break;
             case SDLK_P:
                 deselect_all_nodes(engine->node, engine->size);

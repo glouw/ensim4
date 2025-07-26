@@ -301,7 +301,7 @@ run_engine_with_waves(
     struct synth_s* synth,
     size_t audio_buffer_size)
 {
-    if(audio_buffer_size < g_synth_buffer_mid_size)
+    if(audio_buffer_size < g_synth_buffer_max_size)
     {
         flip_engine_waves(self);
         launch_engine_waves(self);

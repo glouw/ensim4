@@ -1,5 +1,5 @@
 static constexpr size_t g_std_audio_sample_rate_hz = 44100;
-static constexpr size_t g_std_assumed_refresh_rate = 60;
+static constexpr size_t g_std_monitor_refresh_rate = ENSIM4_MONITOR_REFRESH_RATE_HZ;
 static constexpr double g_std_dt_s = 1.0 / g_std_audio_sample_rate_hz;
 static constexpr double g_std_pi_r = 3.141592653589793;
 static constexpr double g_std_four_pi_r = 4.0 * g_std_pi_r;

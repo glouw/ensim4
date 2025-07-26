@@ -15,8 +15,15 @@ LDFLAGS = -lm -lSDL3
 BIN = ensim4
 SRC = src/main.c
 
+MONITOR_REFRESH_RATE_HZ = 60
+
 all:
-	$(CC) $(CFLAGS) $(WFLAGS) $(SRC) $(LDFLAGS) -o $(BIN)
+	$(CC) $(CFLAGS) $(WFLAGS) $(SRC) $(LDFLAGS) -DENSIM4_MONITOR_REFRESH_RATE_HZ=$(MONITOR_REFRESH_RATE_HZ) -o $(BIN)
+	@echo -e "\033[0;32m"
+	@echo -e "Remember to set your monitor refresh rate in the Makefile"
+	@echo -e "\033[0m"
+
+check: all
 	objdump -d -M intel $(BIN) > $(BIN).asm
 	size $(BIN)
 
