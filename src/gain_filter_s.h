@@ -1,5 +1,4 @@
 static constexpr size_t g_gain_filter_size = 8192;
-static constexpr double g_gain_filter_pre_gain = 0.1;
 
 struct gain_filter_s
 {
@@ -9,7 +8,7 @@ struct gain_filter_s
 };
 
 static double
-filter_gain(struct gain_filter_s* self, double value)
+filter_gain(struct gain_filter_s* self, double value, double gain)
 {
     double old_value = self->buffer[self->index];
     self->buffer[self->index++] = value;
@@ -25,7 +24,7 @@ filter_gain(struct gain_filter_s* self, double value)
     {
         root_mean_square = sqrt(self->sum_of_squares / g_gain_filter_size);
     }
-    value *= g_gain_filter_pre_gain;
+    value *= gain;
     if(root_mean_square > 0.0)
     {
         value /= root_mean_square;

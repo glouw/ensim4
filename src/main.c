@@ -11,6 +11,7 @@
 #include "std.h"
 
 /* signal processing */
+#include "envelope_s.h"
 #include "normalized_s.h"
 #include "gain_filter_s.h"
 #include "convo_filter_s.h"
@@ -70,6 +71,10 @@ static struct sampler_s g_sampler = {};
 
 static struct synth_s g_synth = {
     .clamp = 1.0,
+    .envelope = {
+        .max_gain = 0.25,
+        .limiter = 50.0,
+    }
 };
 
 static struct sdl_time_panel_s g_loop_time_panel = {
@@ -116,7 +121,7 @@ static struct sdl_time_panel_s g_audio_buffer_time_panel = {
 };
 
 static struct sdl_progress_bar_s g_r_per_s_progress_bar = {
-    .title = "radians_per_second",
+    .title = "crank_r_per_s",
     .max_value = 2000.0,
     .rect.w = 192,
     .rect.h = 16,
@@ -125,6 +130,13 @@ static struct sdl_progress_bar_s g_r_per_s_progress_bar = {
 static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
     .title = "frames_per_sec",
     .max_value = 100.0,
+    .rect.w = 192,
+    .rect.h = 16,
+};
+
+static struct sdl_progress_bar_s g_synth_envelope_progress_bar = {
+    .title = "synth_envelope",
+    .max_value = 1.0,
     .rect.w = 192,
     .rect.h = 16,
 };
@@ -157,6 +169,8 @@ get_ticks_ms()
     return SDL_NS_TO_MS(ticks_ns);
 }
 
+static sampler_synth_t g_sampler_synth;
+
 int
 main(int argc, char* argv[])
 {
@@ -172,26 +186,24 @@ main(int argc, char* argv[])
     init_sdl_audio();
     for(size_t cycle = 0; cycle < cycles; cycle++)
     {
-        struct engine_time_s engine_time = { .get_ticks_ms = get_ticks_ms };
+        struct engine_time_s engine_time = {
+            .get_ticks_ms = get_ticks_ms
+        };
         double t0 = get_ticks_ms();
         double t1 = get_ticks_ms();
         g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
+        g_synth_envelope_progress_bar.value = g_synth.envelope.gain;
         clear_synth(&g_synth);
-        run_engine(engine, &engine_time, &g_sampler, &g_synth, get_audio_buffer_size());
+        size_t audio_buffer_size = get_audio_buffer_size();
+        run_engine(engine, &engine_time, &g_sampler, &g_synth, audio_buffer_size, g_sampler_synth);
         buffer_audio(&g_synth);
         double t2 = get_ticks_ms();
         if(handle_input(engine, &g_sampler))
         {
             break;
         }
-        push_panel(
-            &g_starter_panel_r_per_s,
-            g_sampler.starter,
-            g_sampler.size);
-        push_panel(
-            &g_synth_sample_panel,
-            g_sampler.synth,
-            g_synth_buffer_size);
+        push_panel(&g_starter_panel_r_per_s, g_sampler.starter, g_sampler.size);
+        push_panel(&g_synth_sample_panel, g_sampler_synth, g_synth_buffer_size);
         push_time_panel(
             &g_engine_time_panel,
             (float[]) {
@@ -205,7 +217,7 @@ main(int argc, char* argv[])
         push_time_panel(
             &g_audio_buffer_time_panel,
             (float[]) {
-                get_audio_buffer_size(),
+                audio_buffer_size,
                 g_synth_buffer_min_size,
                 0.0,
                 0.0,
@@ -219,6 +231,7 @@ main(int argc, char* argv[])
             &g_audio_buffer_time_panel,
             &g_r_per_s_progress_bar,
             &g_frames_per_sec_progress_bar,
+            &g_synth_envelope_progress_bar,
             &g_starter_panel_r_per_s,
             g_wave_panel,
             g_wave_panel_size,

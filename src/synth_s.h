@@ -8,6 +8,7 @@ struct synth_s
     struct highpass_filter_s dc_filter;
     struct gain_filter_s gain_filter;
     struct convo_filter_s convo_filter;
+    struct envelope_s envelope;
     double clamp;
     float value[g_synth_buffer_size];
     size_t index;
@@ -33,11 +34,12 @@ clamp_synth(struct synth_s* self, double value)
 }
 
 static double
-push_synth(struct synth_s* self, double value)
+push_synth(struct synth_s* self, struct crankshaft_s* crankshaft, double value)
 {
+    process_envelope(&self->envelope, crankshaft->angular_velocity_r_per_s);
     value = filter_highpass(&self->dc_filter, g_dc_filter_cutoff_frequency_hz, value);
     value = filter_convo(&self->convo_filter, value);
-    value = filter_gain(&self->gain_filter, value);
+    value = filter_gain(&self->gain_filter, value, self->envelope.gain);
     value = clamp_synth(self, value);
     sample_synth(self, value);
     return value;

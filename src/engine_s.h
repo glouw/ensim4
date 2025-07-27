@@ -261,13 +261,12 @@ sum_engine_waves(const struct engine_s* self)
 }
 
 static void
-push_engine_wave_buffer_to_synth(struct engine_s* self, struct sampler_s* sampler, struct synth_s* synth)
+push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth, sampler_synth_t sampler_synth)
 {
     sum_engine_waves(self);
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
-        double synth_sample = push_synth(synth, g_wave_buffer_pa[i]);
-        sample_synth_sample(sampler, i, synth_sample);
+        sampler_synth[i] = push_synth(synth, &self->crankshaft, g_wave_buffer_pa[i]);
     }
 }
 
@@ -300,7 +299,8 @@ run_engine_with_waves(
     struct engine_time_s* engine_time,
     struct sampler_s* sampler,
     struct synth_s* synth,
-    size_t audio_buffer_size)
+    size_t audio_buffer_size,
+    sampler_synth_t sampler_synth)
 {
     if(audio_buffer_size < g_synth_buffer_max_size)
     {
@@ -312,7 +312,7 @@ run_engine_with_waves(
         }
         wait_for_engine_waves(self);
         double t1 = engine_time->get_ticks_ms();
-        push_engine_wave_buffer_to_synth(self, sampler, synth);
+        push_engine_wave_buffer_to_synth(self, synth, sampler_synth);
         double t2 = engine_time->get_ticks_ms();
         engine_time->synth_time_ms = t2 - t1;
     }
@@ -324,7 +324,8 @@ run_engine(
     struct engine_time_s* engine_time,
     struct sampler_s* sampler,
     struct synth_s* synth,
-    size_t audio_buffer_size)
+    size_t audio_buffer_size,
+    sampler_synth_t sampler_synth)
 {
     double t0 = engine_time->get_ticks_ms();
     if(self->is_slowmo)
@@ -333,7 +334,7 @@ run_engine(
     }
     else
     {
-        run_engine_with_waves(self, engine_time, sampler, synth, audio_buffer_size);
+        run_engine_with_waves(self, engine_time, sampler, synth, audio_buffer_size, sampler_synth);
     }
     double t3 = engine_time->get_ticks_ms();
     engine_time->wave_time_ms += t3 - t0;

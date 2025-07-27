@@ -479,7 +479,7 @@ static void
 draw_progress_bar_info(struct sdl_progress_bar_s* self, struct sdl_scroll_s* scroll)
 {
     set_render_color(g_sdl_text_color);
-    SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "%s %.1f", self->title, self->value);
+    SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "%s %.2f", self->title, self->value);
     self->rect.x = scroll->x_p;
     self->rect.y = scroll->y_p;
     newline(scroll);
@@ -546,9 +546,14 @@ draw_info_title(
     lines[] = {
         { g_sdl_title                   , simple                                  },
         { "the inline engine simulator" , simple                                  },
-        { ""                            , simple                                  },
         { "    f: slowmo"               , engine->is_slowmo     ? active : simple },
         { "space: starter"              , engine->starter.is_on ? active : simple },
+        { "------ nodes --------------" , simple                                  },
+        { "    c: clear"                , simple                                  },
+        { "    n: next (from one)"      , simple                                  },
+        { "    i: intakes"              , simple                                  },
+        { "    e: exhausts"             , simple                                  },
+        { "    p: pistons"              , simple                                  },
         { ""                            , simple                                  },
     };
     for(size_t i = 0; i < len(lines); i++)
@@ -660,7 +665,8 @@ draw_right_info(
     struct sdl_progress_bar_s* rad_per_sec_progress_bar,
     struct sdl_panel_s wave_panel[],
     size_t wave_panel_size,
-    struct sdl_panel_s* synth_sample_panel)
+    struct sdl_panel_s* synth_sample_panel,
+    struct sdl_progress_bar_s* synth_envelope_progress_bar)
 {
     size_t supported_w_p = 192;
     struct sdl_scroll_s scroll = {
@@ -671,6 +677,7 @@ draw_right_info(
     draw_progress_bar_info(rad_per_sec_progress_bar, &scroll);
     draw_right_info_waves(engine, wave_panel, wave_panel_size, &scroll);
     draw_panel_info(synth_sample_panel, &scroll);
+    draw_progress_bar_info(synth_envelope_progress_bar, &scroll);
 }
 
 static void
@@ -746,6 +753,7 @@ draw_everything(
     struct sdl_time_panel_s* audio_buffer_time_panel,
     struct sdl_progress_bar_s* r_per_s_progress_bar,
     struct sdl_progress_bar_s* frames_per_sec_progress_bar,
+    struct sdl_progress_bar_s* synth_envelope_progress_bar,
     struct sdl_panel_s* starter_panel_r_per_s,
     struct sdl_panel_s wave_panel[],
     size_t wave_panel_size,
@@ -755,7 +763,7 @@ draw_everything(
     draw_plots(engine, sampler);
     draw_radial_chambers(engine);
     draw_left_info(engine, loop_time_panel, engine_time_panel, audio_buffer_time_panel, frames_per_sec_progress_bar);
-    draw_right_info(engine, starter_panel_r_per_s, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel);
+    draw_right_info(engine, starter_panel_r_per_s, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel, synth_envelope_progress_bar);
     draw_pistons(engine);
 }
 
