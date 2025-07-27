@@ -1,10 +1,3 @@
-static struct synth_s g_synth = {
-    .envelope = {
-        .max_gain = g_synth_max_gain,
-        .limiter = g_synth_limiter,
-    }
-};
-
 static struct sdl_time_panel_s g_loop_time_panel = {
     .title = "loop_time_ms",
     .labels = {
@@ -76,16 +69,16 @@ static struct sdl_panel_s g_starter_panel_r_per_s = {
 };
 
 static struct sdl_panel_s g_convolution_panel_time_domain = {
-    .title = "convolution (time)",
+    .title = "impulse x[n]",
     .rect.w = 192,
     .rect.h = 64,
 };
 
 static struct sdl_panel_s g_wave_panel[] = {
-    { .title = "hllc_wave_0_pa", .rect.w = 192, .rect.h = 128 },
-    { .title = "hllc_wave_1_pa", .rect.w = 192, .rect.h = 128 },
-    { .title = "hllc_wave_2_pa", .rect.w = 192, .rect.h = 128 },
-    { .title = "hllc_wave_3_pa", .rect.w = 192, .rect.h = 128 },
+    { .title = "hllc_wave_0_pa", .rect.w = 192, .rect.h = 32 },
+    { .title = "hllc_wave_1_pa", .rect.w = 192, .rect.h = 32 },
+    { .title = "hllc_wave_2_pa", .rect.w = 192, .rect.h = 32 },
+    { .title = "hllc_wave_3_pa", .rect.w = 192, .rect.h = 32 },
 };
 
 static constexpr size_t g_wave_panel_size = len(g_wave_panel);
@@ -96,29 +89,34 @@ static struct sdl_panel_s g_synth_sample_panel = {
     .rect.h = 64,
 };
 
+struct widget_time_s
+{
+    double n_a_time_ms;
+    double engine_time_ms;
+    double draw_time_ms;
+    double vsync_time_ms;
+    double (*get_ticks_ms)();
+};
+
 static void
-push_panels(
+push_widgets(
     struct engine_s* engine,
     struct engine_time_s* engine_time,
     struct sampler_s* sampler,
+    struct synth_s* synth,
     sampler_synth_t sampler_synth,
     size_t audio_buffer_size,
-    double t0,
-    double t1,
-    double t2,
-    double t3,
-    double t4)
+    struct widget_time_s* widget_time)
 {
-    push_panel(&g_starter_panel_r_per_s, sampler->starter, sampler->size);
-    if(engine->use_convolution)
-    {
-        push_panel_double(&g_convolution_panel_time_domain, g_convo_filter_impulse, g_convo_filter_impulse_size);
-    }
-    else
-    {
-        clear_panel(&g_convolution_panel_time_domain);
-    }
-    push_panel(&g_synth_sample_panel, sampler_synth, g_synth_buffer_size);
+    push_time_panel(
+        &g_loop_time_panel,
+        (float[]) {
+            widget_time->n_a_time_ms,
+            widget_time->engine_time_ms,
+            widget_time->draw_time_ms,
+            widget_time->vsync_time_ms,
+        }
+    );
     push_time_panel(
         &g_engine_time_panel,
         (float[]) {
@@ -138,13 +136,23 @@ push_panels(
             0.0,
         }
     );
-    push_time_panel(
-        &g_loop_time_panel,
-        (float[]) {
-            t1 - t0,
-            t2 - t1,
-            t3 - t2,
-            t4 - t0,
-        }
-    );
+    g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
+    g_synth_envelope_progress_bar.value = synth->envelope.gain;
+    g_frames_per_sec_progress_bar.value = 1000.0 / widget_time->vsync_time_ms;
+    push_panel(&g_starter_panel_r_per_s, sampler->starter, sampler->size);
+    if(engine->use_convolution)
+    {
+        push_panel_double(
+            &g_convolution_panel_time_domain,
+            g_convo_filter_impulse,
+            g_convo_filter_impulse_size);
+    }
+    else
+    {
+        clear_panel(&g_convolution_panel_time_domain);
+    }
+    push_panel(
+        &g_synth_sample_panel,
+        sampler_synth,
+        g_synth_buffer_size);
 }

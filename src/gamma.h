@@ -1,12 +1,12 @@
 static constexpr double g_gamma_universal_gas_constant_j_per_mol_k = 8.3144598;
 static constexpr size_t g_gamma_cp_precompute_buffer_size = 8192;
 
-static double g_cp_n2_j_per_mol_k[g_gamma_cp_precompute_buffer_size] = {};
-static double g_cp_o2_j_per_mol_k[g_gamma_cp_precompute_buffer_size] = {};
-static double g_cp_ar_j_per_mol_k[g_gamma_cp_precompute_buffer_size] = {};
-static double g_cp_c8h18_j_per_mol_k[g_gamma_cp_precompute_buffer_size] = {};
-static double g_cp_co2_j_per_mol_k[g_gamma_cp_precompute_buffer_size] = {};
-static double g_cp_h2o_j_per_mol_k[g_gamma_cp_precompute_buffer_size] = {};
+static double g_cp_n2_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
+static double g_cp_o2_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
+static double g_cp_ar_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
+static double g_cp_c8h18_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
+static double g_cp_co2_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
+static double g_cp_h2o_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
 
 /*
  *  2 c8h18 + 25 o2 -> 16 co2 + 18 h2o
@@ -117,30 +117,15 @@ calc_cp_h2o_j_per_mol_k(double static_temperature_k)
 }
 
 static void
-init_cp_precompute_buffer()
+precompute_cp()
 {
     for(size_t i = 0; i < g_gamma_cp_precompute_buffer_size; i++)
     {
         g_cp_n2_j_per_mol_k[i] = calc_cp_n2_j_per_mol_k(i);
-    }
-    for(size_t i = 0; i < g_gamma_cp_precompute_buffer_size; i++)
-    {
         g_cp_o2_j_per_mol_k[i] = calc_cp_o2_j_per_mol_k(i);
-    }
-    for(size_t i = 0; i < g_gamma_cp_precompute_buffer_size; i++)
-    {
         g_cp_ar_j_per_mol_k[i] = calc_cp_ar_j_per_mol_k(i);
-    }
-    for(size_t i = 0; i < g_gamma_cp_precompute_buffer_size; i++)
-    {
         g_cp_c8h18_j_per_mol_k[i] = calc_cp_c8h18_j_per_mol_k(i);
-    }
-    for(size_t i = 0; i < g_gamma_cp_precompute_buffer_size; i++)
-    {
         g_cp_co2_j_per_mol_k[i] = calc_cp_co2_j_per_mol_k(i);
-    }
-    for(size_t i = 0; i < g_gamma_cp_precompute_buffer_size; i++)
-    {
         g_cp_h2o_j_per_mol_k[i] = calc_cp_h2o_j_per_mol_k(i);
     }
 }

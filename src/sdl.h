@@ -193,13 +193,9 @@ exit_sdl()
 }
 
 static void
-present(float delay_ms)
+present_renderer()
 {
     SDL_RenderPresent(g_sdl_renderer);
-    if(delay_ms > 0.0f)
-    {
-        SDL_Delay(delay_ms);
-    }
 }
 
 static float
@@ -750,7 +746,7 @@ draw_pistons(struct engine_s* engine)
 }
 
 static void
-draw_everything(
+draw_to_renderer(
     struct engine_s* engine,
     struct sampler_s* sampler,
     struct sdl_time_panel_s* loop_time_panel,

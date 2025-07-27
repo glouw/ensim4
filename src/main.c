@@ -65,7 +65,7 @@
 #include "sdl_time_panel_s.h"
 #include "sdl_panel_s.h"
 #include "sdl_progress_bar_s.h"
-#include "sdl_ui.h"
+#include "sdl_widgets.h"
 #include "sdl.h"
 #include "sdl_audio.h"
 
@@ -80,11 +80,20 @@ static struct sampler_s g_sampler;
 
 static sampler_synth_t g_sampler_synth;
 
+static struct synth_s g_synth = {
+    .envelope = {
+        .max_gain = g_synth_max_gain,
+        .limiter = g_synth_limiter,
+    }
+};
+
 int
 main(int argc, char* argv[])
 {
-    size_t cycles = argc == 2 ? atoi(argv[1]) : -1;
-    init_cp_precompute_buffer();
+    size_t cycles = argc == 2
+        ? atoi(argv[1])
+        : -1;
+    precompute_cp();
 #ifdef ENSIM4_VISUALIZE
     visualize_gamma();
     visualize_chamber_s();
@@ -95,24 +104,26 @@ main(int argc, char* argv[])
     init_sdl_audio();
     for(size_t cycle = 0; cycle < cycles; cycle++)
     {
-        struct engine_time_s engine_time = {
-            .get_ticks_ms = get_ticks_ms
-        };
-        double t0 = get_ticks_ms();
-        /* for something soon */
-        double t1 = get_ticks_ms();
-        g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
-        g_synth_envelope_progress_bar.value = g_synth.envelope.gain;
+        struct engine_time_s engine_time = { .get_ticks_ms = get_ticks_ms };
+        struct widget_time_s widget_time = { .get_ticks_ms = get_ticks_ms };
+        double t0 = widget_time.get_ticks_ms();
+        double t1 = widget_time.get_ticks_ms();
         clear_synth(&g_synth);
         size_t audio_buffer_size = get_audio_buffer_size();
-        run_engine(engine, &engine_time, &g_sampler, &g_synth, audio_buffer_size, g_sampler_synth);
+        run_engine(
+            engine,
+            &engine_time,
+            &g_sampler,
+            &g_synth,
+            audio_buffer_size,
+            g_sampler_synth);
         buffer_audio(&g_synth);
-        double t2 = get_ticks_ms();
+        double t2 = widget_time.get_ticks_ms();
         if(handle_input(engine, &g_sampler))
         {
             break;
         }
-        draw_everything(
+        draw_to_renderer(
             engine,
             &g_sampler,
             &g_loop_time_panel,
@@ -126,12 +137,21 @@ main(int argc, char* argv[])
             g_wave_panel,
             g_wave_panel_size,
             &g_synth_sample_panel);
-        double t3 = get_ticks_ms();
-        present(0.0);
-        double t4 = get_ticks_ms();
-        push_panels(engine, &engine_time, &g_sampler, g_sampler_synth, audio_buffer_size, t0, t1, t2, t3, t4);
-        double t5 = get_ticks_ms();
-        g_frames_per_sec_progress_bar.value = 1000.0 / (t5 - t0);
+        double t3 = widget_time.get_ticks_ms();
+        present_renderer();
+        double t4 = widget_time.get_ticks_ms();
+        widget_time.n_a_time_ms = t1 - t0;
+        widget_time.engine_time_ms = t2 - t1;
+        widget_time.draw_time_ms = t3 - t2;
+        widget_time.vsync_time_ms = t4 - t0;
+        push_widgets(
+            engine,
+            &engine_time,
+            &g_sampler,
+            &g_synth,
+            g_sampler_synth,
+            audio_buffer_size,
+            &widget_time);
     }
     exit_sdl_audio();
     exit_sdl();
