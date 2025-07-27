@@ -663,6 +663,7 @@ static void
 draw_right_info(
     const struct engine_s* engine,
     struct sdl_panel_s* starter_panel_r_per_s,
+    struct sdl_panel_s* convolution_panel_time_domain,
     struct sdl_progress_bar_s* rad_per_sec_progress_bar,
     struct sdl_panel_s wave_panel[],
     size_t wave_panel_size,
@@ -675,6 +676,7 @@ draw_right_info(
         .y_p = g_sdl_line_spacing_p,
     };
     draw_panel_info(starter_panel_r_per_s, &scroll);
+    draw_panel_info(convolution_panel_time_domain, &scroll);
     draw_progress_bar_info(rad_per_sec_progress_bar, &scroll);
     draw_right_info_waves(engine, wave_panel, wave_panel_size, &scroll);
     draw_panel_info(synth_sample_panel, &scroll);
@@ -758,6 +760,7 @@ draw_everything(
     struct sdl_progress_bar_s* frames_per_sec_progress_bar,
     struct sdl_progress_bar_s* synth_envelope_progress_bar,
     struct sdl_panel_s* starter_panel_r_per_s,
+    struct sdl_panel_s* convolution_panel_time_domain,
     struct sdl_panel_s wave_panel[],
     size_t wave_panel_size,
     struct sdl_panel_s* synth_sample_panel)
@@ -766,7 +769,7 @@ draw_everything(
     draw_plots(engine, sampler);
     draw_radial_chambers(engine);
     draw_left_info(engine, loop_time_panel, engine_time_panel, audio_buffer_time_panel, frames_per_sec_progress_bar);
-    draw_right_info(engine, starter_panel_r_per_s, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel, synth_envelope_progress_bar);
+    draw_right_info(engine, starter_panel_r_per_s, convolution_panel_time_domain, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel, synth_envelope_progress_bar);
     draw_pistons(engine);
 }
 

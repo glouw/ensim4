@@ -65,102 +65,9 @@
 #include "sdl_time_panel_s.h"
 #include "sdl_panel_s.h"
 #include "sdl_progress_bar_s.h"
+#include "sdl_ui.h"
 #include "sdl.h"
 #include "sdl_audio.h"
-
-static struct sampler_s g_sampler = {};
-
-static struct synth_s g_synth = {
-    .envelope = {
-        .max_gain = g_synth_max_gain,
-        .limiter = g_synth_limiter,
-    }
-};
-
-static struct sdl_time_panel_s g_loop_time_panel = {
-    .title = "loop_time_ms",
-    .labels = {
-        "n/a",
-        "engine",
-        "draw",
-        "vsync",
-    },
-    .min_value = 0.0,
-    .max_value = 20.0,
-    .rect.w = 192,
-    .rect.h = 96,
-};
-
-static struct sdl_time_panel_s g_engine_time_panel = {
-    .title = "engine_time_ms",
-    .labels = {
-        "fluids",
-        "kinematics",
-        "thermo",
-        "synth",
-        "waves",
-    },
-    .min_value = 0.0,
-    .max_value = 15.0,
-    .rect.w = 192,
-    .rect.h = 96,
-};
-
-static struct sdl_time_panel_s g_audio_buffer_time_panel = {
-    .title = "audio_buffer_size",
-    .labels = {
-        "buffer_size",
-        "min_size",
-        nullptr,
-        nullptr,
-    },
-    .min_value = 0.0,
-    .max_value = g_synth_buffer_max_size,
-    .rect.w = 192,
-    .rect.h = 96,
-};
-
-static struct sdl_progress_bar_s g_r_per_s_progress_bar = {
-    .title = "crank_r_per_s",
-    .max_value = 2000.0,
-    .rect.w = 192,
-    .rect.h = 16,
-};
-
-static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
-    .title = "frames_per_sec",
-    .max_value = 100.0,
-    .rect.w = 192,
-    .rect.h = 16,
-};
-
-static struct sdl_progress_bar_s g_synth_envelope_progress_bar = {
-    .title = "synth_envelope",
-    .max_value = 0.25,
-    .rect.w = 192,
-    .rect.h = 16,
-};
-
-static struct sdl_panel_s g_starter_panel_r_per_s = {
-    .title = "starter_r_per_s",
-    .rect.w = 192,
-    .rect.h = 64,
-};
-
-static struct sdl_panel_s g_wave_panel[] = {
-    { .title = "hllc_wave_0_pa", .rect.w = 192, .rect.h = 128 },
-    { .title = "hllc_wave_1_pa", .rect.w = 192, .rect.h = 128 },
-    { .title = "hllc_wave_2_pa", .rect.w = 192, .rect.h = 128 },
-    { .title = "hllc_wave_3_pa", .rect.w = 192, .rect.h = 128 },
-};
-
-static struct sdl_panel_s g_synth_sample_panel = {
-    .title = "synth_samples",
-    .rect.w = 192,
-    .rect.h = 64,
-};
-
-static constexpr size_t g_wave_panel_size = len(g_wave_panel);
 
 static double
 get_ticks_ms()
@@ -168,6 +75,8 @@ get_ticks_ms()
     double ticks_ns = SDL_GetTicksNS();
     return SDL_NS_TO_MS(ticks_ns);
 }
+
+static struct sampler_s g_sampler;
 
 static sampler_synth_t g_sampler_synth;
 
@@ -180,7 +89,7 @@ main(int argc, char* argv[])
     visualize_gamma();
     visualize_chamber_s();
 #endif
-    struct engine_s* engine = &g_engine_8_cyl;
+    struct engine_s* engine = &g_engine_1_cyl;
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();
@@ -190,6 +99,7 @@ main(int argc, char* argv[])
             .get_ticks_ms = get_ticks_ms
         };
         double t0 = get_ticks_ms();
+        /* for something soon */
         double t1 = get_ticks_ms();
         g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
         g_synth_envelope_progress_bar.value = g_synth.envelope.gain;
@@ -202,27 +112,6 @@ main(int argc, char* argv[])
         {
             break;
         }
-        push_panel(&g_starter_panel_r_per_s, g_sampler.starter, g_sampler.size);
-        push_panel(&g_synth_sample_panel, g_sampler_synth, g_synth_buffer_size);
-        push_time_panel(
-            &g_engine_time_panel,
-            (float[]) {
-                engine_time.fluids_time_ms,
-                engine_time.kinematics_time_ms,
-                engine_time.thermo_time_ms,
-                engine_time.synth_time_ms,
-                engine_time.wave_time_ms,
-            }
-        );
-        push_time_panel(
-            &g_audio_buffer_time_panel,
-            (float[]) {
-                audio_buffer_size,
-                g_synth_buffer_min_size,
-                0.0,
-                0.0,
-            }
-        );
         draw_everything(
             engine,
             &g_sampler,
@@ -233,21 +122,14 @@ main(int argc, char* argv[])
             &g_frames_per_sec_progress_bar,
             &g_synth_envelope_progress_bar,
             &g_starter_panel_r_per_s,
+            &g_convolution_panel_time_domain,
             g_wave_panel,
             g_wave_panel_size,
             &g_synth_sample_panel);
         double t3 = get_ticks_ms();
         present(0.0);
         double t4 = get_ticks_ms();
-        push_time_panel(
-            &g_loop_time_panel,
-            (float[]) {
-                t1 - t0,
-                t2 - t1,
-                t3 - t2,
-                t4 - t0,
-            }
-        );
+        push_panels(engine, &engine_time, &g_sampler, g_sampler_synth, audio_buffer_size, t0, t1, t2, t3, t4);
         double t5 = get_ticks_ms();
         g_frames_per_sec_progress_bar.value = 1000.0 / (t5 - t0);
     }

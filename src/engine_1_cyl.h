@@ -95,7 +95,7 @@ static struct node_s g_node_1_cyl[] = {
         .type = g_is_eplenum,
         .as.eplenum = {
             .chamber = {
-                .volume_m3 = 1e-4,
+                .volume_m3 = 3e-4,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.000075
             },
@@ -107,7 +107,7 @@ static struct node_s g_node_1_cyl[] = {
         .type = g_is_exhaust,
         .as.exhaust = {
             .chamber = {
-                .volume_m3 = 1e-3,
+                .volume_m3 = 3e-3,
                 .nozzle_open_ratio = 1.0,
                 .nozzle_max_flow_area_m2 = 0.00005
             },

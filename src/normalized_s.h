@@ -20,7 +20,7 @@ normalize_samples(float samples[], size_t size)
     }
     for(size_t i = 0; i < size; i++)
     {
-        normalized.avg_value = samples[i];
+        normalized.avg_value += samples[i];
     }
     normalized.avg_value /= size;
     for(size_t i = 0; i < size; i++)
