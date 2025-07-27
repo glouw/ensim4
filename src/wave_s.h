@@ -1,10 +1,10 @@
-static constexpr size_t g_wave_max_waves = 8;
-static constexpr size_t g_wave_cells = 128;
-static constexpr size_t g_wave_substeps = 4;
+static constexpr size_t g_wave_cells = 64;
+static constexpr size_t g_wave_substeps = 3;
+static constexpr size_t g_wave_max_waves = 16;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
-static constexpr double g_wave_gamma = 1.4;
+static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
-static constexpr double g_wave_pipe_length_m = 1.0;
+static constexpr double g_wave_pipe_length_m = 0.75;
 static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
 static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
 static constexpr double g_wave_mic_position_ratio = 0.5;
