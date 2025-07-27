@@ -7,7 +7,7 @@ static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
 static constexpr double g_wave_pipe_length_m = 1.0;
 static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
 static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
-static constexpr double g_wave_mic_position_ratio = 0.75;
+static constexpr double g_wave_mic_position_ratio = 0.5;
 
 struct wave_prim_s
 {
@@ -275,8 +275,12 @@ batch_step_wave(size_t wave_index)
     struct wave_s* self = &g_waves[wave_index];
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
+#if 1
         step_hllc_wave(&self->hllc, self->data.buffer1[i], g_ambient_wave_cell);
         self->data.wave_sub_buffer_pa[i] = sample_hllc_wave(&self->hllc);
+#else
+        self->data.wave_sub_buffer_pa[i] = self->data.buffer1[i].p;
+#endif
     }
 }
 

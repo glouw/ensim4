@@ -11,6 +11,7 @@
 #include "std.h"
 
 /* signal processing */
+#include "moving_average_filter_s.h"
 #include "envelope_s.h"
 #include "normalized_s.h"
 #include "gain_filter_s.h"
@@ -70,10 +71,9 @@
 static struct sampler_s g_sampler = {};
 
 static struct synth_s g_synth = {
-    .clamp = 1.0,
     .envelope = {
-        .max_gain = 0.25,
-        .limiter = 50.0,
+        .max_gain = g_synth_max_gain,
+        .limiter = g_synth_limiter,
     }
 };
 
@@ -136,7 +136,7 @@ static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
 
 static struct sdl_progress_bar_s g_synth_envelope_progress_bar = {
     .title = "synth_envelope",
-    .max_value = 1.0,
+    .max_value = 0.25,
     .rect.w = 192,
     .rect.h = 16,
 };

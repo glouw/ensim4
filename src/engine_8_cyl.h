@@ -182,7 +182,7 @@ static struct node_s g_node_8_cyl[] = {
             .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.01,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 4.0,
         },
         .next = {20}
     },
@@ -205,7 +205,7 @@ static struct node_s g_node_8_cyl[] = {
             .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.01,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 4.0,
         },
         .next = {21}
     },
@@ -228,7 +228,7 @@ static struct node_s g_node_8_cyl[] = {
             .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.01,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 4.0,
         },
         .next = {22}
     },
@@ -251,7 +251,7 @@ static struct node_s g_node_8_cyl[] = {
             .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.01,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 4.0,
         },
         .next = {23}
     },
@@ -274,7 +274,7 @@ static struct node_s g_node_8_cyl[] = {
             .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.01,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 4.0,
         },
         .next = {24}
     },
@@ -297,7 +297,7 @@ static struct node_s g_node_8_cyl[] = {
             .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.01,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 4.0,
         },
         .next = {25}
     },
@@ -320,7 +320,7 @@ static struct node_s g_node_8_cyl[] = {
             .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.01,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 4.0,
         },
         .next = {26}
     },
@@ -343,7 +343,7 @@ static struct node_s g_node_8_cyl[] = {
             .head_compression_height_m = 0.025,
             .head_clearance_height_m = 0.01,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.13,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 4.0,
         },
         .next = {27}
     },

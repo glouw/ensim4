@@ -1,5 +1,3 @@
-static constexpr size_t g_engine_cycles_per_frame = 512;
-
 struct engine_s
 {
     const char* name;
