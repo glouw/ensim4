@@ -48,11 +48,14 @@ set_synth_deadzone(double value, struct crankshaft_s* crankshaft)
 }
 
 static double
-push_synth(struct synth_s* self, struct crankshaft_s* crankshaft, double value)
+push_synth(struct synth_s* self, struct crankshaft_s* crankshaft, double value, bool use_convolution)
 {
     process_envelope(&self->envelope, crankshaft->angular_velocity_r_per_s);
     value = filter_highpass(&self->dc_filter, g_synth_dc_filter_cutoff_frequency_hz, value);
-    value = filter_convo(&self->convo_filter, value);
+    if(use_convolution)
+    {
+        value = filter_convo(&self->convo_filter, value);
+    }
     value = filter_gain(&self->gain_filter, value, self->envelope.gain);
     value = set_synth_deadzone(value, crankshaft);
     value = clamp_synth(value);

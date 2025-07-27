@@ -37,6 +37,7 @@ struct node_s
     }
     as;
     bool is_selected;
+    bool is_next_selected;
     uint8_t next[g_nodes_node_children];
 };
 
@@ -58,8 +59,18 @@ count_node_edges(const struct node_s* self)
 }
 
 static void
+remove_next_selected(struct node_s* nodes, size_t size)
+{
+    for(size_t i = 0; i < size; i++)
+    {
+        nodes[i].is_next_selected = false;
+    }
+}
+
+static void
 deselect_all_nodes(struct node_s* nodes, size_t size)
 {
+    remove_next_selected(nodes, size);
     for(size_t i = 0; i < size; i++)
     {
         nodes[i].is_selected = false;
@@ -69,6 +80,7 @@ deselect_all_nodes(struct node_s* nodes, size_t size)
 static void
 select_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
 {
+    remove_next_selected(nodes, size);
     for(size_t i = 0; i < size; i++)
     {
         struct node_s* node = &nodes[i];
@@ -107,6 +119,7 @@ select_next(struct node_s* nodes, size_t size)
                 size_t next;
                 while((next = node->next[edges]))
                 {
+                    node->is_next_selected = true;
                     nodes[next].is_selected = true;
                     edges++;
                 }

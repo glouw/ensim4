@@ -260,12 +260,13 @@ draw_radial_lines(const struct engine_s* engine, const SDL_FPoint points[], size
 {
     for(size_t i = 0; i < size; i++)
     {
-        for(size_t next, j = 0; (next = engine->node[i].next[j]); j++)
+        struct node_s* node = &engine->node[i];
+        for(size_t next, j = 0; (next = node->next[j]); j++)
         {
             struct SDL_FPoint shift = { g_sdl_node_half_w_p, g_sdl_node_half_w_p };
             struct SDL_FPoint from = add_point(points[i], shift);
             struct SDL_FPoint to = add_point(points[next], shift);
-            draw_line(from, to, g_sdl_line_color);
+            draw_line(from, to, node->is_next_selected ? get_channel_color(7) : g_sdl_line_color);
         }
     }
 }
@@ -532,9 +533,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
 }
 
 static void
-draw_info_title(
-    const struct engine_s* engine,
-    struct sdl_scroll_s* scroll)
+draw_info_title(const struct engine_s* engine, struct sdl_scroll_s* scroll)
 {
     SDL_FColor active = get_channel_color(0);
     SDL_FColor simple = g_sdl_text_color;
@@ -544,17 +543,19 @@ draw_info_title(
         SDL_FColor color;
     }
     lines[] = {
-        { g_sdl_title                   , simple                                  },
-        { "the inline engine simulator" , simple                                  },
-        { "    f: slowmo"               , engine->is_slowmo     ? active : simple },
-        { "space: starter"              , engine->starter.is_on ? active : simple },
-        { "------ nodes --------------" , simple                                  },
-        { "    c: clear"                , simple                                  },
-        { "    n: next (from one)"      , simple                                  },
-        { "    i: intakes"              , simple                                  },
-        { "    e: exhausts"             , simple                                  },
-        { "    p: pistons"              , simple                                  },
-        { ""                            , simple                                  },
+        { g_sdl_title                   , simple                                    },
+        { "the inline engine simulator" , simple                                    },
+        { "    f: slowmo"               , engine->is_slowmo       ? active : simple },
+        { "    g: use_convolution"      , engine->use_convolution ? active : simple },
+        { "    h: use_cfd"              , engine->use_cfd         ? active : simple },
+        { "space: starter"              , engine->starter.is_on   ? active : simple },
+        { "------ nodes --------------" , simple                                    },
+        { "    c: clear"                , simple                                    },
+        { "    n: next (from one)"      , simple                                    },
+        { "    i: intakes"              , simple                                    },
+        { "    e: exhausts"             , simple                                    },
+        { "    p: pistons"              , simple                                    },
+        { ""                            , simple                                    },
     };
     for(size_t i = 0; i < len(lines); i++)
     {
@@ -684,11 +685,13 @@ static void
 toggle_node_at(struct engine_s* engine, struct sampler_s* sampler, float x_p, float y_p)
 {
     size_t size = engine->size;
+    remove_next_selected(engine->node, size);
     SDL_FPoint points[size];
     calc_radials(engine, points, size);
     for(size_t i = 0; i < size; i++)
     {
         struct node_s* node = &engine->node[i];
+        node->is_next_selected = false;
         SDL_FPoint point = points[i];
         SDL_FRect rect = { point.x, point.y, g_sdl_node_w_p, g_sdl_node_w_p };
         SDL_FPoint select = { x_p, y_p };
@@ -785,6 +788,12 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
                 break;
             case SDLK_F:
                 engine->is_slowmo = true;
+                break;
+            case SDLK_H:
+                enable_engine_cfd(engine, engine->use_cfd ^= true);
+                break;
+            case SDLK_G:
+                engine->use_convolution ^= true;
                 break;
             }
             break;

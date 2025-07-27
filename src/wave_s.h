@@ -270,17 +270,20 @@ flip_wave(size_t wave_index)
 }
 
 static void
-batch_step_wave(size_t wave_index)
+batch_step_wave(size_t wave_index, bool use_cfd)
 {
     struct wave_s* self = &g_waves[wave_index];
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
-#if 1
-        step_hllc_wave(&self->hllc, self->data.buffer1[i], g_ambient_wave_cell);
-        self->data.wave_sub_buffer_pa[i] = sample_hllc_wave(&self->hllc);
-#else
-        self->data.wave_sub_buffer_pa[i] = self->data.buffer1[i].p;
-#endif
+        if(use_cfd)
+        {
+            step_hllc_wave(&self->hllc, self->data.buffer1[i], g_ambient_wave_cell);
+            self->data.wave_sub_buffer_pa[i] = sample_hllc_wave(&self->hllc);
+        }
+        else /* just pass through */
+        {
+            self->data.wave_sub_buffer_pa[i] = self->data.buffer1[i].p;
+        }
     }
 }
 

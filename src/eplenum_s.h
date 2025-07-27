@@ -3,13 +3,14 @@ struct eplenum_s
     struct chamber_s chamber;
     size_t wave_index;
     thrd_t thread;
+    bool use_cfd;
 };
 
 static int
 run_eplenum_wave_thread(void* argument)
 {
     struct eplenum_s* self = argument;
-    batch_step_wave(self->wave_index);
+    batch_step_wave(self->wave_index, self->use_cfd);
     return 0;
 }
 

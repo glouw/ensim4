@@ -7,6 +7,8 @@ struct engine_s
     struct flywheel_s flywheel;
     struct starter_s starter;
     bool is_slowmo;
+    bool use_cfd;
+    bool use_convolution;
 };
 
 struct engine_time_s
@@ -80,7 +82,8 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
             }
             if(x->type == g_is_eplenum)
             {
-                size_t wave_index = x->as.eplenum.wave_index;
+                struct eplenum_s* eplenum = &x->as.eplenum;
+                size_t wave_index = eplenum->wave_index;
                 struct wave_prim_s prim = {
                     .rho = nozzle_flow.flow_field.static_density_kg_per_m3,
                     .u = nozzle_flow.flow_field.velocity_m_per_s,
@@ -88,7 +91,10 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
                 };
                 if(self->is_slowmo)
                 {
-                    step_wave(wave_index, prim);
+                    if(eplenum->use_cfd)
+                    {
+                        step_wave(wave_index, prim);
+                    }
                 }
                 else
                 {
@@ -196,9 +202,25 @@ update_engine_nozzle_open_ratios(struct engine_s* self)
 }
 
 static void
+enable_engine_cfd(struct engine_s* self, bool use_cfd)
+{
+    self->use_cfd = use_cfd;
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == g_is_eplenum)
+        {
+            node->as.eplenum.use_cfd = use_cfd;
+        }
+    }
+}
+
+static void
 reset_engine(struct engine_s* self)
 {
     analyze_engine(self);
+    enable_engine_cfd(self, true);
+    self->use_convolution = true;
     reset_all_waves();
     rig_engine_pistons(self);
     normalize_engine(self);
@@ -264,7 +286,7 @@ push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth, s
     sum_engine_waves(self);
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
-        sampler_synth[i] = push_synth(synth, &self->crankshaft, g_wave_buffer_pa[i]);
+        sampler_synth[i] = push_synth(synth, &self->crankshaft, g_wave_buffer_pa[i], self->use_convolution);
     }
 }
 
