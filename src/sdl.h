@@ -541,6 +541,7 @@ draw_info_title(const struct engine_s* engine, struct sdl_scroll_s* scroll)
     lines[] = {
         { g_sdl_title                   , simple                                    },
         { "the inline engine simulator" , simple                                    },
+        { "  1-9: engine select"        , simple                                    },
         { "    f: slowmo"               , engine->is_slowmo       ? active : simple },
         { "    g: use_convolution"      , engine->use_convolution ? active : simple },
         { "    h: use_cfd"              , engine->use_cfd         ? active : simple },
@@ -770,8 +771,9 @@ draw_to_renderer(
 }
 
 static bool
-handle_input(struct engine_s* engine, struct sampler_s* sampler)
+handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
 {
+    struct engine_s* engine = *engine_ref;
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
@@ -803,16 +805,31 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
                 engine->starter.is_on = false;
                 break;
             case SDLK_1:
+                reset_engine(*engine_ref = &g_engine_1_cyl);
                 break;
             case SDLK_2:
+                reset_engine(*engine_ref = &g_engine_8_cyl);
                 break;
             case SDLK_3:
+                reset_engine(*engine_ref = &g_engine_8_cyl);
                 break;
             case SDLK_4:
+                reset_engine(*engine_ref = &g_engine_8_cyl);
                 break;
             case SDLK_5:
+                reset_engine(*engine_ref = &g_engine_8_cyl);
                 break;
             case SDLK_6:
+                reset_engine(*engine_ref = &g_engine_8_cyl);
+                break;
+            case SDLK_7:
+                reset_engine(*engine_ref = &g_engine_8_cyl);
+                break;
+            case SDLK_8:
+                reset_engine(*engine_ref = &g_engine_8_cyl);
+                break;
+            case SDLK_9:
+                reset_engine(*engine_ref = &g_engine_8_cyl);
                 break;
             case SDLK_F:
                 engine->is_slowmo = false;

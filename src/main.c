@@ -98,7 +98,7 @@ main(int argc, char* argv[])
     visualize_gamma();
     visualize_chamber_s();
 #endif
-    struct engine_s* engine = &g_engine_1_cyl;
+    struct engine_s* engine = &g_engine_8_cyl;
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();
@@ -119,7 +119,7 @@ main(int argc, char* argv[])
             g_sampler_synth);
         buffer_audio(&g_synth);
         double t2 = widget_time.get_ticks_ms();
-        if(handle_input(engine, &g_sampler))
+        if(handle_input(&engine, &g_sampler))
         {
             break;
         }

@@ -221,6 +221,7 @@ reset_engine(struct engine_s* self)
     analyze_engine(self);
     enable_engine_cfd(self, true);
     self->use_convolution = true;
+    self->starter.is_on = false;
     reset_all_waves();
     rig_engine_pistons(self);
     normalize_engine(self);

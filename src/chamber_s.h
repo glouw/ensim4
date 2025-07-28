@@ -1,4 +1,4 @@
-static constexpr double g_chamber_total_pressure_hysteresis_pa = 50.0;
+static constexpr double g_chamber_total_pressure_hysteresis_pa = 10.0;
 
 struct chamber_s
 {
