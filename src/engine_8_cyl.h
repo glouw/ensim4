@@ -378,7 +378,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.00075
             },
         },
-        .next = {28}
+        .next = {29}
     },
     [23] = {
         .type = g_is_erunner,
@@ -389,7 +389,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.00075
             },
         },
-        .next = {28}
+        .next = {29}
     },
     [24] = {
         .type = g_is_erunner,
@@ -400,7 +400,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.00075
             },
         },
-        .next = {28}
+        .next = {30}
     },
     [25] = {
         .type = g_is_erunner,
@@ -411,7 +411,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.00075
             },
         },
-        .next = {28}
+        .next = {30}
     },
     [26] = {
         .type = g_is_erunner,
@@ -422,7 +422,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.00075
             },
         },
-        .next = {28}
+        .next = {31}
     },
     [27] = {
         .type = g_is_erunner,
@@ -433,7 +433,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.00075
             },
         },
-        .next = {28}
+        .next = {31}
     },
     [28] = {
         .type = g_is_eplenum,
@@ -445,9 +445,45 @@ static struct node_s g_node_8_cyl[] = {
             },
             .wave_index = 0,
         },
-        .next = {29}
+        .next = {32}
     },
     [29] = {
+        .type = g_is_eplenum,
+        .as.eplenum = {
+            .chamber = {
+                .volume_m3 = 0.15,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.006
+            },
+            .wave_index = 1,
+        },
+        .next = {33}
+    },
+    [30] = {
+        .type = g_is_eplenum,
+        .as.eplenum = {
+            .chamber = {
+                .volume_m3 = 0.15,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.006
+            },
+            .wave_index = 2,
+        },
+        .next = {34}
+    },
+    [31] = {
+        .type = g_is_eplenum,
+        .as.eplenum = {
+            .chamber = {
+                .volume_m3 = 0.15,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.006
+            },
+            .wave_index = 3,
+        },
+        .next = {35}
+    },
+    [32] = {
         .type = g_is_exhaust,
         .as.exhaust = {
             .chamber = {
@@ -456,9 +492,42 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.006
             },
         },
-        .next = {30}
+        .next = {36}
     },
-    [30] = {
+    [33] = {
+        .type = g_is_exhaust,
+        .as.exhaust = {
+            .chamber = {
+                .volume_m3 = 0.1,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.006
+            },
+        },
+        .next = {36}
+    },
+    [34] = {
+        .type = g_is_exhaust,
+        .as.exhaust = {
+            .chamber = {
+                .volume_m3 = 0.1,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.006
+            },
+        },
+        .next = {36}
+    },
+    [35] = {
+        .type = g_is_exhaust,
+        .as.exhaust = {
+            .chamber = {
+                .volume_m3 = 0.1,
+                .nozzle_open_ratio = 1.0,
+                .nozzle_max_flow_area_m2 = 0.006
+            },
+        },
+        .next = {36}
+    },
+    [36] = {
         .type = g_is_sink,
         .as.sink = {
             .chamber = {
@@ -472,7 +541,7 @@ static struct node_s g_node_8_cyl[] = {
 };
 
 static struct engine_s g_engine_8_cyl = {
-    "inline 8 - single exhaust",
+    "inline 8 - quad exhaust",
     engine_is(g_node_8_cyl),
     .crankshaft = {
         .mass_kg = 18.0,

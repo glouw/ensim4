@@ -8,7 +8,7 @@ static struct sdl_time_panel_s g_loop_time_panel = {
     },
     .min_value = 0.0,
     .max_value = 20.0,
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 96,
 };
 
@@ -23,7 +23,7 @@ static struct sdl_time_panel_s g_engine_time_panel = {
     },
     .min_value = 0.0,
     .max_value = 15.0,
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 96,
 };
 
@@ -37,55 +37,55 @@ static struct sdl_time_panel_s g_audio_buffer_time_panel = {
     },
     .min_value = 0.0,
     .max_value = g_synth_buffer_max_size,
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 96,
 };
 
 static struct sdl_progress_bar_s g_r_per_s_progress_bar = {
     .title = "crank_r_per_s",
     .max_value = 2000.0,
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
 static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
     .title = "frames_per_sec",
     .max_value = 100.0,
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
 static struct sdl_progress_bar_s g_synth_envelope_progress_bar = {
     .title = "synth_envelope",
     .max_value = 0.25,
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
 static struct sdl_panel_s g_starter_panel_r_per_s = {
     .title = "starter_r_per_s",
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,
 };
 
 static struct sdl_panel_s g_convolution_panel_time_domain = {
     .title = "impulse x[n]",
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,
 };
 
 static struct sdl_panel_s g_wave_panel[] = {
-    { .title = "hllc_wave_0_pa", .rect.w = 192, .rect.h = 32 },
-    { .title = "hllc_wave_1_pa", .rect.w = 192, .rect.h = 32 },
-    { .title = "hllc_wave_2_pa", .rect.w = 192, .rect.h = 32 },
-    { .title = "hllc_wave_3_pa", .rect.w = 192, .rect.h = 32 },
+    { .title = "hllc_wave_0_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
+    { .title = "hllc_wave_1_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
+    { .title = "hllc_wave_2_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
+    { .title = "hllc_wave_3_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
 };
 
 static constexpr size_t g_wave_panel_size = len(g_wave_panel);
 
 static struct sdl_panel_s g_synth_sample_panel = {
     .title = "synth_samples",
-    .rect.w = 192,
+    .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,
 };
 

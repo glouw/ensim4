@@ -4,15 +4,16 @@ static constexpr float g_sdl_yres_p = 1080.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
 static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
-static constexpr float g_sdl_radial_spacing = 2.7f;
 static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
+static constexpr float g_sdl_radial_spacing = 2.5f;
 static constexpr float g_sdl_demo_delay_ms = 75.0f;
-static constexpr float g_sdl_column_width_ratio = 0.55f;
+static constexpr float g_sdl_column_width_ratio = 0.5f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_plot_lowpass_filter_hz = 300.0f;
+static constexpr float g_sdl_plot_lowpass_filter_hz = 300.0f;
 static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
-static constexpr float g_piston_scale_p_per_m = 400.0;
-static constexpr float g_piston_space_p = 4.0;
+static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
+static constexpr float g_sdl_piston_space_p = 4.0;
+static constexpr size_t g_sdl_supported_widget_w_p = 192;
 
 static constexpr SDL_FColor g_sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
@@ -323,7 +324,7 @@ cleanup_samples(float samples[], size_t size)
     };
     for(size_t i = 0; i < size; i++)
     {
-        samples[i] = filter_lowpass(&lowpass_filter, g_plot_lowpass_filter_hz, samples[i]);
+        samples[i] = filter_lowpass(&lowpass_filter, g_sdl_plot_lowpass_filter_hz, samples[i]);
     }
 }
 
@@ -667,9 +668,8 @@ draw_right_info(
     struct sdl_panel_s* synth_sample_panel,
     struct sdl_progress_bar_s* synth_envelope_progress_bar)
 {
-    size_t supported_w_p = 192;
     struct sdl_scroll_s scroll = {
-        .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p - supported_w_p,
+        .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p - g_sdl_supported_widget_w_p,
         .y_p = g_sdl_line_spacing_p,
     };
     draw_panel_info(starter_panel_r_per_s, &scroll);
@@ -719,9 +719,9 @@ draw_pistons(struct engine_s* engine)
             struct piston_s* piston = &node->as.piston;
             SDL_FRect head = {
                 x_p,
-                g_piston_scale_p_per_m * calc_piston_chamber_depth_m(piston) + y_p,
-                g_piston_scale_p_per_m * piston->diameter_m,
-                g_piston_scale_p_per_m * piston->head_compression_height_m * 2.0f,
+                g_sdl_piston_scale_p_per_m * calc_piston_chamber_depth_m(piston) + y_p,
+                g_sdl_piston_scale_p_per_m * piston->diameter_m,
+                g_sdl_piston_scale_p_per_m * piston->head_compression_height_m * 2.0f,
             };
             SDL_FPoint block_line_a = {
                 x_p,
@@ -737,11 +737,11 @@ draw_pistons(struct engine_s* engine)
                 head.x + (head.w - conrod_w_p) / 2.0f,
                 head.y + head.h,
                 conrod_w_p,
-                g_piston_scale_p_per_m * piston->connecting_rod_length_m,
+                g_sdl_piston_scale_p_per_m * piston->connecting_rod_length_m,
             };
             draw_rect(head, g_sdl_container_color);
             draw_rect(conrod, g_sdl_container_color);
-            x_p += g_piston_space_p + head.w;
+            x_p += g_sdl_piston_space_p + head.w;
         }
     }
 }

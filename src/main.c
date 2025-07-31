@@ -65,8 +65,8 @@
 #include "sdl_time_panel_s.h"
 #include "sdl_panel_s.h"
 #include "sdl_progress_bar_s.h"
-#include "sdl_widgets.h"
 #include "sdl.h"
+#include "sdl_widgets.h"
 #include "sdl_audio.h"
 
 static double
