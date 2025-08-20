@@ -1,5 +1,3 @@
-static constexpr size_t g_starter_teeth = 7;
-
 struct starter_s
 {
     double rated_torque_n_m;

@@ -6,6 +6,7 @@ static constexpr size_t g_nodes_node_children = 16;
     X(filter)   \
     X(throttle) \
     X(iplenum)  \
+    X(injector) \
     X(irunner)  \
     X(piston)   \
     X(erunner)  \
@@ -41,10 +42,25 @@ struct node_s
     uint8_t next[g_nodes_node_children];
 };
 
+static bool
+is_reservoir(struct node_s* self)
+{
+    return self->type == g_is_injector
+        || self->type == g_is_source
+        || self->type == g_is_sink;
+}
+
 static void
 normalize_node(struct node_s* self)
 {
-    normalize_chamber(&self->as.chamber);
+    if(self->type == g_is_injector)
+    {
+        normalize_injection_chamber(&self->as.chamber);
+    }
+    else
+    {
+        normalize_chamber(&self->as.chamber);
+    }
 }
 
 static size_t

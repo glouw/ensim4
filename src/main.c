@@ -29,6 +29,7 @@
 
 /* engine peripherals */
 #include "crankshaft_s.h"
+#include "sparkplug_s.h"
 #include "flywheel_s.h"
 #include "starter_s.h"
 #include "valve_s.h"
@@ -41,6 +42,7 @@
 #include "source_s.h"
 #include "filter_s.h"
 #include "iplenum_s.h"
+#include "injector_s.h"
 #include "throttle_s.h"
 #include "irunner_s.h"
 #include "piston_s.h"
@@ -88,21 +90,23 @@ static struct synth_s g_synth = {
 };
 
 int
-main(int argc, char* argv[])
+main()
 {
-    size_t cycles = argc == 2
-        ? atoi(argv[1])
-        : -1;
     precompute_cp();
 #ifdef ENSIM4_VISUALIZE
     visualize_gamma();
     visualize_chamber_s();
+    return 0;
 #endif
     struct engine_s* engine = &g_engine_8_cyl;
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();
-    for(size_t cycle = 0; cycle < cycles; cycle++)
+#ifdef ENSIM4_PERF
+    for(size_t cycle = 0; cycle < 360; cycle++)
+#else
+    for(;;)
+#endif
     {
         struct engine_time_s engine_time = { .get_ticks_ms = get_ticks_ms };
         struct widget_time_s widget_time = { .get_ticks_ms = get_ticks_ms };

@@ -4,6 +4,7 @@ static constexpr double g_gas_molar_mass_kg_per_mol_n2 = 0.0280134000;
 static constexpr double g_gas_molar_mass_kg_per_mol_ar = 0.0399480000;
 static constexpr double g_gas_molar_mass_kg_per_mol_co2 = 0.0440095000;
 static constexpr double g_gas_molar_mass_kg_per_mol_h2o = 0.0180152800;
+static constexpr double g_gas_ideal_mol_air_fuel_ratio = 59.5;
 static constexpr double g_gas_ambient_static_temperature_k = 300.0;
 static constexpr double g_gas_ambient_static_pressure_pa = 101325.0;
 static constexpr double g_gas_ambient_static_density_kg_per_m3 = 1.225;
@@ -28,6 +29,32 @@ static constexpr struct gas_s g_gas_ambient_air = {
     .mol_ratio_ar = 0.01,
     .static_temperature_k = g_gas_ambient_static_temperature_k
 };
+
+static constexpr struct gas_s g_gas_ambient_atomized_c8h18_fuel = {
+    .mol_ratio_c8h18 = 1.0,
+    .static_temperature_k = g_gas_ambient_static_temperature_k
+};
+
+static double
+calc_mol_air_ratio(const struct gas_s* self)
+{
+    return self->mol_ratio_n2
+         + self->mol_ratio_o2
+         + self->mol_ratio_ar;
+}
+
+static double
+calc_mol_combusted_ratio(const struct gas_s* self)
+{
+    return self->mol_ratio_co2
+         + self->mol_ratio_h2o;
+}
+
+static double
+calc_mol_air_fuel_ratio(const struct gas_s* self)
+{
+    return calc_mol_air_ratio(self) / self->mol_ratio_c8h18;
+}
 
 static double
 calc_mixed_molar_mass_kg_per_mol(const struct gas_s* self)

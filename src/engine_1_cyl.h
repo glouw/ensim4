@@ -55,9 +55,20 @@ static struct node_s g_node_1_cyl[] = {
                 .ramp_r = (1.0 / 4.0) * g_std_four_pi_r,
             },
         },
-        .next = {5}
+        .next = {6}
     },
     [5] = {
+        .type = g_is_injector,
+        .as.injector = {
+            .chamber = {
+                .volume_m3 = 1e-4,
+                .nozzle_max_flow_area_m2 = 0.00000075
+            },
+            .nozzle_index = 4,
+        },
+        .next = {6}
+    },
+    [6] = {
         .type = g_is_piston,
         .as.piston = {
             .chamber = {
@@ -76,11 +87,11 @@ static struct node_s g_node_1_cyl[] = {
             .head_compression_height_m = 0.013,
             .head_clearance_height_m = 0.007,
             .dynamic_friction_coefficient_n_m_s_per_r = 0.2,
-            .static_friction_coefficient_n_m_s_per_r = 0.9,
+            .static_friction_coefficient_n_m_s_per_r = 1.3,
         },
-        .next = {6}
+        .next = {7}
     },
-    [6] = {
+    [7] = {
         .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
@@ -89,9 +100,9 @@ static struct node_s g_node_1_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.000075
             },
         },
-        .next = {7}
+        .next = {8}
     },
-    [7] = {
+    [8] = {
         .type = g_is_eplenum,
         .as.eplenum = {
             .chamber = {
@@ -101,9 +112,9 @@ static struct node_s g_node_1_cyl[] = {
             },
             .wave_index = 0,
         },
-        .next = {8}
+        .next = {9}
     },
-    [8] = {
+    [9] = {
         .type = g_is_exhaust,
         .as.exhaust = {
             .chamber = {
@@ -112,9 +123,9 @@ static struct node_s g_node_1_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.00005
             },
         },
-        .next = {9}
+        .next = {10}
     },
-    [9] = {
+    [10] = {
         .type = g_is_sink,
         .as.sink = {
             .chamber = {
@@ -134,7 +145,7 @@ static struct engine_s g_engine_1_cyl = {
         .mass_kg = 4.0,
         .radius_m = 0.031,
         .dynamic_friction_coefficient_n_m_s_per_r = 0.15,
-        .static_friction_coefficient_n_m_s_per_r = 0.7,
+        .static_friction_coefficient_n_m_s_per_r = 1.4,
     },
     .flywheel = {
         .mass_kg = 2.5,

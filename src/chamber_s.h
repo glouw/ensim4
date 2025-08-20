@@ -1,4 +1,5 @@
 static constexpr double g_chamber_total_pressure_hysteresis_pa = 10.0;
+static constexpr double g_chamber_c8h18_heat_of_combustion_j_per_mol = 5.47e6;
 
 struct chamber_s
 {
@@ -214,4 +215,53 @@ normalize_chamber(struct chamber_s* self)
 {
     self->gas = g_gas_ambient_air;
     self->gas.mass_kg = calc_mass_at_kg(self, g_gas_ambient_static_pressure_pa);
+}
+
+/* Fuel chambers are treated as a gas, atomized into fine droplets.
+ * The fuel remains dispersed and does not re-liquefy.
+ * Mass is doubled and temperature s raised to simulate a high-pressure fuel injection source.
+ */
+
+static void
+normalize_injection_chamber(struct chamber_s* self)
+{
+    self->gas = g_gas_ambient_atomized_c8h18_fuel;
+    self->gas.mass_kg = calc_mass_at_kg(self, g_gas_ambient_static_pressure_pa);
+    self->gas.mass_kg *= 2.0;
+    self->gas.static_temperature_k += 30.0;
+}
+
+/*
+ *  c8h18 + 12.5 o2 -> 8 co2 + 9 h2o
+ */
+
+static void
+combust_c8h18(struct chamber_s* self, double fraction)
+{
+    double mol_ratio_c8h18 = self->gas.mol_ratio_c8h18 * fraction;
+    double mol_ratio_o2 = 12.5 * mol_ratio_c8h18;
+    if(mol_ratio_o2 > self->gas.mol_ratio_o2)
+    {
+        mol_ratio_c8h18 *= self->gas.mol_ratio_o2 / mol_ratio_o2;
+        mol_ratio_o2 = 12.5 * mol_ratio_c8h18;
+    }
+    self->gas.mol_ratio_c8h18 -= mol_ratio_c8h18;
+    self->gas.mol_ratio_o2 -= mol_ratio_o2;
+    self->gas.mol_ratio_co2 += 8.0 * mol_ratio_c8h18;
+    self->gas.mol_ratio_h2o += 9.0 * mol_ratio_c8h18;
+    double mol_ratio
+        = self->gas.mol_ratio_n2
+        + self->gas.mol_ratio_o2
+        + self->gas.mol_ratio_ar
+        + self->gas.mol_ratio_c8h18
+        + self->gas.mol_ratio_co2
+        + self->gas.mol_ratio_h2o;
+    self->gas.mol_ratio_n2 /= mol_ratio;
+    self->gas.mol_ratio_o2 /= mol_ratio;
+    self->gas.mol_ratio_ar /= mol_ratio;
+    self->gas.mol_ratio_c8h18 /= mol_ratio;
+    self->gas.mol_ratio_co2 /= mol_ratio;
+    self->gas.mol_ratio_h2o /= mol_ratio;
+    double energy_j_per_mol = mol_ratio_c8h18 * g_chamber_c8h18_heat_of_combustion_j_per_mol;
+    self->gas.static_temperature_k += energy_j_per_mol / calc_mixed_cv_j_per_mol_k(&self->gas);
 }

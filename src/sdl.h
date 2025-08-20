@@ -1,12 +1,12 @@
 static const char* const g_sdl_title = "ENSIM4";
+static constexpr bool g_sdl_use_window = false;
 static constexpr float g_sdl_xres_p = 1920.0f;
 static constexpr float g_sdl_yres_p = 1080.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
 static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
 static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
-static constexpr float g_sdl_radial_spacing = 2.5f;
-static constexpr float g_sdl_demo_delay_ms = 75.0f;
+static constexpr float g_sdl_radial_spacing = 2.1f;
 static constexpr float g_sdl_column_width_ratio = 0.5f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
 static constexpr float g_sdl_plot_lowpass_filter_hz = 300.0f;
@@ -42,6 +42,10 @@ get_channel_color(size_t index)
 
 static constexpr SDL_FColor g_sdl_black_color = {
     0.00f, 0.00f, 0.00f, 0.0f
+};
+
+static constexpr SDL_FColor g_sdl_dark_line_color = {
+    0.18f, 0.18f, 0.18f, 1.0f
 };
 
 static constexpr SDL_FColor g_sdl_line_color = {
@@ -174,7 +178,13 @@ static void
 init_sdl()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    SDL_CreateWindowAndRenderer(g_sdl_title, g_sdl_xres_p, g_sdl_yres_p, SDL_WINDOW_FULLSCREEN, &g_sdl_window, &g_sdl_renderer);
+    SDL_CreateWindowAndRenderer(
+        g_sdl_title,
+        g_sdl_xres_p,
+        g_sdl_yres_p,
+        g_sdl_use_window ? 0 : SDL_WINDOW_FULLSCREEN,
+        &g_sdl_window,
+        &g_sdl_renderer);
     SDL_SetRenderVSync(g_sdl_renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
 }
 
@@ -252,6 +262,17 @@ calc_radials(const struct engine_s* engine, SDL_FPoint points[], size_t size)
     }
 }
 
+static SDL_FColor
+mix_fcolors(SDL_FColor self, SDL_FColor other, float ratio)
+{
+    SDL_FColor result;
+    result.r = self.r + (other.r - self.r) * ratio;
+    result.g = self.g + (other.g - self.g) * ratio;
+    result.b = self.b + (other.b - self.b) * ratio;
+    result.a = self.a + (other.a - self.a) * ratio;
+    return result;
+}
+
 static void
 draw_radial_lines(const struct engine_s* engine, const SDL_FPoint points[], size_t size)
 {
@@ -263,7 +284,14 @@ draw_radial_lines(const struct engine_s* engine, const SDL_FPoint points[], size
             struct SDL_FPoint shift = { g_sdl_node_half_w_p, g_sdl_node_half_w_p };
             struct SDL_FPoint from = add_point(points[i], shift);
             struct SDL_FPoint to = add_point(points[next], shift);
-            draw_line(from, to, node->is_next_selected ? get_channel_color(7) : g_sdl_line_color);
+            SDL_FColor open_color = mix_fcolors(
+                g_sdl_dark_line_color,
+                g_sdl_line_color,
+                node->as.chamber.nozzle_open_ratio);
+            SDL_FColor final_color = node->is_next_selected
+                ? get_channel_color(7)
+                : open_color;
+            draw_line(from, to, final_color);
         }
     }
 }
@@ -456,10 +484,11 @@ position_plot_containers(const struct engine_s* engine, SDL_FRect rects[])
 {
     enum sample_name_e sample_name = 0;
     float w_p = calc_plot_column_width_p(engine);
-    float left_samples = roundf(g_sample_name_e_size / 2.0f);
-    float right_samples = g_sample_name_e_size - left_samples;
-    float left_h = ceilf(g_sdl_yres_p / left_samples);
-    float right_h = ceilf(g_sdl_yres_p / right_samples);
+    float samples_per_column = g_sample_name_e_size / 2.0f;
+    float left_samples = floorf(samples_per_column);
+    float right_samples = ceilf(samples_per_column);
+    float left_h = g_sdl_yres_p / left_samples;
+    float right_h = g_sdl_yres_p / right_samples;
     position_plot_container(0.0f, w_p, left_h, &sample_name, rects);
     position_plot_container(g_sdl_xres_p - w_p, w_p, right_h, &sample_name, rects);
 }
@@ -707,7 +736,7 @@ static void
 draw_pistons(struct engine_s* engine)
 {
     float x_p = g_sdl_mid_x_p;
-    float y_p = g_sdl_mid_y_p;
+    float y_p = g_sdl_mid_y_p - 32.0f;
     set_render_color(g_sdl_text_color);
     SDL_RenderDebugTextFormat(g_sdl_renderer, x_p, y_p, "%s", engine->name);
     y_p += calc_scroll_newline_pixels_p(1);

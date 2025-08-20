@@ -33,7 +33,21 @@ analyze_engine(const struct engine_s* self)
         {
             if(count_node_edges(node) != 1)
             {
-                fprintf(stderr, "eplenum[%lu] requires exactly one next[] edge\n", i);
+                fprintf(stderr, "error: eplenum[%lu] requires exactly one next[] edge\n", i);
+                exit(1);
+            }
+        }
+        if(node->type == g_is_injector)
+        {
+            if(count_node_edges(node) != 1)
+            {
+                fprintf(stderr, "error: injector[%lu] requires exactly one next[] edge\n", i);
+                exit(1);
+            }
+            struct node_s* next = &self->node[node->next[0]];
+            if(next->type != g_is_piston)
+            {
+                fprintf(stderr, "error: injector[%lu] must connect directly to a piston\n", i);
                 exit(1);
             }
         }
@@ -75,6 +89,10 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
             if(x->is_selected)
             {
                 sample_channel(sampler, x, &nozzle_flow);
+            }
+            if(is_reservoir(x))
+            {
+                nozzle_flow.gas_mail.is_from_reservoir = true;
             }
             if(nozzle_flow.is_success)
             {
@@ -189,14 +207,27 @@ update_engine_nozzle_open_ratios(struct engine_s* self)
         struct node_s* node = &self->node[i];
         if(node->type == g_is_piston)
         {
-            double valve_nozzle_open_ratio = calc_valve_nozzle_open_ratio(&node->as.piston.valve, &self->crankshaft);
-            node->as.chamber.nozzle_open_ratio = valve_nozzle_open_ratio;
+            struct piston_s* piston = &node->as.piston;
+            piston->chamber.nozzle_open_ratio = calc_valve_nozzle_open_ratio(&piston->valve, &self->crankshaft);
         }
-        else
         if(node->type == g_is_irunner)
         {
-            double valve_nozzle_open_ratio = calc_valve_nozzle_open_ratio(&node->as.irunner.valve, &self->crankshaft);
-            node->as.chamber.nozzle_open_ratio = valve_nozzle_open_ratio;
+            struct irunner_s* irunner = &node->as.irunner;
+            irunner->chamber.nozzle_open_ratio = calc_valve_nozzle_open_ratio(&irunner->valve, &self->crankshaft);
+        }
+        if(node->type == g_is_injector)
+        {
+            struct injector_s* injector = &node->as.injector;
+            struct chamber_s* chamber = &self->node[injector->nozzle_index].as.chamber;
+            if(chamber->nozzle_open_ratio > 0.0)
+            {
+                struct piston_s* piston = &self->node[node->next[0]].as.piston;
+                injector->chamber.nozzle_open_ratio = calc_mol_air_fuel_ratio(&piston->chamber.gas) > g_gas_ideal_mol_air_fuel_ratio ? 1.0 : 0.0;
+            }
+            else
+            {
+                injector->chamber.nozzle_open_ratio = 0.0;
+            }
         }
     }
 }

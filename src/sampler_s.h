@@ -2,18 +2,20 @@ static constexpr size_t g_sampler_max_channels = 8;
 static constexpr size_t g_sampler_max_samples = 16384;
 static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r * g_std_audio_sample_rate_hz / g_sampler_max_samples;
 
-#define SAMPLES                                  \
-    X(g_sample_static_pressure_pa)               \
-    X(g_sample_total_pressure_pa)                \
-    X(g_sample_static_temperature_k)             \
-    X(g_sample_volume_m3)                        \
-    X(g_sample_nozzle_area_m2)                   \
-    X(g_sample_nozzle_mach)                      \
-    X(g_sample_nozzle_velocity_m_per_s)          \
-    X(g_sample_nozzle_mass_flow_rate_kg_per_s)   \
-    X(g_sample_nozzle_speed_of_sound_m_per_s)    \
-    X(g_sample_nozzle_static_density_kg_per_m3)  \
-    X(g_sample_gamma)                            \
+#define SAMPLES                                 \
+    X(g_sample_static_pressure_pa)              \
+    X(g_sample_total_pressure_pa)               \
+    X(g_sample_static_temperature_k)            \
+    X(g_sample_volume_m3)                       \
+    X(g_sample_molar_air_fuel_ratio)            \
+    X(g_sample_molar_combusted_ratio_co2_h2o)   \
+    X(g_sample_nozzle_area_m2)                  \
+    X(g_sample_nozzle_mach)                     \
+    X(g_sample_nozzle_velocity_m_per_s)         \
+    X(g_sample_nozzle_mass_flow_rate_kg_per_s)  \
+    X(g_sample_nozzle_speed_of_sound_m_per_s)   \
+    X(g_sample_nozzle_static_density_kg_per_m3) \
+    X(g_sample_gamma)                           \
 
 enum sample_name_e
 {
@@ -61,6 +63,8 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
         sample_value(self, g_sample_total_pressure_pa, calc_total_pressure_pa(&node->as.chamber));
         sample_value(self, g_sample_static_temperature_k, node->as.chamber.gas.static_temperature_k);
         sample_value(self, g_sample_volume_m3, node->as.chamber.volume_m3);
+        sample_value(self, g_sample_molar_air_fuel_ratio, calc_mol_air_fuel_ratio(&node->as.chamber.gas));
+        sample_value(self, g_sample_molar_combusted_ratio_co2_h2o, calc_mol_combusted_ratio(&node->as.chamber.gas));
         sample_value(self, g_sample_nozzle_area_m2, nozzle_flow->area_m2);
         sample_value(self, g_sample_nozzle_mach, nozzle_flow->flow_field.mach);
         sample_value(self, g_sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);

@@ -8,10 +8,6 @@ static double g_cp_c8h18_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
 static double g_cp_co2_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
 static double g_cp_h2o_j_per_mol_k[g_gamma_cp_precompute_buffer_size];
 
-/*
- *  2 c8h18 + 25 o2 -> 16 co2 + 18 h2o
- */
-
 /* iso-octane 2,2,4-trimethylpentane (of gasoline), [1, p. 103] */
 static constexpr double g_gamma_cp_weights_lower_c8h18[] = {
     -1.688758565e+05, +3.126903227e+03, -2.123502828e+01, +1.489151508e-01, -1.151180135e-04, +4.473216170e-08, -5.554882070e-12
