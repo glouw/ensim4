@@ -85,7 +85,7 @@ static sampler_synth_t g_sampler_synth;
 static struct synth_s g_synth = {
     .envelope = {
         .max_gain = g_synth_max_gain,
-        .limiter = g_synth_limiter,
+        .limiter = g_synth_angular_velocity_limiter_r_per_s,
     }
 };
 

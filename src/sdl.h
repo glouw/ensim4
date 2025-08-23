@@ -1,5 +1,5 @@
 static const char* const g_sdl_title = "ENSIM4";
-static constexpr bool g_sdl_use_window = false;
+static constexpr bool g_sdl_use_full_screen = true;
 static constexpr float g_sdl_xres_p = 1920.0f;
 static constexpr float g_sdl_yres_p = 1080.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
@@ -40,8 +40,12 @@ get_channel_color(size_t index)
     return g_sdl_channel_color[index % len(g_sdl_channel_color)];
 }
 
+static constexpr SDL_FColor g_sdl_panic_color = {
+    1.00f, 0.00f, 0.00f, 1.0f
+};
+
 static constexpr SDL_FColor g_sdl_black_color = {
-    0.00f, 0.00f, 0.00f, 0.0f
+    0.00f, 0.00f, 0.00f, 1.0f
 };
 
 static constexpr SDL_FColor g_sdl_dark_line_color = {
@@ -182,7 +186,7 @@ init_sdl()
         g_sdl_title,
         g_sdl_xres_p,
         g_sdl_yres_p,
-        g_sdl_use_window ? 0 : SDL_WINDOW_FULLSCREEN,
+        g_sdl_use_full_screen ? SDL_WINDOW_FULLSCREEN : 0,
         &g_sdl_window,
         &g_sdl_renderer);
     SDL_SetRenderVSync(g_sdl_renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
@@ -240,7 +244,7 @@ static void
 draw_node_at(const struct node_s* node, SDL_FPoint point, SDL_FColor color)
 {
     SDL_FRect rect = { point.x, point.y, g_sdl_node_w_p, g_sdl_node_w_p };
-    draw_filled_outline_rect(rect, g_sdl_black_color, color);
+    draw_filled_outline_rect(rect, node->as.chamber.should_panic ? color : g_sdl_black_color, color);
     size_t cycle = node->as.chamber.flow_cycles / g_sdl_flow_cycle_spinner_divisor;
     size_t index = cycle % len(g_sdl_spinner);
     const char* spinner = g_sdl_spinner[index];
@@ -575,7 +579,8 @@ draw_info_title(const struct engine_s* engine, struct sdl_scroll_s* scroll)
         { "    f: slowmo"               , engine->is_slowmo       ? active : simple },
         { "    g: use_convolution"      , engine->use_convolution ? active : simple },
         { "    h: use_cfd"              , engine->use_cfd         ? active : simple },
-        { "space: starter"              , engine->starter.is_on   ? active : simple },
+        { "    d: ignition_on"          , engine->is_ignition_on  ? active : simple },
+        { "space: starter_on"           , engine->starter.is_on   ? active : simple },
         { "------ nodes --------------" , simple                                    },
         { "    c: clear"                , simple                                    },
         { "    n: next (from one)"      , simple                                    },
@@ -615,7 +620,7 @@ static void
 draw_panel(struct sdl_panel_s* self, SDL_FRect rect, SDL_FColor color)
 {
     static float samples[g_sampler_max_samples];
-    draw_rect(self->rect, g_sdl_container_color);
+    draw_rect(self->rect, self->panic ? g_sdl_panic_color : g_sdl_container_color);
     size_t size = self->size;
     if(size > 0)
     {
@@ -679,6 +684,7 @@ draw_right_info_waves(
                 break;
             }
             struct sdl_panel_s* panel = &wave_panel[wave_index];
+            panel->panic = wave->hllc.should_panic;
             push_panel_prim(panel, wave->hllc.prim, g_wave_cells);
             draw_panel_info(panel, scroll);
             wave_index++;
@@ -768,10 +774,29 @@ draw_pistons(struct engine_s* engine)
                 conrod_w_p,
                 g_sdl_piston_scale_p_per_m * piston->connecting_rod_length_m,
             };
+            if(is_sparkplug_enabled(&piston->sparkplug, &engine->crankshaft))
+            {
+                draw_filled_outline_rect(head, get_channel_color(3), g_sdl_container_color);
+            }
             draw_rect(head, g_sdl_container_color);
             draw_rect(conrod, g_sdl_container_color);
             x_p += g_sdl_piston_space_p + head.w;
         }
+    }
+}
+
+static void
+draw_panic_message()
+{
+    if(g_std_panic_message != nullptr)
+    {
+        SDL_FPoint point = {
+            .x = g_sdl_mid_x_p
+        };
+        point = center_text(point, g_std_panic_message);
+        point.y += g_sdl_line_spacing_p;
+        set_render_color(g_sdl_panic_color);
+        SDL_RenderDebugTextFormat(g_sdl_renderer, point.x, point.y, "%s", g_std_panic_message);
     }
 }
 
@@ -797,6 +822,7 @@ draw_to_renderer(
     draw_left_info(engine, loop_time_panel, engine_time_panel, audio_buffer_time_panel, frames_per_sec_progress_bar);
     draw_right_info(engine, starter_panel_r_per_s, convolution_panel_time_domain, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel, synth_envelope_progress_bar);
     draw_pistons(engine);
+    draw_panic_message();
 }
 
 static bool
@@ -815,6 +841,18 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
             {
             case SDLK_SPACE:
                 engine->starter.is_on = true;
+                break;
+            case SDLK_D:
+                engine->is_ignition_on ^= true;
+                break;
+            case SDLK_L:
+                engine->throttle_open_ratio = 0.99;
+                break;
+            case SDLK_K:
+                engine->throttle_open_ratio = 0.33;
+                break;
+            case SDLK_J:
+                engine->throttle_open_ratio = 0.00;
                 break;
             case SDLK_F:
                 engine->is_slowmo = true;

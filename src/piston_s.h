@@ -17,10 +17,13 @@
  *    o    + origin
  */
 
+static constexpr double g_piston_static_friction_coefficient_cutoff_n_m_s_per_r = 10.0;
+
 struct piston_s
 {
     struct chamber_s chamber;
     struct valve_s valve;
+    struct sparkplug_s sparkplug;
     double diameter_m;
     double pin_x_m;
     double pin_y_m;
@@ -110,7 +113,7 @@ static double
 calc_piston_friction_torque_n_m(const struct piston_s* self, const struct crankshaft_s* crankshaft)
 {
     double friction_coefficient_n_m_s_per_r = 0.0;
-    if(fabs(crankshaft->angular_velocity_r_per_s) < 10.0)
+    if(fabs(crankshaft->angular_velocity_r_per_s) < g_piston_static_friction_coefficient_cutoff_n_m_s_per_r)
     {
         friction_coefficient_n_m_s_per_r = self->static_friction_coefficient_n_m_s_per_r;
     }

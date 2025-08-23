@@ -1,4 +1,4 @@
-static constexpr double g_chamber_total_pressure_hysteresis_pa = 10.0;
+static constexpr double g_chamber_total_pressure_hysteresis_pa = 1000.0;
 static constexpr double g_chamber_c8h18_heat_of_combustion_j_per_mol = 5.47e6;
 
 struct chamber_s
@@ -8,6 +8,7 @@ struct chamber_s
     double nozzle_max_flow_area_m2;
     double nozzle_open_ratio;
     size_t flow_cycles;
+    bool should_panic;
 };
 
 /*
@@ -102,7 +103,7 @@ calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
         double y = calc_mixed_gamma(&self->gas);
         double Ps = calc_static_pressure_pa(other);
         double M = sqrt((2.0 / (y - 1.0)) * (pow(Pt0 / Ps, (y - 1.0) / y) - 1.0));
-        return clamp(M, 0.0, 1.0);
+        return M;
     }
 }
 
@@ -207,6 +208,11 @@ static void
 remove_gas(struct chamber_s* self, const struct gas_s* mail)
 {
     self->gas.mass_kg -= mail->mass_kg;
+    if(self->gas.mass_kg < 0.0)
+    {
+        self->should_panic = true;
+        g_std_panic_message = "negative chamber mass detected";
+    }
     add_momentum(&self->gas, -mail->momentum_kg_m_per_s);
 }
 

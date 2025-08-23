@@ -57,7 +57,7 @@ static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
 
 static struct sdl_progress_bar_s g_synth_envelope_progress_bar = {
     .title = "synth_envelope",
-    .max_value = 0.25,
+    .max_value = 1.0,
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };

@@ -6,9 +6,11 @@ struct engine_s
     struct crankshaft_s crankshaft;
     struct flywheel_s flywheel;
     struct starter_s starter;
+    double throttle_open_ratio;
     bool is_slowmo;
     bool use_cfd;
     bool use_convolution;
+    bool is_ignition_on;
 };
 
 struct engine_time_s
@@ -88,7 +90,7 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
             struct nozzle_flow_s nozzle_flow = flow(&x->as.chamber, &y->as.chamber);
             if(x->is_selected)
             {
-                sample_channel(sampler, x, &nozzle_flow);
+                sample_channel(sampler, x, &nozzle_flow, &self->crankshaft);
             }
             if(is_reservoir(x))
             {
@@ -138,7 +140,6 @@ calc_engine_torque_n_m(const struct engine_s* self)
         }
     }
     torque_n_m += calc_starter_torque_on_flywheel_n_m(&self->starter, &self->flywheel, &self->crankshaft);
-    torque_n_m += calc_crankshaft_friction_torque_n_m(&self->crankshaft);
     return torque_n_m;
 }
 
@@ -187,6 +188,23 @@ crank_engine(struct engine_s* self, struct sampler_s* sampler)
 }
 
 static void
+combust_engine_piston_chambers(struct engine_s* self)
+{
+    for(size_t i = 0; i < self->size; i++)
+    {
+        struct node_s* node = &self->node[i];
+        if(node->type == g_is_piston)
+        {
+            struct piston_s* piston = &node->as.piston;
+            if(calc_sparkplug_voltage_v(&piston->sparkplug, &self->crankshaft) > 0.0)
+            {
+                combust_c8h18(&piston->chamber, 1.0);
+            }
+        }
+    }
+}
+
+static void
 compress_engine_pistons(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -228,6 +246,11 @@ update_engine_nozzle_open_ratios(struct engine_s* self)
             {
                 injector->chamber.nozzle_open_ratio = 0.0;
             }
+        }
+        if(node->type == g_is_throttle)
+        {
+            struct throttle_s* throttle = &node->as.throttle;
+            throttle->chamber.nozzle_open_ratio = self->throttle_open_ratio;
         }
     }
 }
@@ -338,7 +361,10 @@ step_engine(
     double starter_angular_velocity_r_per_s = calc_starter_angular_velocity_r_per_s(&self->starter, &self->flywheel, &self->crankshaft);
     sample_starter(sampler, starter_angular_velocity_r_per_s);
     double t2 = engine_time->get_ticks_ms();
-    /* ... thermo work goes here ... */
+    if(self->is_ignition_on)
+    {
+        combust_engine_piston_chambers(self);
+    }
     double t3 = engine_time->get_ticks_ms();
     engine_time->fluids_time_ms += t1 - t0;
     engine_time->kinematics_time_ms += t2 - t1;

@@ -5,133 +5,113 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 1e9,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0002
+                .nozzle_max_flow_area_m2 = 4.0e-4,
             },
         },
         .next = {1}
     },
     [1] = {
-        .type = g_is_filter,
-        .as.filter = {
-            .chamber = {
-                .volume_m3 = 1e-4,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.00015
-            },
-        },
-        .next = {2}
-    },
-    [2] = {
         .type = g_is_throttle,
         .as.throttle = {
             .chamber = {
                 .volume_m3 = 1e-4,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
+                .nozzle_max_flow_area_m2 = 4.0e-4,
             },
         },
-        .next = {3}
+        .next = {2}
     },
-    [3] = {
-        .type = g_is_iplenum,
-        .as.iplenum = {
+    [2] = {
+        .type = g_is_irunner,
+        .as.irunner = {
             .chamber = {
-                .volume_m3 = 1e-4,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0001
+                .volume_m3 = 3e-4,
+                .nozzle_max_flow_area_m2 = 4.0e-4,
+            },
+            .valve = {
+                .engage_r = -0.0625 * g_std_four_pi_r,
+                .ramp_r = 0.25 * g_std_four_pi_r,
             },
         },
         .next = {4}
     },
-    [4] = {
-        .type = g_is_irunner,
-        .as.irunner = {
-            .chamber = {
-                .volume_m3 = 1e-4,
-                .nozzle_max_flow_area_m2 = 0.000075
-            },
-            .valve = {
-                .engage_r = (-0.5 / 8.0) * g_std_four_pi_r,
-                .ramp_r = (1.0 / 4.0) * g_std_four_pi_r,
-            },
-        },
-        .next = {6}
-    },
-    [5] = {
+    [3] = {
         .type = g_is_injector,
         .as.injector = {
             .chamber = {
                 .volume_m3 = 1e-4,
-                .nozzle_max_flow_area_m2 = 0.00000075
+                .nozzle_max_flow_area_m2 = 4.0e-6,
             },
-            .nozzle_index = 4,
+            .nozzle_index = 2,
         },
-        .next = {6}
+        .next = {4}
     },
-    [6] = {
+    [4] = {
         .type = g_is_piston,
         .as.piston = {
             .chamber = {
-                .nozzle_max_flow_area_m2 = 0.00005
+                .nozzle_max_flow_area_m2 = 8.0e-4,
             },
             .valve = {
-                .engage_r = (5.5 / 8.0) * g_std_four_pi_r,
-                .ramp_r = (1.0 / 4.0) * g_std_four_pi_r,
+                .engage_r = 0.725 * g_std_four_pi_r,
+                .ramp_r = 0.25 * g_std_four_pi_r,
+            },
+            .sparkplug = {
+                .engage_r = 0.55 * g_std_four_pi_r,
+                .on_r = 0.031 * g_std_four_pi_r,
             },
             .diameter_m = 0.057,
-            .theta_r = g_std_four_pi_r,
+            .theta_r = 1.0 * g_std_four_pi_r,
             .crank_throw_length_m = 0.031,
             .connecting_rod_length_m = 0.11,
             .connecting_rod_mass_kg = 0.4,
             .head_mass_density_kg_per_m3 = 7800.0,
             .head_compression_height_m = 0.013,
             .head_clearance_height_m = 0.007,
-            .dynamic_friction_coefficient_n_m_s_per_r = 0.2,
-            .static_friction_coefficient_n_m_s_per_r = 1.3,
+            .dynamic_friction_coefficient_n_m_s_per_r = 0.005,
+            .static_friction_coefficient_n_m_s_per_r = 0.4,
         },
-        .next = {7}
+        .next = {5}
     },
-    [7] = {
+    [5] = {
         .type = g_is_erunner,
         .as.erunner = {
             .chamber = {
-                .volume_m3 = 1e-4,
+                .volume_m3 = 1.5e-4,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.000075
+                .nozzle_max_flow_area_m2 = 8.0e-4,
             },
         },
-        .next = {8}
+        .next = {6}
     },
-    [8] = {
+    [6] = {
         .type = g_is_eplenum,
         .as.eplenum = {
             .chamber = {
                 .volume_m3 = 3e-4,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.000075
+                .nozzle_max_flow_area_m2 = 8.0e-4,
             },
             .wave_index = 0,
         },
-        .next = {9}
+        .next = {7}
     },
-    [9] = {
+    [7] = {
         .type = g_is_exhaust,
         .as.exhaust = {
             .chamber = {
-                .volume_m3 = 3e-3,
+                .volume_m3 = 6e-4,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.00005
+                .nozzle_max_flow_area_m2 = 8.0e-4,
             },
         },
-        .next = {10}
+        .next = {8}
     },
-    [10] = {
+    [8] = {
         .type = g_is_sink,
         .as.sink = {
             .chamber = {
                 .volume_m3 = 1e9,
-                .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 0.0002
             },
         },
         .next = {}
@@ -142,14 +122,12 @@ static struct engine_s g_engine_1_cyl = {
     "175cc",
     engine_is(g_node_1_cyl),
     .crankshaft = {
-        .mass_kg = 4.0,
-        .radius_m = 0.031,
-        .dynamic_friction_coefficient_n_m_s_per_r = 0.15,
-        .static_friction_coefficient_n_m_s_per_r = 1.4,
+        .mass_kg = 2.0,
+        .radius_m = 0.02,
     },
     .flywheel = {
-        .mass_kg = 2.5,
-        .radius_m = 0.15,
+        .mass_kg = 1.0,
+        .radius_m = 0.1,
     },
     .starter = {
         .rated_torque_n_m = 30.0,

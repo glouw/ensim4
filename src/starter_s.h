@@ -21,6 +21,10 @@ calc_starter_angular_velocity_r_per_s(
     const struct flywheel_s* flywheel,
     const struct crankshaft_s* crankshaft)
 {
+    if(self->is_on == false)
+    {
+        return 0.0;
+    }
     double gear_ratio = calc_flywheel_to_starter_gear_ratio(self, flywheel);
     double starter_angular_velocity_r_per_s = max(crankshaft->angular_velocity_r_per_s * gear_ratio, 0.0);
     return starter_angular_velocity_r_per_s;

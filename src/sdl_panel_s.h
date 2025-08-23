@@ -5,6 +5,7 @@ struct sdl_panel_s
     float sample[g_sampler_max_samples];
     size_t size;
     struct normalized_s normalized;
+    bool panic;
 };
 
 static void

@@ -4,8 +4,8 @@ static constexpr size_t g_synth_buffer_max_size = 5 * g_synth_buffer_size;
 static constexpr double g_synth_dc_filter_cutoff_frequency_hz = 10.0;
 static constexpr double g_synth_deadzone_angular_velocity_r_per_s = 1.0;
 static constexpr double g_synth_clamp = 1.0;
-static constexpr double g_synth_max_gain = 0.2;
-static constexpr double g_synth_limiter = 100.0;
+static constexpr double g_synth_max_gain = 0.35;
+static constexpr double g_synth_angular_velocity_limiter_r_per_s = 200.0;
 
 struct synth_s
 {

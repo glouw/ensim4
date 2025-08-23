@@ -1,13 +1,13 @@
-static constexpr size_t g_wave_cells = 64;
-static constexpr size_t g_wave_substeps = 3;
+static constexpr size_t g_wave_cells = 32;
+static constexpr size_t g_wave_substeps = 5;
 static constexpr size_t g_wave_max_waves = 16;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
-static constexpr double g_wave_pipe_length_m = 0.75;
+static constexpr double g_wave_pipe_length_m = 0.5;
 static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
 static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
-static constexpr double g_wave_mic_position_ratio = 0.95;
+static constexpr double g_wave_mic_position_ratio = 1.0;
 
 struct wave_prim_s
 {
@@ -35,6 +35,7 @@ struct wave_hllc_s
     struct wave_prim_s prim[g_wave_cells];
     struct wave_cons_s cons[g_wave_cells];
     struct wave_flux_s flux[g_wave_cells + 1];
+    bool should_panic;
 };
 
 struct wave_data_s
@@ -130,12 +131,18 @@ calc_s_star(
 }
 
 static struct wave_flux_s
-calc_hllc_flux(struct wave_prim_s ql, struct wave_prim_s qr)
+calc_hllc_flux(struct wave_hllc_s* self, struct wave_prim_s ql, struct wave_prim_s qr)
 {
     double cl = calc_cell_speed_of_sound(ql);
     double cr = calc_cell_speed_of_sound(qr);
     double sl = fmin(ql.u - cl, qr.u - cr);
     double sr = fmax(ql.u + cl, qr.u + cr);
+    if(fabs(sl) > g_wave_max_wave_speed_m_per_s
+    || fabs(sr) > g_wave_max_wave_speed_m_per_s)
+    {
+        self->should_panic = true;
+        g_std_panic_message = "hllc wave exceeded max speed";
+    }
     struct wave_cons_s ul = prim_to_cons(ql);
     struct wave_cons_s ur = prim_to_cons(qr);
     struct wave_flux_s fl = calc_flux(ql);
@@ -165,13 +172,13 @@ compute_wave_flux(struct wave_hllc_s* self)
     size_t l = 0;
     size_t r = g_wave_cells;
     size_t z = r - 1;
-    self->flux[l] = calc_hllc_flux(self->prim[l], self->prim[l]);
-    self->flux[r] = calc_hllc_flux(self->prim[z], self->prim[z]);
+    self->flux[l] = calc_hllc_flux(self, self->prim[l], self->prim[l]);
+    self->flux[r] = calc_hllc_flux(self, self->prim[z], self->prim[z]);
     for(size_t i = 1; i < g_wave_cells; i++)
     {
         size_t x = i - 1;
         size_t y = i;
-        self->flux[y] = calc_hllc_flux(self->prim[x], self->prim[y]);
+        self->flux[y] = calc_hllc_flux(self, self->prim[x], self->prim[y]);
     }
 }
 
