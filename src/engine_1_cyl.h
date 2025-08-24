@@ -5,7 +5,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 1e9,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 4.0e-4,
+                .nozzle_max_flow_area_m2 = 2.0e-4,
             },
         },
         .next = {1}
@@ -16,7 +16,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 1e-4,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 4.0e-4,
+                .nozzle_max_flow_area_m2 = 0.5e-4,
             },
         },
         .next = {2}
@@ -26,7 +26,7 @@ static struct node_s g_node_1_cyl[] = {
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 3e-4,
-                .nozzle_max_flow_area_m2 = 4.0e-4,
+                .nozzle_max_flow_area_m2 = 2.0e-4,
             },
             .valve = {
                 .engage_r = -0.0625 * g_std_four_pi_r,
@@ -40,7 +40,7 @@ static struct node_s g_node_1_cyl[] = {
         .as.injector = {
             .chamber = {
                 .volume_m3 = 1e-4,
-                .nozzle_max_flow_area_m2 = 4.0e-6,
+                .nozzle_max_flow_area_m2 = 5.0e-6,
             },
             .nozzle_index = 2,
         },
@@ -50,11 +50,11 @@ static struct node_s g_node_1_cyl[] = {
         .type = g_is_piston,
         .as.piston = {
             .chamber = {
-                .nozzle_max_flow_area_m2 = 8.0e-4,
+                .nozzle_max_flow_area_m2 = 5.0e-4,
             },
             .valve = {
                 .engage_r = 0.725 * g_std_four_pi_r,
-                .ramp_r = 0.25 * g_std_four_pi_r,
+                .ramp_r = 0.22 * g_std_four_pi_r,
             },
             .sparkplug = {
                 .engage_r = 0.55 * g_std_four_pi_r,
@@ -79,7 +79,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 1.5e-4,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 8.0e-4,
+                .nozzle_max_flow_area_m2 = 5.0e-4,
             },
         },
         .next = {6}
@@ -90,7 +90,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 3e-4,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 8.0e-4,
+                .nozzle_max_flow_area_m2 = 5.0e-4,
             },
             .wave_index = 0,
         },
@@ -102,7 +102,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 6e-4,
                 .nozzle_open_ratio = 1.0,
-                .nozzle_max_flow_area_m2 = 8.0e-4,
+                .nozzle_max_flow_area_m2 = 5.0e-4,
             },
         },
         .next = {8}

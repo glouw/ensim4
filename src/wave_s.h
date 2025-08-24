@@ -1,5 +1,5 @@
-static constexpr size_t g_wave_cells = 32;
-static constexpr size_t g_wave_substeps = 5;
+static constexpr size_t g_wave_cells = 64;
+static constexpr size_t g_wave_substeps = 10;
 static constexpr size_t g_wave_max_waves = 16;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.31;
@@ -56,9 +56,9 @@ g_waves[g_wave_max_waves];
 static double g_wave_buffer_pa[g_synth_buffer_size];
 
 static constexpr struct wave_prim_s g_ambient_wave_cell = {
-    .p = g_gas_ambient_static_pressure_pa,
     .rho = g_gas_ambient_static_density_kg_per_m3,
     .u = 0.0,
+    .p = g_gas_ambient_static_pressure_pa,
 };
 
 static struct wave_cons_s
@@ -137,11 +137,15 @@ calc_hllc_flux(struct wave_hllc_s* self, struct wave_prim_s ql, struct wave_prim
     double cr = calc_cell_speed_of_sound(qr);
     double sl = fmin(ql.u - cl, qr.u - cr);
     double sr = fmax(ql.u + cl, qr.u + cr);
-    if(fabs(sl) > g_wave_max_wave_speed_m_per_s
-    || fabs(sr) > g_wave_max_wave_speed_m_per_s)
+    if(fabs(sl) > g_wave_max_wave_speed_m_per_s)
     {
         self->should_panic = true;
-        g_std_panic_message = "hllc wave exceeded max speed";
+        g_std_panic_message = "hllc left wave exceeded max speed";
+    }
+    if(fabs(sr) > g_wave_max_wave_speed_m_per_s)
+    {
+        self->should_panic = true;
+        g_std_panic_message = "hllc right wave exceeded max speed";
     }
     struct wave_cons_s ul = prim_to_cons(ql);
     struct wave_cons_s ur = prim_to_cons(qr);
@@ -299,11 +303,4 @@ stage_wave(size_t wave_index, struct wave_prim_s prim)
 {
     struct wave_s* self = &g_waves[wave_index];
     self->data.buffer0[self->data.index++] = prim;
-}
-
-static void
-step_wave(size_t wave_index, struct wave_prim_s prim)
-{
-    struct wave_s* wave = &g_waves[wave_index];
-    step_hllc_wave(&wave->hllc, prim, g_ambient_wave_cell);
 }

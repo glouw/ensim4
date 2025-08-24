@@ -6,7 +6,7 @@ static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
 static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
 static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
-static constexpr float g_sdl_radial_spacing = 2.1f;
+static constexpr float g_sdl_radial_spacing = 2.2f;
 static constexpr float g_sdl_column_width_ratio = 0.5f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
 static constexpr float g_sdl_plot_lowpass_filter_hz = 300.0f;
@@ -350,9 +350,10 @@ draw_radial_chambers(const struct engine_s* engine)
 static void
 cleanup_samples(float samples[], size_t size)
 {
+    float first = samples[0];
     struct lowpass_filter_s lowpass_filter = {
-        .prev_input = samples[0],
-        .prev_output = lowpass_filter.prev_input,
+        .prev_input = first,
+        .prev_output = first,
     };
     for(size_t i = 0; i < size; i++)
     {
@@ -576,7 +577,6 @@ draw_info_title(const struct engine_s* engine, struct sdl_scroll_s* scroll)
         { g_sdl_title                   , simple                                    },
         { "the inline engine simulator" , simple                                    },
         { "  1-9: engine select"        , simple                                    },
-        { "    f: slowmo"               , engine->is_slowmo       ? active : simple },
         { "    g: use_convolution"      , engine->use_convolution ? active : simple },
         { "    h: use_cfd"              , engine->use_cfd         ? active : simple },
         { "    d: ignition_on"          , engine->is_ignition_on  ? active : simple },
@@ -852,10 +852,7 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
                 engine->throttle_open_ratio = 0.33;
                 break;
             case SDLK_J:
-                engine->throttle_open_ratio = 0.00;
-                break;
-            case SDLK_F:
-                engine->is_slowmo = true;
+                engine->throttle_open_ratio = 0.01;
                 break;
             case SDLK_H:
                 enable_engine_cfd(engine, engine->use_cfd ^= true);
@@ -897,9 +894,6 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
                 break;
             case SDLK_9:
                 reset_engine(*engine_ref = &g_engine_8_cyl);
-                break;
-            case SDLK_F:
-                engine->is_slowmo = false;
                 break;
             case SDLK_P:
                 deselect_all_nodes(engine->node, engine->size);

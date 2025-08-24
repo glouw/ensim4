@@ -1,4 +1,4 @@
-static constexpr double g_chamber_total_pressure_hysteresis_pa = 1000.0;
+static constexpr double g_chamber_total_pressure_deadband_pa = 500.0;
 static constexpr double g_chamber_c8h18_heat_of_combustion_j_per_mol = 5.47e6;
 
 struct chamber_s
@@ -94,7 +94,7 @@ calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
 {
     double Pt0 = calc_total_pressure_pa(self);
     double Pt1 = calc_total_pressure_pa(other);
-    if(Pt0 - Pt1 < g_chamber_total_pressure_hysteresis_pa)
+    if(Pt0 - Pt1 < g_chamber_total_pressure_deadband_pa)
     {
         return 0.0;
     }

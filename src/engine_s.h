@@ -7,7 +7,6 @@ struct engine_s
     struct flywheel_s flywheel;
     struct starter_s starter;
     double throttle_open_ratio;
-    bool is_slowmo;
     bool use_cfd;
     bool use_convolution;
     bool is_ignition_on;
@@ -109,17 +108,7 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
                     .u = nozzle_flow.flow_field.velocity_m_per_s,
                     .p = calc_static_pressure_pa(&x->as.chamber),
                 };
-                if(self->is_slowmo)
-                {
-                    if(eplenum->use_cfd)
-                    {
-                        step_wave(wave_index, prim);
-                    }
-                }
-                else
-                {
-                    stage_wave(wave_index, prim);
-                }
+                stage_wave(wave_index, prim);
             }
         }
     }
@@ -406,14 +395,7 @@ run_engine(
     sampler_synth_t sampler_synth)
 {
     double t0 = engine_time->get_ticks_ms();
-    if(self->is_slowmo)
-    {
-        step_engine(self, engine_time, sampler);
-    }
-    else
-    {
-        run_engine_with_waves(self, engine_time, sampler, synth, audio_buffer_size, sampler_synth);
-    }
+    run_engine_with_waves(self, engine_time, sampler, synth, audio_buffer_size, sampler_synth);
     double t3 = engine_time->get_ticks_ms();
     engine_time->wave_time_ms += t3 - t0;
 }

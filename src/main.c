@@ -86,7 +86,7 @@ static struct synth_s g_synth = {
     .envelope = {
         .max_gain = g_synth_max_gain,
         .limiter = g_synth_angular_velocity_limiter_r_per_s,
-    }
+    },
 };
 
 int
@@ -96,7 +96,6 @@ main()
 #ifdef ENSIM4_VISUALIZE
     visualize_gamma();
     visualize_chamber_s();
-    return 0;
 #endif
     struct engine_s* engine = &g_engine_8_cyl;
     reset_engine(engine);
