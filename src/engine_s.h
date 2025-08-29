@@ -1,3 +1,9 @@
+static constexpr double g_engine_stroke_ratio = 1.0 / 4.0;
+static constexpr double g_engine_intake_stroke_theta_r = 0.0 * g_engine_stroke_ratio * g_std_four_pi_r;
+static constexpr double g_engine_compression_stroke_theta_r = 1.0 * g_engine_stroke_ratio * g_std_four_pi_r;
+static constexpr double g_engine_power_stroke_theta_r = 2.0 * g_engine_stroke_ratio * g_std_four_pi_r;
+static constexpr double g_engine_exhaust_stroke_theta_r = 3.0 * g_engine_stroke_ratio * g_std_four_pi_r;
+
 struct engine_s
 {
     const char* name;
@@ -214,34 +220,50 @@ update_engine_nozzle_open_ratios(struct engine_s* self)
     for(size_t i = 0; i < self->size; i++)
     {
         struct node_s* node = &self->node[i];
-        if(node->type == g_is_piston)
+        switch(node->type)
         {
-            struct piston_s* piston = &node->as.piston;
-            piston->chamber.nozzle_open_ratio = calc_valve_nozzle_open_ratio(&piston->valve, &self->crankshaft);
-        }
-        if(node->type == g_is_irunner)
-        {
-            struct irunner_s* irunner = &node->as.irunner;
-            irunner->chamber.nozzle_open_ratio = calc_valve_nozzle_open_ratio(&irunner->valve, &self->crankshaft);
-        }
-        if(node->type == g_is_injector)
-        {
-            struct injector_s* injector = &node->as.injector;
-            struct chamber_s* chamber = &self->node[injector->nozzle_index].as.chamber;
-            if(chamber->nozzle_open_ratio > 0.0)
+            case g_is_piston:
             {
-                struct piston_s* piston = &self->node[node->next[0]].as.piston;
-                injector->chamber.nozzle_open_ratio = calc_mol_air_fuel_ratio(&piston->chamber.gas) > g_gas_ideal_mol_air_fuel_ratio ? 1.0 : 0.0;
+                struct piston_s* piston = &node->as.piston;
+                piston->chamber.nozzle_open_ratio = calc_valve_nozzle_open_ratio(&piston->valve, &self->crankshaft);
+                break;
             }
-            else
+            case g_is_irunner:
             {
-                injector->chamber.nozzle_open_ratio = 0.0;
+                struct irunner_s* irunner = &node->as.irunner;
+                irunner->chamber.nozzle_open_ratio = calc_valve_nozzle_open_ratio(&irunner->valve, &self->crankshaft);
+                break;
             }
-        }
-        if(node->type == g_is_throttle)
-        {
-            struct throttle_s* throttle = &node->as.throttle;
-            throttle->chamber.nozzle_open_ratio = self->throttle_open_ratio;
+            case g_is_injector:
+            {
+                struct injector_s* injector = &node->as.injector;
+                struct chamber_s* chamber = &self->node[injector->nozzle_index].as.chamber;
+                if(chamber->nozzle_open_ratio > 0.0)
+                {
+                    struct piston_s* piston = &self->node[node->next[0]].as.piston;
+                    injector->chamber.nozzle_open_ratio =
+                        calc_mol_air_fuel_ratio(&piston->chamber.gas) > g_gas_ideal_mol_air_fuel_ratio
+                        ? 1.0
+                        : 0.0;
+                }
+                else
+                {
+                    injector->chamber.nozzle_open_ratio = 0.0;
+                }
+                break;
+            }
+            case g_is_throttle:
+            {
+                struct throttle_s* throttle = &node->as.throttle;
+                throttle->chamber.nozzle_open_ratio = self->throttle_open_ratio;
+                break;
+            }
+            default:
+            {
+                struct chamber_s* chamber = &node->as.chamber;
+                chamber->nozzle_open_ratio = 1.0;
+                break;
+            }
         }
     }
 }

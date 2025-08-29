@@ -9,7 +9,7 @@ static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_radial_spacing = 2.2f;
 static constexpr float g_sdl_column_width_ratio = 0.5f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_sdl_plot_lowpass_filter_hz = 300.0f;
+static constexpr float g_sdl_plot_lowpass_filter_hz = 1000.0f;
 static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
 static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
 static constexpr float g_sdl_piston_space_p = 4.0;
@@ -872,7 +872,7 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
                 reset_engine(*engine_ref = &g_engine_1_cyl);
                 break;
             case SDLK_2:
-                reset_engine(*engine_ref = &g_engine_8_cyl);
+                reset_engine(*engine_ref = &g_engine_2_cyl);
                 break;
             case SDLK_3:
                 reset_engine(*engine_ref = &g_engine_8_cyl);

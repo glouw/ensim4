@@ -59,6 +59,7 @@
 /* engine assembly */
 #include "engine_s.h"
 #include "engine_1_cyl.h"
+#include "engine_2_cyl.h"
 #include "engine_8_cyl.h"
 
 /* sdl3 (video, input, and audio access) + helpers */
