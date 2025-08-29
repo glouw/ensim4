@@ -6,10 +6,11 @@ struct engine_s
     struct crankshaft_s crankshaft;
     struct flywheel_s flywheel;
     struct starter_s starter;
+    struct limiter_s limiter;
     double throttle_open_ratio;
     bool use_cfd;
     bool use_convolution;
-    bool is_ignition_on;
+    bool can_ignite;
 };
 
 struct engine_time_s
@@ -174,6 +175,7 @@ crank_engine(struct engine_s* self, struct sampler_s* sampler)
             sampler->index = min(sampler->index, g_sampler_max_samples - 1);
         }
     }
+    maybe_limit_engine(&self->limiter, &self->crankshaft, &self->can_ignite);
 }
 
 static void
@@ -265,6 +267,7 @@ reset_engine(struct engine_s* self)
     enable_engine_cfd(self, true);
     self->use_convolution = true;
     self->starter.is_on = false;
+    self->throttle_open_ratio = 0.01;
     reset_all_waves();
     rig_engine_pistons(self);
     normalize_engine(self);
@@ -350,7 +353,7 @@ step_engine(
     double starter_angular_velocity_r_per_s = calc_starter_angular_velocity_r_per_s(&self->starter, &self->flywheel, &self->crankshaft);
     sample_starter(sampler, starter_angular_velocity_r_per_s);
     double t2 = engine_time->get_ticks_ms();
-    if(self->is_ignition_on)
+    if(self->can_ignite)
     {
         combust_engine_piston_chambers(self);
     }

@@ -1,13 +1,13 @@
-static constexpr size_t g_wave_cells = 64;
-static constexpr size_t g_wave_substeps = 10;
+static constexpr size_t g_wave_cells = 48;
+static constexpr size_t g_wave_substeps = 5;
 static constexpr size_t g_wave_max_waves = 16;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
-static constexpr double g_wave_pipe_length_m = 0.5;
+static constexpr double g_wave_mic_position_ratio = 0.95;
+static constexpr double g_wave_pipe_length_m = 0.6;
 static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
 static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
-static constexpr double g_wave_mic_position_ratio = 1.0;
 
 struct wave_prim_s
 {
@@ -207,8 +207,18 @@ set_hllc_wave_cell(struct wave_hllc_s* self, size_t index, struct wave_prim_s pr
     self->cons[index] = prim_to_cons(prim);
 }
 
+static struct wave_prim_s
+mix_prims(struct wave_prim_s a, struct wave_prim_s b, double alpha)
+{
+    struct wave_prim_s result;
+    result.rho = (1.0 - alpha) * a.rho + alpha * b.rho;
+    result.u = (1.0 - alpha) * a.u + alpha * b.u;
+    result.p = (1.0 - alpha) * a.p + alpha * b.p;
+    return result;
+}
+
 static void
-step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s in, struct wave_prim_s out)
+step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s in)
 {
     if(in.u == 0.0)
     {
@@ -217,6 +227,7 @@ step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s in, struct wave_prim
     }
     for(size_t i = 0; i < g_wave_substeps; i++)
     {
+        struct wave_prim_s out = mix_prims(self->prim[g_wave_cells - 2], g_ambient_wave_cell, 0.05);
         set_hllc_wave_cell(self, 0, in);
         set_hllc_wave_cell(self, g_wave_cells - 1, out);
         compute_wave_flux(self);
@@ -288,7 +299,7 @@ batch_step_wave(size_t wave_index, bool use_cfd)
     {
         if(use_cfd)
         {
-            step_hllc_wave(&self->hllc, self->data.buffer1[i], g_ambient_wave_cell);
+            step_hllc_wave(&self->hllc, self->data.buffer1[i]);
             self->data.wave_sub_buffer_pa[i] = sample_hllc_wave(&self->hllc);
         }
         else /* just pass through */

@@ -26,7 +26,7 @@ static struct node_s g_node_1_cyl[] = {
         .as.irunner = {
             .chamber = {
                 .volume_m3 = 3e-4,
-                .nozzle_max_flow_area_m2 = 2.0e-4,
+                .nozzle_max_flow_area_m2 = 4.0e-4,
             },
             .valve = {
                 .engage_r = -0.0625 * g_std_four_pi_r,
@@ -53,7 +53,7 @@ static struct node_s g_node_1_cyl[] = {
                 .nozzle_max_flow_area_m2 = 5.0e-4,
             },
             .valve = {
-                .engage_r = 0.725 * g_std_four_pi_r,
+                .engage_r = 0.7 * g_std_four_pi_r,
                 .ramp_r = 0.22 * g_std_four_pi_r,
             },
             .sparkplug = {
@@ -68,8 +68,8 @@ static struct node_s g_node_1_cyl[] = {
             .head_mass_density_kg_per_m3 = 7800.0,
             .head_compression_height_m = 0.013,
             .head_clearance_height_m = 0.007,
-            .dynamic_friction_coefficient_n_m_s_per_r = 0.005,
-            .static_friction_coefficient_n_m_s_per_r = 0.4,
+            .dynamic_friction_coefficient_n_m_s_per_r = 0.01,
+            .static_friction_coefficient_n_m_s_per_r = 2.0,
         },
         .next = {5}
     },
@@ -122,12 +122,16 @@ static struct engine_s g_engine_1_cyl = {
     "175cc",
     engine_is(g_node_1_cyl),
     .crankshaft = {
-        .mass_kg = 2.0,
-        .radius_m = 0.02,
+        .mass_kg = 1.0,
+        .radius_m = 0.03,
     },
     .flywheel = {
         .mass_kg = 1.0,
         .radius_m = 0.1,
+    },
+    .limiter = {
+        .cutoff_angular_velocity_r_per_s = 900.0,
+        .relaxed_angular_velocity_r_per_s = 150.0,
     },
     .starter = {
         .rated_torque_n_m = 30.0,

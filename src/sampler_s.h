@@ -70,12 +70,9 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
         sample_value(self, g_sample_molar_air_fuel_ratio, calc_mol_air_fuel_ratio(&node->as.chamber.gas));
         sample_value(self, g_sample_molar_fuel_ratio_c8h18, node->as.chamber.gas.mol_ratio_c8h18);
         sample_value(self, g_sample_molar_combusted_ratio_co2_h2o, calc_mol_combusted_ratio(&node->as.chamber.gas));
-        if(node->type == g_is_piston)
-        {
-            sample_value(self, g_sample_sparkplug_voltage_v, calc_sparkplug_voltage_v(&node->as.piston.sparkplug, crankshaft));
-            sample_value(self, g_sample_piston_gas_torque_n_m, calc_piston_gas_torque_n_m(&node->as.piston, crankshaft));
-            sample_value(self, g_sample_piston_inertia_torque_n_m, calc_piston_inertia_torque_n_m(&node->as.piston, crankshaft));
-        }
+        sample_value(self, g_sample_sparkplug_voltage_v, node->type == g_is_piston ? calc_sparkplug_voltage_v(&node->as.piston.sparkplug, crankshaft) : 0.0);
+        sample_value(self, g_sample_piston_gas_torque_n_m, node->type == g_is_piston ? calc_piston_gas_torque_n_m(&node->as.piston, crankshaft) : 0.0);
+        sample_value(self, g_sample_piston_inertia_torque_n_m, node->type == g_is_piston ? calc_piston_inertia_torque_n_m(&node->as.piston, crankshaft) : 0.0);
         sample_value(self, g_sample_nozzle_area_m2, nozzle_flow->area_m2);
         sample_value(self, g_sample_nozzle_mach, nozzle_flow->flow_field.mach);
         sample_value(self, g_sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);

@@ -579,7 +579,7 @@ draw_info_title(const struct engine_s* engine, struct sdl_scroll_s* scroll)
         { "  1-9: engine select"        , simple                                    },
         { "    g: use_convolution"      , engine->use_convolution ? active : simple },
         { "    h: use_cfd"              , engine->use_cfd         ? active : simple },
-        { "    d: ignition_on"          , engine->is_ignition_on  ? active : simple },
+        { "    d: ignition_on"          , engine->can_ignite      ? active : simple },
         { "space: starter_on"           , engine->starter.is_on   ? active : simple },
         { "------ nodes --------------" , simple                                    },
         { "    c: clear"                , simple                                    },
@@ -843,16 +843,16 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
                 engine->starter.is_on = true;
                 break;
             case SDLK_D:
-                engine->is_ignition_on ^= true;
+                engine->can_ignite ^= true;
                 break;
             case SDLK_L:
                 engine->throttle_open_ratio = 0.99;
                 break;
             case SDLK_K:
-                engine->throttle_open_ratio = 0.33;
+                engine->throttle_open_ratio = 0.10;
                 break;
             case SDLK_J:
-                engine->throttle_open_ratio = 0.01;
+                engine->throttle_open_ratio = 0.02;
                 break;
             case SDLK_H:
                 enable_engine_cfd(engine, engine->use_cfd ^= true);

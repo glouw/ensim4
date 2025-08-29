@@ -32,6 +32,7 @@
 #include "sparkplug_s.h"
 #include "flywheel_s.h"
 #include "starter_s.h"
+#include "limiter_s.h"
 #include "valve_s.h"
 
 /* engine synth */

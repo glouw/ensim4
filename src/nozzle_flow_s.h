@@ -28,9 +28,9 @@ flow(struct chamber_s* x, struct chamber_s* y)
             direction = -1.0;
         }
         double nozzle_mach = calc_nozzle_mach(x, y);
-        double nozzle_flow_velocity_m_per_s = calc_nozzle_flow_velocity_m_per_s(x, nozzle_mach);
-        if(nozzle_flow_velocity_m_per_s != 0.0)
+        if(nozzle_mach != 0.0)
         {
+            double nozzle_flow_velocity_m_per_s = calc_nozzle_flow_velocity_m_per_s(x, nozzle_mach);
             double nozzle_mass_flow_rate_kg_per_s = calc_nozzle_mass_flow_rate_kg_per_s(x, nozzle_flow_area_m2, nozzle_mach);
             double nozzle_speed_of_sound_m_per_s = calc_nozzle_speed_of_sound_m_per_s(x, nozzle_mach, nozzle_flow_velocity_m_per_s);
             double nozzle_static_density_kg_per_m3 = calc_nozzle_static_density_kg_per_m3(nozzle_mass_flow_rate_kg_per_s, nozzle_flow_area_m2, nozzle_flow_velocity_m_per_s);
