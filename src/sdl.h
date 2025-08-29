@@ -852,7 +852,7 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
                 engine->throttle_open_ratio = 0.10;
                 break;
             case SDLK_J:
-                engine->throttle_open_ratio = 0.02;
+                engine->throttle_open_ratio = 0.025;
                 break;
             case SDLK_H:
                 enable_engine_cfd(engine, engine->use_cfd ^= true);

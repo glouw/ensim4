@@ -1,4 +1,4 @@
-static constexpr double g_chamber_total_pressure_deadband_pa = 50.0;
+static constexpr double g_chamber_total_pressure_deadband_pa = 500.0;
 static constexpr double g_chamber_c8h18_heat_of_combustion_j_per_mol = 5.47e6;
 
 struct chamber_s
@@ -103,7 +103,11 @@ calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
         double y = calc_mixed_gamma(&self->gas);
         double Ps = calc_static_pressure_pa(other);
         double M = sqrt((2.0 / (y - 1.0)) * (pow(Pt0 / Ps, (y - 1.0) / y) - 1.0));
-        return M;
+
+        /* Assumes straight nozzle or convergent nozzle,
+         * preventing supersonic mach numbers.
+         */
+        return clamp(M, 0.0, 1.0);
     }
 }
 

@@ -1,4 +1,7 @@
 static constexpr size_t g_wave_cells = 48;
+static constexpr size_t g_wave_exterior_cell = g_wave_cells - 1;
+static constexpr size_t g_wave_first_interior_cell = 0;
+static constexpr size_t g_wave_last_interior_cell = g_wave_cells - 2;
 static constexpr size_t g_wave_substeps = 5;
 static constexpr size_t g_wave_max_waves = 16;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
@@ -9,24 +12,61 @@ static constexpr double g_wave_pipe_length_m = 0.6;
 static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
 static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
 
+/*
+ * Units and longform names were ommited from variable names to simplify readability.
+ */
+
 struct wave_prim_s
 {
+    /*
+     * static_density_kg_per_m3
+     */
     double rho;
+
+    /*
+     * velocity_m_per_s
+     */
     double u;
+
+    /*
+     * static_pressure_pa
+     */
     double p;
 };
 
 struct wave_cons_s
 {
+    /*
+     * static_density_kg_per_m3
+     */
     double rho;
+
+    /*
+     * momentum_density_kg_per_m2_s
+     */
     double mom;
+
+    /*
+     * total_energy_density_j_per_m_3
+     */
     double en;
 };
 
 struct wave_flux_s
 {
+    /*
+     * mass_flux_kg_per_m2_s
+     */
     double rho;
+
+    /*
+     * momentum_flux_n_per_m2
+     */
     double mom;
+
+    /*
+     * energy_flux_w_per_m2
+     */
     double en;
 };
 
@@ -88,6 +128,10 @@ calc_cell_speed_of_sound(struct wave_prim_s self)
     return sqrt(g_wave_gamma * self.p / self.rho);
 }
 
+/*
+ * Standard Euler Flux.
+ */
+
 static struct wave_flux_s
 calc_flux(struct wave_prim_s self)
 {
@@ -99,22 +143,49 @@ calc_flux(struct wave_prim_s self)
     };
 }
 
-static struct wave_flux_s
-calc_hllc_flux_component(
+/*
+ *  .       S - u
+ * p  = p * ------
+ *               .
+ *          S - S
+ */
+
+static double
+calc_rho_star(
     struct wave_cons_s u,
-    struct wave_flux_s f_base,
     struct wave_prim_s q,
     double s,
     double s_star)
 {
-    double coeff = u.rho * (s - q.u) / (s - s_star);
-    double e_star = coeff * ((u.en / u.rho) + (s_star - q.u) * (s_star + q.p / (u.rho * (s - q.u))));
-    return (struct wave_flux_s) {
-        .rho = f_base.rho + s * (coeff - u.rho),
-        .mom = f_base.mom + s * (coeff * s_star - u.mom),
-        .en = f_base.en + s * (e_star - u.en),
-    };
+    return u.rho * (s - q.u) / (s - s_star);
 }
+
+/*
+ *
+ *  .    .     E      .          .       p
+ * E  = p  * (--- + (S  - u) * (S  + -----------))
+ *             p                     p * (S - u)
+ *
+ *
+ */
+
+static double
+calc_en_star(
+    double rho_star,
+    struct wave_cons_s u,
+    struct wave_prim_s q,
+    double s,
+    double s_star)
+{
+    return rho_star * ((u.en / u.rho) + (s_star - q.u) * (s_star + q.p / (u.rho * (s - q.u))));
+}
+
+/*
+ *  .   PsR - PsL + pL * Ul * (SL - uL) - pR * uR * (SR - uR)
+ * S  = -----------------------------------------------------
+ *              pL * (SL - uL) - pR * (SR - uR)
+ *
+ */
 
 static double
 calc_s_star(
@@ -128,6 +199,24 @@ calc_s_star(
     double term1 = qr.p - ql.p + ul.mom * (sl - ql.u) - ur.mom * (sr - qr.u);
     double term2 = ul.rho * (sl - ql.u) - ur.rho * (sr - qr.u);
     return term1 / term2;
+}
+
+
+static struct wave_flux_s
+calc_hllc_flux_component(
+    struct wave_cons_s u,
+    struct wave_flux_s f_base,
+    struct wave_prim_s q,
+    double s,
+    double s_star)
+{
+    double rho_star = calc_rho_star(u, q, s, s_star);
+    double en_star = calc_en_star(rho_star, u, q, s, s_star);
+    return (struct wave_flux_s) {
+        .rho = f_base.rho + s * (rho_star - u.rho),
+        .mom = f_base.mom + s * (rho_star * s_star - u.mom),
+        .en = f_base.en + s * (en_star - u.en),
+    };
 }
 
 static struct wave_flux_s
@@ -173,9 +262,9 @@ calc_hllc_flux(struct wave_hllc_s* self, struct wave_prim_s ql, struct wave_prim
 static void
 compute_wave_flux(struct wave_hllc_s* self)
 {
-    size_t l = 0;
+    size_t l = g_wave_first_interior_cell;
     size_t r = g_wave_cells;
-    size_t z = r - 1;
+    size_t z = g_wave_exterior_cell;
     self->flux[l] = calc_hllc_flux(self, self->prim[l], self->prim[l]);
     self->flux[r] = calc_hllc_flux(self, self->prim[z], self->prim[z]);
     for(size_t i = 1; i < g_wave_cells; i++)
@@ -189,7 +278,7 @@ compute_wave_flux(struct wave_hllc_s* self)
 static void
 update_wave_state(struct wave_hllc_s* self)
 {
-    for(size_t i = 1; i < g_wave_cells - 1; i++)
+    for(size_t i = 1; i < g_wave_exterior_cell; i++)
     {
         size_t x = i;
         size_t y = i + 1;
@@ -227,9 +316,10 @@ step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s in)
     }
     for(size_t i = 0; i < g_wave_substeps; i++)
     {
-        struct wave_prim_s out = mix_prims(self->prim[g_wave_cells - 2], g_ambient_wave_cell, 0.05);
+        struct wave_prim_s last = self->prim[g_wave_last_interior_cell];
+        struct wave_prim_s out = mix_prims(last, g_ambient_wave_cell, 0.05);
         set_hllc_wave_cell(self, 0, in);
-        set_hllc_wave_cell(self, g_wave_cells - 1, out);
+        set_hllc_wave_cell(self, g_wave_exterior_cell, out);
         compute_wave_flux(self);
         update_wave_state(self);
     }
@@ -238,7 +328,7 @@ step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s in)
 static double
 sample_hllc_wave(struct wave_hllc_s* self)
 {
-    size_t index = (g_wave_cells - 2) * g_wave_mic_position_ratio;
+    size_t index = g_wave_last_interior_cell * g_wave_mic_position_ratio;
     return self->prim[index].p;
 }
 

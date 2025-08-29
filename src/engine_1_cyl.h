@@ -134,7 +134,7 @@ static struct engine_s g_engine_1_cyl = {
         .radius_m = 0.1,
     },
     .limiter = {
-        .cutoff_angular_velocity_r_per_s = 900.0,
+        .cutoff_angular_velocity_r_per_s = 1000.0,
         .relaxed_angular_velocity_r_per_s = 150.0,
     },
     .starter = {
