@@ -5,7 +5,7 @@ static constexpr double g_synth_dc_filter_cutoff_frequency_hz = 10.0;
 static constexpr double g_synth_deadzone_angular_velocity_r_per_s = 1.0;
 static constexpr double g_synth_clamp = 1.0;
 static constexpr double g_synth_max_gain = 0.5;
-static constexpr double g_synth_angular_velocity_limiter_r_per_s = 200.0;
+static constexpr double g_synth_angular_velocity_limiter_r_per_s = 1100.0; /* TODO: make unique per engine. */
 
 struct synth_s
 {

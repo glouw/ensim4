@@ -1,13 +1,14 @@
-static constexpr size_t g_wave_cells = 48;
-static constexpr size_t g_wave_exterior_cell = g_wave_cells - 1;
-static constexpr size_t g_wave_first_interior_cell = 0;
-static constexpr size_t g_wave_last_interior_cell = g_wave_cells - 2;
-static constexpr size_t g_wave_substeps = 5;
+static constexpr size_t g_wave_cells = 64;
+static constexpr size_t g_wave_signal_cell_index = 0;
+static constexpr size_t g_wave_first_interior_cell_index = 1;
+static constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
+static constexpr size_t g_wave_ambient_cell_index = g_wave_cells - 1;
+static constexpr size_t g_wave_substeps = 6;
 static constexpr size_t g_wave_max_waves = 16;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
-static constexpr double g_wave_mic_position_ratio = 0.95;
+static constexpr double g_wave_mic_position_ratio = 1.00;
 static constexpr double g_wave_pipe_length_m = 0.6;
 static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
 static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
@@ -91,11 +92,11 @@ struct wave_s
     struct wave_data_s data;
     struct wave_hllc_s hllc;
 }
-g_waves[g_wave_max_waves];
+g_waves[g_wave_max_waves] = {};
 
-static double g_wave_buffer_pa[g_synth_buffer_size];
+static double g_wave_buffer_pa[g_synth_buffer_size] = {};
 
-static constexpr struct wave_prim_s g_ambient_wave_cell = {
+static constexpr struct wave_prim_s g_wave_ambient_cell = {
     .rho = g_gas_ambient_static_density_kg_per_m3,
     .u = 0.0,
     .p = g_gas_ambient_static_pressure_pa,
@@ -262,12 +263,12 @@ calc_hllc_flux(struct wave_hllc_s* self, struct wave_prim_s ql, struct wave_prim
 static void
 compute_wave_flux(struct wave_hllc_s* self)
 {
-    size_t l = g_wave_first_interior_cell;
+    size_t l = g_wave_signal_cell_index;
     size_t r = g_wave_cells;
-    size_t z = g_wave_exterior_cell;
+    size_t z = g_wave_ambient_cell_index;
     self->flux[l] = calc_hllc_flux(self, self->prim[l], self->prim[l]);
     self->flux[r] = calc_hllc_flux(self, self->prim[z], self->prim[z]);
-    for(size_t i = 1; i < g_wave_cells; i++)
+    for(size_t i = g_wave_first_interior_cell_index; i < g_wave_cells; i++)
     {
         size_t x = i - 1;
         size_t y = i;
@@ -278,7 +279,7 @@ compute_wave_flux(struct wave_hllc_s* self)
 static void
 update_wave_state(struct wave_hllc_s* self)
 {
-    for(size_t i = 1; i < g_wave_exterior_cell; i++)
+    for(size_t i = g_wave_first_interior_cell_index; i < g_wave_ambient_cell_index; i++)
     {
         size_t x = i;
         size_t y = i + 1;
@@ -296,30 +297,27 @@ set_hllc_wave_cell(struct wave_hllc_s* self, size_t index, struct wave_prim_s pr
     self->cons[index] = prim_to_cons(prim);
 }
 
-static struct wave_prim_s
-mix_prims(struct wave_prim_s a, struct wave_prim_s b, double alpha)
-{
-    struct wave_prim_s result;
-    result.rho = (1.0 - alpha) * a.rho + alpha * b.rho;
-    result.u = (1.0 - alpha) * a.u + alpha * b.u;
-    result.p = (1.0 - alpha) * a.p + alpha * b.p;
-    return result;
-}
-
 static void
-step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s in)
+step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s signal_cell)
 {
-    if(in.u == 0.0)
+    if(signal_cell.u == 0.0)
     {
-        in = self->prim[1];
-        in.u = 0;
+        signal_cell = self->prim[g_wave_first_interior_cell_index];
+        signal_cell.u = 0.0;
     }
     for(size_t i = 0; i < g_wave_substeps; i++)
     {
-        struct wave_prim_s last = self->prim[g_wave_last_interior_cell];
-        struct wave_prim_s out = mix_prims(last, g_ambient_wave_cell, 0.05);
-        set_hllc_wave_cell(self, 0, in);
-        set_hllc_wave_cell(self, g_wave_exterior_cell, out);
+        struct wave_prim_s last_interior_cell = self->prim[g_wave_last_interior_cell_index];
+        /*
+         * Assume subsonic exit boundary conditions.
+         */
+        struct wave_prim_s ambient_cell = {
+            .rho = last_interior_cell.rho,
+            .u = last_interior_cell.u,
+            .p = g_wave_ambient_cell.p,
+        };
+        set_hllc_wave_cell(self, g_wave_signal_cell_index, signal_cell);
+        set_hllc_wave_cell(self, g_wave_ambient_cell_index, ambient_cell);
         compute_wave_flux(self);
         update_wave_state(self);
     }
@@ -328,7 +326,7 @@ step_hllc_wave(struct wave_hllc_s* self, struct wave_prim_s in)
 static double
 sample_hllc_wave(struct wave_hllc_s* self)
 {
-    size_t index = g_wave_last_interior_cell * g_wave_mic_position_ratio;
+    size_t index = g_wave_last_interior_cell_index * g_wave_mic_position_ratio;
     return self->prim[index].p;
 }
 
@@ -352,7 +350,7 @@ reset_hllc_wave_cells(struct wave_hllc_s* self)
 {
     for(size_t i = 0; i < g_wave_cells; i++)
     {
-        set_hllc_wave_cell(self, i, g_ambient_wave_cell);
+        set_hllc_wave_cell(self, i, g_wave_ambient_cell);
     }
 }
 
@@ -364,7 +362,7 @@ reset_all_waves()
         struct wave_s* wave = &g_waves[i];
         for(size_t j = 0; j < g_synth_buffer_size; j++)
         {
-            wave->data.buffer0[j] = g_ambient_wave_cell;
+            wave->data.buffer0[j] = g_wave_ambient_cell;
         }
         reset_hllc_wave_cells(&wave->hllc);
     }

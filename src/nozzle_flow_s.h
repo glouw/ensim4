@@ -19,6 +19,14 @@ static struct nozzle_flow_s
 flow(struct chamber_s* x, struct chamber_s* y)
 {
     double nozzle_flow_area_m2 = calc_nozzle_flow_area_m2(x);
+    if(x->should_panic)
+    {
+        goto panic;
+    }
+    if(y->should_panic)
+    {
+        goto panic;
+    }
     if(nozzle_flow_area_m2 > 0.0)
     {
         double direction = 1.0;
@@ -66,4 +74,6 @@ flow(struct chamber_s* x, struct chamber_s* y)
         .area_m2 = nozzle_flow_area_m2,
         .is_success = false
     };
+panic:
+    return (struct nozzle_flow_s) {};
 }

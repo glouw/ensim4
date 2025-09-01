@@ -9,7 +9,7 @@ static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_radial_spacing = 2.2f;
 static constexpr float g_sdl_column_width_ratio = 0.5f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_sdl_plot_lowpass_filter_hz = 1000.0f;
+static constexpr float g_sdl_plot_lowpass_filter_hz = 5000.0f;
 static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
 static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
 static constexpr float g_sdl_piston_space_p = 4.0;
@@ -577,8 +577,8 @@ draw_info_title(const struct engine_s* engine, struct sdl_scroll_s* scroll)
         { g_sdl_title                   , simple                                    },
         { "the inline engine simulator" , simple                                    },
         { "  1-9: engine select"        , simple                                    },
-        { "    g: use_convolution"      , engine->use_convolution ? active : simple },
-        { "    h: use_cfd"              , engine->use_cfd         ? active : simple },
+        { "    t: use_convolution"      , engine->use_convolution ? active : simple },
+        { "    y: use_cfd"              , engine->use_cfd         ? active : simple },
         { "    d: ignition_on"          , engine->can_ignite      ? active : simple },
         { "space: starter_on"           , engine->starter.is_on   ? active : simple },
         { "------ nodes --------------" , simple                                    },
@@ -845,19 +845,22 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
             case SDLK_D:
                 engine->can_ignite ^= true;
                 break;
+            case SDLK_H:
+                engine->throttle_open_ratio = 0.00;
+                break;
+            case SDLK_J:
+                engine->throttle_open_ratio = 0.05;
+                break;
+            case SDLK_K:
+                engine->throttle_open_ratio = 0.20;
+                break;
             case SDLK_L:
                 engine->throttle_open_ratio = 0.99;
                 break;
-            case SDLK_K:
-                engine->throttle_open_ratio = 0.10;
-                break;
-            case SDLK_J:
-                engine->throttle_open_ratio = 0.025;
-                break;
-            case SDLK_H:
+            case SDLK_Y:
                 enable_engine_cfd(engine, engine->use_cfd ^= true);
                 break;
-            case SDLK_G:
+            case SDLK_T:
                 engine->use_convolution ^= true;
                 break;
             }

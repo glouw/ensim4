@@ -8,7 +8,7 @@ static constexpr double g_gas_ideal_mol_air_fuel_ratio = 59.5;
 static constexpr double g_gas_ambient_static_temperature_k = 300.0;
 static constexpr double g_gas_ambient_static_pressure_pa = 101325.0;
 static constexpr double g_gas_ambient_static_density_kg_per_m3 = 1.225;
-static constexpr double g_gas_momentum_damping_time_constant_s = 0.0025;
+static constexpr double g_gas_momentum_damping_time_constant_s = 0.5e-3; /* TODO: per engine */
 
 struct gas_s
 {

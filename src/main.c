@@ -99,7 +99,7 @@ main()
     visualize_gamma();
     visualize_chamber_s();
 #endif
-    struct engine_s* engine = &g_engine_8_cyl;
+    struct engine_s* engine = &g_engine_2_cyl;
     reset_engine(engine);
     init_sdl();
     init_sdl_audio();

@@ -3,13 +3,7 @@ static constexpr size_t g_sampler_max_samples = 16384;
 static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r * g_std_audio_sample_rate_hz / g_sampler_max_samples;
 
 #define SAMPLES                                 \
-    X(g_sample_static_pressure_pa)              \
-    X(g_sample_total_pressure_pa)               \
-    X(g_sample_static_temperature_k)            \
     X(g_sample_volume_m3)                       \
-    X(g_sample_molar_air_fuel_ratio)            \
-    X(g_sample_molar_fuel_ratio_c8h18)          \
-    X(g_sample_molar_combusted_ratio_co2_h2o)   \
     X(g_sample_sparkplug_voltage_v)             \
     X(g_sample_nozzle_area_m2)                  \
     X(g_sample_nozzle_mach)                     \
@@ -19,6 +13,13 @@ static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r
     X(g_sample_nozzle_static_density_kg_per_m3) \
     X(g_sample_piston_gas_torque_n_m)           \
     X(g_sample_piston_inertia_torque_n_m)       \
+    X(g_sample_static_pressure_pa)              \
+    X(g_sample_total_pressure_pa)               \
+    X(g_sample_static_temperature_k)            \
+    X(g_sample_molar_air_fuel_ratio)            \
+    X(g_sample_molar_fuel_ratio_c8h18)          \
+    X(g_sample_molar_combusted_ratio_co2_h2o)   \
+    X(g_sample_momentum_kg_m_per_s)             \
     X(g_sample_gamma)                           \
 
 enum sample_name_e
@@ -80,6 +81,7 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
         sample_value(self, g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
         sample_value(self, g_sample_nozzle_static_density_kg_per_m3, nozzle_flow->flow_field.static_density_kg_per_m3);
         sample_value(self, g_sample_gamma, calc_mixed_gamma(&node->as.chamber.gas));
+        sample_value(self, g_sample_momentum_kg_m_per_s, node->as.chamber.gas.momentum_kg_m_per_s);
         self->channel_index++;
     }
 }

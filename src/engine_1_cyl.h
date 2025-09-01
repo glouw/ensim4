@@ -12,7 +12,7 @@ static struct node_s g_node_1_cyl[] = {
         .type = g_is_source,
         .as.source = {
             .chamber = {
-                .volume_m3 = 1e9,
+                .volume_m3 = g_chamber_ambient_volume_m3,
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_intake_max_flow_area_m2,
             },
         },
@@ -75,7 +75,7 @@ static struct node_s g_node_1_cyl[] = {
             .head_mass_density_kg_per_m3 = 7800.0,
             .head_compression_height_m = 0.013,
             .head_clearance_height_m = 0.007,
-            .dynamic_friction_coefficient_n_m_s_per_r = 0.02,
+            .dynamic_friction_coefficient_n_m_s_per_r = 0.015,
             .static_friction_coefficient_n_m_s_per_r = 2.0,
         },
         .next = {5}
@@ -115,7 +115,7 @@ static struct node_s g_node_1_cyl[] = {
         .type = g_is_sink,
         .as.sink = {
             .chamber = {
-                .volume_m3 = 1e9,
+                .volume_m3 = g_chamber_ambient_volume_m3,
             },
         },
         .next = {}
@@ -130,12 +130,12 @@ static struct engine_s g_engine_1_cyl = {
         .radius_m = 0.03,
     },
     .flywheel = {
-        .mass_kg = 1.0,
+        .mass_kg = 2.0,
         .radius_m = 0.1,
     },
     .limiter = {
-        .cutoff_angular_velocity_r_per_s = 1000.0,
-        .relaxed_angular_velocity_r_per_s = 150.0,
+        .cutoff_angular_velocity_r_per_s = 900.0,
+        .relaxed_angular_velocity_r_per_s = 100.0,
     },
     .starter = {
         .rated_torque_n_m = 30.0,
