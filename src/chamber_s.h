@@ -1,4 +1,4 @@
-static constexpr double g_chamber_total_pressure_deadband_pa = 100.0; /* TODO: per engine */
+static constexpr double g_chamber_total_pressure_deadband_pa = 1000.0; /* TODO: per engine */
 static constexpr double g_chamber_c8h18_heat_of_combustion_j_per_mol = 5.47e6;
 static constexpr double g_chamber_ambient_volume_m3 = 1e20;
 

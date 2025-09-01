@@ -111,7 +111,7 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
                 struct eplenum_s* eplenum = &x->as.eplenum;
                 size_t wave_index = eplenum->wave_index;
                 struct wave_prim_s prim = {
-                    .rho = nozzle_flow.flow_field.static_density_kg_per_m3,
+                    .r = nozzle_flow.flow_field.static_density_kg_per_m3,
                     .u = nozzle_flow.flow_field.velocity_m_per_s,
                     .p = calc_static_pressure_pa(&x->as.chamber),
                 };

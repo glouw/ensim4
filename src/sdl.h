@@ -554,7 +554,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
         { "monitor_hz: %.0f", g_std_monitor_refresh_rate },
         { "node_s_bytes: %.0f", sizeof(struct node_s) },
         { "supported_channels: %.0f", g_sampler_max_channels },
-        { "hllc_speed_m_per_s: %.0f", g_wave_max_wave_speed_m_per_s },
+        { "max_wave_speed_m_per_s: %.0f", g_wave_max_wave_speed_m_per_s },
     };
     for(size_t i = 0; i < len(lines); i++)
     {
@@ -678,14 +678,14 @@ draw_right_info_waves(
         if(node->type == g_is_eplenum)
         {
             struct eplenum_s* eplenum = &node->as.eplenum;
-            struct wave_s* wave = &g_waves[eplenum->wave_index];
+            struct wave_s* wave = &g_wave_table[eplenum->wave_index];
             if(wave_index == wave_panel_size)
             {
                 break;
             }
             struct sdl_panel_s* panel = &wave_panel[wave_index];
-            panel->panic = wave->hllc.should_panic;
-            push_panel_prim(panel, wave->hllc.prim, g_wave_cells);
+            panel->panic = wave->solver.should_panic;
+            push_panel_prim(panel, wave->solver.prim, g_wave_cells);
             draw_panel_info(panel, scroll);
             wave_index++;
         }
