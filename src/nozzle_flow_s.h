@@ -16,7 +16,7 @@ struct nozzle_flow_s
 };
 
 static struct nozzle_flow_s
-flow(struct chamber_s* x, struct chamber_s* y)
+flow(struct chamber_s* x, struct chamber_s* y, double nozzle_total_pressure_deadband_pa)
 {
     double nozzle_flow_area_m2 = calc_nozzle_flow_area_m2(x);
     if(x->should_panic)
@@ -35,7 +35,7 @@ flow(struct chamber_s* x, struct chamber_s* y)
             swap(x, y);
             direction = -1.0;
         }
-        double nozzle_mach = calc_nozzle_mach(x, y);
+        double nozzle_mach = calc_nozzle_mach(x, y, nozzle_total_pressure_deadband_pa);
         if(nozzle_mach != 0.0)
         {
             double nozzle_flow_velocity_m_per_s = calc_nozzle_flow_velocity_m_per_s(x, nozzle_mach);

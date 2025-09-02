@@ -56,7 +56,7 @@ static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
 };
 
 static struct sdl_progress_bar_s g_synth_envelope_progress_bar = {
-    .title = "synth_envelope",
+    .title = "rms_envelope",
     .max_value = 1.0,
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
@@ -103,7 +103,6 @@ push_widgets(
     struct engine_s* engine,
     struct engine_time_s* engine_time,
     struct sampler_s* sampler,
-    struct synth_s* synth,
     sampler_synth_t sampler_synth,
     size_t audio_buffer_size,
     struct widget_time_s* widget_time)
@@ -137,7 +136,7 @@ push_widgets(
         }
     );
     g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
-    g_synth_envelope_progress_bar.value = synth->envelope.gain;
+    g_synth_envelope_progress_bar.value = engine->envelope.value;
     g_frames_per_sec_progress_bar.value = 1000.0 / widget_time->vsync_time_ms;
     push_panel(&g_starter_panel_r_per_s, sampler->starter, sampler->size);
     if(engine->use_convolution)

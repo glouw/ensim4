@@ -4,15 +4,12 @@ static constexpr size_t g_synth_buffer_max_size = 5 * g_synth_buffer_size;
 static constexpr double g_synth_dc_filter_cutoff_frequency_hz = 10.0;
 static constexpr double g_synth_deadzone_angular_velocity_r_per_s = 1.0;
 static constexpr double g_synth_clamp = 1.0;
-static constexpr double g_synth_max_gain = 0.5;
-static constexpr double g_synth_angular_velocity_limiter_r_per_s = 1100.0; /* TODO: make unique per engine. */
 
 struct synth_s
 {
     struct highpass_filter_s dc_filter;
     struct gain_filter_s gain_filter;
     struct convo_filter_s convo_filter;
-    struct envelope_s envelope;
     float value[g_synth_buffer_size];
     size_t index;
 };
@@ -48,15 +45,15 @@ set_synth_deadzone(double value, struct crankshaft_s* crankshaft)
 }
 
 static double
-push_synth(struct synth_s* self, struct crankshaft_s* crankshaft, double value, bool use_convolution)
+push_synth(struct synth_s* self, struct envelope_s* envelope, struct crankshaft_s* crankshaft, double value, bool use_convolution)
 {
-    process_envelope(&self->envelope, crankshaft->angular_velocity_r_per_s);
+    process_linear_envelope(envelope, crankshaft->angular_velocity_r_per_s);
     value = filter_highpass(&self->dc_filter, g_synth_dc_filter_cutoff_frequency_hz, value);
     if(use_convolution)
     {
         value = filter_convo(&self->convo_filter, value);
     }
-    value = filter_gain(&self->gain_filter, value, self->envelope.gain);
+    value = filter_gain(&self->gain_filter, value, envelope->value);
     value = set_synth_deadzone(value, crankshaft);
     value = clamp_synth(value);
     sample_synth(self, value);

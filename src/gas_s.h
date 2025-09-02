@@ -8,7 +8,6 @@ static constexpr double g_gas_ideal_mol_air_fuel_ratio = 59.5;
 static constexpr double g_gas_ambient_static_temperature_k = 300.0;
 static constexpr double g_gas_ambient_static_pressure_pa = 101325.0;
 static constexpr double g_gas_ambient_static_density_kg_per_m3 = 1.225;
-static constexpr double g_gas_momentum_damping_time_constant_s = 0.5e-3; /* TODO: per engine */
 
 struct gas_s
 {
@@ -197,32 +196,6 @@ static double
 calc_mix(double value1, double weight1, double value2, double weight2)
 {
     return (value1 * weight1 + value2 * weight2) / (weight1 + weight2);
-}
-
-static void
-add_momentum(struct gas_s* self, double momentum_kg_m_per_s)
-{
-    self->momentum_kg_m_per_s += momentum_kg_m_per_s;
-    double momentum_damping_coeffecient = expf(-g_std_dt_s / g_gas_momentum_damping_time_constant_s);
-    self->momentum_kg_m_per_s *= momentum_damping_coeffecient;
-}
-
-static void
-mix_in_gas(struct gas_s* self, const struct gas_s* mail)
-{
-    double self_moles = calc_moles(self);
-    double mail_moles = calc_moles(mail);
-    double self_total_cv_j_per_k = calc_total_cv_j_per_k(self);
-    double mail_total_cv_j_per_k = calc_total_cv_j_per_k(mail);
-    self->mol_ratio_n2 = calc_mix(self->mol_ratio_n2, self_moles, mail->mol_ratio_n2, mail_moles);
-    self->mol_ratio_o2 = calc_mix(self->mol_ratio_o2, self_moles, mail->mol_ratio_o2, mail_moles);
-    self->mol_ratio_ar = calc_mix(self->mol_ratio_ar, self_moles, mail->mol_ratio_ar, mail_moles);
-    self->mol_ratio_c8h18 = calc_mix(self->mol_ratio_c8h18, self_moles, mail->mol_ratio_c8h18, mail_moles);
-    self->mol_ratio_co2 = calc_mix(self->mol_ratio_co2, self_moles, mail->mol_ratio_co2, mail_moles);
-    self->mol_ratio_h2o = calc_mix(self->mol_ratio_h2o, self_moles, mail->mol_ratio_h2o, mail_moles);
-    self->static_temperature_k = calc_mix(self->static_temperature_k, self_total_cv_j_per_k, mail->static_temperature_k, mail_total_cv_j_per_k);
-    self->mass_kg += mail->mass_kg;
-    add_momentum(self, mail->momentum_kg_m_per_s);
 }
 
 static void

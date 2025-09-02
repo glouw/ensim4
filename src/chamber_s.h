@@ -1,4 +1,3 @@
-static constexpr double g_chamber_total_pressure_deadband_pa = 1000.0; /* TODO: per engine */
 static constexpr double g_chamber_c8h18_heat_of_combustion_j_per_mol = 5.47e6;
 static constexpr double g_chamber_ambient_volume_m3 = 1e20;
 
@@ -8,6 +7,7 @@ struct chamber_s
     double volume_m3;
     double nozzle_max_flow_area_m2;
     double nozzle_open_ratio;
+    double gas_momentum_damping_time_constant_s;
     size_t flow_cycles;
     bool should_panic;
 };
@@ -91,11 +91,11 @@ calc_total_temperature_k(const struct chamber_s* self)
  */
 
 static double
-calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
+calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other, double nozzle_total_pressure_deadband_pa)
 {
     double Pt0 = calc_total_pressure_pa(self);
     double Pt1 = calc_total_pressure_pa(other);
-    if(Pt0 - Pt1 < g_chamber_total_pressure_deadband_pa)
+    if(Pt0 - Pt1 < nozzle_total_pressure_deadband_pa)
     {
         return 0.0;
     }
@@ -210,6 +210,14 @@ calc_new_adiabatic_static_temperature_from_volume_delta_k(const struct chamber_s
 }
 
 static void
+add_momentum(struct chamber_s* self, double momentum_kg_m_per_s)
+{
+    self->gas.momentum_kg_m_per_s += momentum_kg_m_per_s;
+    double momentum_damping_coeffecient = expf(-g_std_dt_s / self->gas_momentum_damping_time_constant_s);
+    self->gas.momentum_kg_m_per_s *= momentum_damping_coeffecient;
+}
+
+static void
 remove_gas(struct chamber_s* self, const struct gas_s* mail)
 {
     self->gas.mass_kg -= mail->mass_kg;
@@ -218,7 +226,7 @@ remove_gas(struct chamber_s* self, const struct gas_s* mail)
         self->should_panic = true;
         g_std_panic_message = "negative chamber mass detected";
     }
-    add_momentum(&self->gas, -mail->momentum_kg_m_per_s);
+    add_momentum(self, -mail->momentum_kg_m_per_s);
 }
 
 static void
@@ -275,4 +283,22 @@ combust_c8h18(struct chamber_s* self, double fraction)
     self->gas.mol_ratio_h2o /= mol_ratio;
     double energy_j_per_mol = mol_ratio_c8h18 * g_chamber_c8h18_heat_of_combustion_j_per_mol;
     self->gas.static_temperature_k += energy_j_per_mol / calc_mixed_cv_j_per_mol_k(&self->gas);
+}
+
+static void
+mix_in_gas(struct chamber_s* self, const struct gas_s* mail)
+{
+    double self_moles = calc_moles(&self->gas);
+    double mail_moles = calc_moles(mail);
+    double self_total_cv_j_per_k = calc_total_cv_j_per_k(&self->gas);
+    double mail_total_cv_j_per_k = calc_total_cv_j_per_k(mail);
+    self->gas.mol_ratio_n2 = calc_mix(self->gas.mol_ratio_n2, self_moles, mail->mol_ratio_n2, mail_moles);
+    self->gas.mol_ratio_o2 = calc_mix(self->gas.mol_ratio_o2, self_moles, mail->mol_ratio_o2, mail_moles);
+    self->gas.mol_ratio_ar = calc_mix(self->gas.mol_ratio_ar, self_moles, mail->mol_ratio_ar, mail_moles);
+    self->gas.mol_ratio_c8h18 = calc_mix(self->gas.mol_ratio_c8h18, self_moles, mail->mol_ratio_c8h18, mail_moles);
+    self->gas.mol_ratio_co2 = calc_mix(self->gas.mol_ratio_co2, self_moles, mail->mol_ratio_co2, mail_moles);
+    self->gas.mol_ratio_h2o = calc_mix(self->gas.mol_ratio_h2o, self_moles, mail->mol_ratio_h2o, mail_moles);
+    self->gas.static_temperature_k = calc_mix(self->gas.static_temperature_k, self_total_cv_j_per_k, mail->static_temperature_k, mail_total_cv_j_per_k);
+    self->gas.mass_kg += mail->mass_kg;
+    add_momentum(self, mail->momentum_kg_m_per_s);
 }

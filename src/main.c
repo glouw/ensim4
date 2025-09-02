@@ -80,16 +80,11 @@ get_ticks_ms()
     return SDL_NS_TO_MS(ticks_ns);
 }
 
-static struct sampler_s g_sampler;
+static struct sampler_s g_sampler = {};
 
-static sampler_synth_t g_sampler_synth;
+static sampler_synth_t g_sampler_synth = {};
 
-static struct synth_s g_synth = {
-    .envelope = {
-        .max_gain = g_synth_max_gain,
-        .limiter = g_synth_angular_velocity_limiter_r_per_s,
-    },
-};
+static struct synth_s g_synth = {};
 
 int
 main()
@@ -153,7 +148,6 @@ main()
             engine,
             &engine_time,
             &g_sampler,
-            &g_synth,
             g_sampler_synth,
             audio_buffer_size,
             &widget_time);

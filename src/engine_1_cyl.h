@@ -6,6 +6,7 @@ static constexpr double g_engine_1_cyl_valve_engage_offset_r = -1.0;
 static constexpr double g_engine_1_cyl_sparkplug_engage_offset_r = 0.25;
 static constexpr double g_engine_1_cyl_sparkplug_on_theta_r = (1.0 / 32.0) * g_std_four_pi_r;
 static constexpr double g_engine_1_cyl_0_theta_r = 0.0;
+static constexpr double g_engine_1_cyl_gas_momentum_damping_time_constant_s = 0.5e-3;
 
 static struct node_s g_node_1_cyl[] = {
     [0] = {
@@ -14,6 +15,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = g_chamber_ambient_volume_m3,
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_intake_max_flow_area_m2,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
         },
         .next = {1}
@@ -24,6 +26,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 1e-4,
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_throttle_max_flow_area_m2,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
         },
         .next = {2}
@@ -34,6 +37,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 3e-4,
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_intake_max_flow_area_m2,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
             .valve = {
                 .engage_r = g_engine_1_cyl_0_theta_r + g_engine_intake_stroke_theta_r + g_engine_1_cyl_valve_engage_offset_r,
@@ -48,6 +52,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 1e-4,
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_injector_max_flow_area_m2,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
             .nozzle_index = 2,
         },
@@ -58,6 +63,7 @@ static struct node_s g_node_1_cyl[] = {
         .as.piston = {
             .chamber = {
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_exhaust_max_flow_area_m2,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
             .valve = {
                 .engage_r = g_engine_1_cyl_0_theta_r + g_engine_exhaust_stroke_theta_r + g_engine_1_cyl_valve_engage_offset_r,
@@ -86,6 +92,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 1.5e-4,
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_exhaust_max_flow_area_m2,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
         },
         .next = {6}
@@ -96,6 +103,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 3e-4,
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_exhaust_max_flow_area_m2,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
             .wave_index = 0,
         },
@@ -107,6 +115,7 @@ static struct node_s g_node_1_cyl[] = {
             .chamber = {
                 .volume_m3 = 6e-4,
                 .nozzle_max_flow_area_m2 = g_engine_1_cyl_exhaust_max_flow_area_m2,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
         },
         .next = {8}
@@ -116,6 +125,7 @@ static struct node_s g_node_1_cyl[] = {
         .as.sink = {
             .chamber = {
                 .volume_m3 = g_chamber_ambient_volume_m3,
+                .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
         },
         .next = {}
@@ -142,4 +152,9 @@ static struct engine_s g_engine_1_cyl = {
         .no_load_angular_velocity_r_per_s = 900.0,
         .radius_m = 0.015,
     },
+    .envelope = {
+        .max_value = 0.5,
+        .limiter = 1000.0,
+    },
+    .nozzle_total_pressure_deadband_pa = 1000.0,
 };
