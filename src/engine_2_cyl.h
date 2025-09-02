@@ -240,4 +240,9 @@ static struct engine_s g_engine_2_cyl = {
         .limiter = 1200.0,
     },
     .nozzle_total_pressure_deadband_pa = 500.0,
+    .no_throttle = 0.0,
+    .low_throttle = 0.05,
+    .mid_throttle = 0.20,
+    .high_throttle = 0.99,
+    .radial_spacing = 3.5,
 };

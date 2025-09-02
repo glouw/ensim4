@@ -132,6 +132,7 @@ main()
             &g_r_per_s_progress_bar,
             &g_frames_per_sec_progress_bar,
             &g_synth_envelope_progress_bar,
+            &g_throttle_progress_bar,
             &g_starter_panel_r_per_s,
             &g_convolution_panel_time_domain,
             g_wave_panel,

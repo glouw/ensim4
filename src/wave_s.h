@@ -1,5 +1,5 @@
-static constexpr size_t g_wave_cells = 48;
-static constexpr size_t g_wave_substeps = 4;
+static constexpr size_t g_wave_cells = 128;
+static constexpr size_t g_wave_substeps = 10;
 static constexpr size_t g_flux_cells = g_wave_cells + 1;
 static constexpr size_t g_wave_signal_cell_index = 0;
 static constexpr size_t g_wave_first_interior_cell_index = 1;
@@ -10,7 +10,7 @@ static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_w
 static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
 static constexpr double g_wave_mic_position_ratio = 1.00;
-static constexpr double g_wave_pipe_length_m = 0.6;
+static constexpr double g_wave_pipe_length_m = 0.6; /* TODO: per engine */
 static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
 static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
 
@@ -120,7 +120,7 @@ calc_solver_flux(struct wave_prim_s ql, struct wave_prim_s qr)
     double a = fmax(fabs(ql.u) + cl, fabs(qr.u) + cr);
     /*
      *       1               1
-     * FC = --- (FL + FR) - --- a *(UR - UL)
+     * FC = --- (FL + FR) - --- a * (UR - UL)
      *       2               2
      */
     return (struct wave_flux_s) {
@@ -260,7 +260,7 @@ batch_step_wave(size_t wave_index, bool use_cfd)
             step_solver_wave(&self->solver, self->data.buffer1[i]);
             self->data.wave_sub_buffer_pa[i] = sample_solver_wave(&self->solver);
         }
-        else /* just pass through */
+        else
         {
             self->data.wave_sub_buffer_pa[i] = self->data.buffer1[i].p;
         }

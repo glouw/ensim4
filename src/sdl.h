@@ -6,10 +6,8 @@ static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
 static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
 static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
-static constexpr float g_sdl_radial_spacing = 2.2f;
-static constexpr float g_sdl_column_width_ratio = 0.5f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_sdl_plot_lowpass_filter_hz = 1000.0f;
+static constexpr float g_sdl_plot_lowpass_filter_hz = 2000.0f;
 static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
 static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
 static constexpr float g_sdl_piston_space_p = 4.0;
@@ -49,11 +47,11 @@ static constexpr SDL_FColor g_sdl_black_color = {
 };
 
 static constexpr SDL_FColor g_sdl_dark_line_color = {
-    0.18f, 0.18f, 0.18f, 1.0f
+    0.15f, 0.15f, 0.15f, 1.0f
 };
 
 static constexpr SDL_FColor g_sdl_line_color = {
-    0.25f, 0.25f, 0.25f, 1.0f
+    0.28f, 0.28f, 0.28f, 1.0f
 };
 
 static constexpr SDL_FColor g_sdl_container_color = {
@@ -216,7 +214,7 @@ present_renderer()
 static float
 calc_radial_radius_p(const struct engine_s* engine)
 {
-    return g_sdl_radial_spacing * (engine->size * g_sdl_node_w_p) / (2.0f * g_std_pi_r);
+    return engine->radial_spacing * (engine->size * g_sdl_node_w_p) / (2.0f * g_std_pi_r);
 }
 
 static float
@@ -228,7 +226,7 @@ calc_radial_diameter_p(const struct engine_s* engine)
 static float
 calc_plot_column_width_p(const struct engine_s* engine)
 {
-    return g_sdl_column_width_ratio * (g_sdl_xres_p - calc_radial_diameter_p(engine)) / 2.0f;
+    return (g_sdl_xres_p - calc_radial_diameter_p(engine)) / 2.0f - 1.5f * g_sdl_supported_widget_w_p;
 }
 
 static SDL_FPoint
@@ -293,7 +291,7 @@ draw_radial_lines(const struct engine_s* engine, const SDL_FPoint points[], size
                 g_sdl_line_color,
                 node->as.chamber.nozzle_open_ratio);
             SDL_FColor final_color = node->is_next_selected
-                ? get_channel_color(7)
+                ? get_channel_color(6)
                 : open_color;
             draw_line(from, to, final_color);
         }
@@ -703,7 +701,8 @@ draw_right_info(
     struct sdl_panel_s wave_panel[],
     size_t wave_panel_size,
     struct sdl_panel_s* synth_sample_panel,
-    struct sdl_progress_bar_s* synth_envelope_progress_bar)
+    struct sdl_progress_bar_s* synth_envelope_progress_bar,
+    struct sdl_progress_bar_s* throttle_progress_bar)
 {
     struct sdl_scroll_s scroll = {
         .x_p = g_sdl_xres_p - calc_plot_column_width_p(engine) - g_sdl_line_spacing_p - g_sdl_supported_widget_w_p,
@@ -715,6 +714,7 @@ draw_right_info(
     draw_right_info_waves(engine, wave_panel, wave_panel_size, &scroll);
     draw_panel_info(synth_sample_panel, &scroll);
     draw_progress_bar_info(synth_envelope_progress_bar, &scroll);
+    draw_progress_bar_info(throttle_progress_bar, &scroll);
 }
 
 static void
@@ -812,6 +812,7 @@ draw_to_renderer(
     struct sdl_progress_bar_s* r_per_s_progress_bar,
     struct sdl_progress_bar_s* frames_per_sec_progress_bar,
     struct sdl_progress_bar_s* synth_envelope_progress_bar,
+    struct sdl_progress_bar_s* throttle_progress_bar,
     struct sdl_panel_s* starter_panel_r_per_s,
     struct sdl_panel_s* convolution_panel_time_domain,
     struct sdl_panel_s wave_panel[],
@@ -822,7 +823,7 @@ draw_to_renderer(
     draw_plots(engine, sampler);
     draw_radial_chambers(engine);
     draw_left_info(engine, loop_time_panel, engine_time_panel, audio_buffer_time_panel, frames_per_sec_progress_bar);
-    draw_right_info(engine, starter_panel_r_per_s, convolution_panel_time_domain, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel, synth_envelope_progress_bar);
+    draw_right_info(engine, starter_panel_r_per_s, convolution_panel_time_domain, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel, synth_envelope_progress_bar, throttle_progress_bar);
     draw_pistons(engine);
     draw_panic_message();
 }
@@ -848,16 +849,16 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
                 engine->can_ignite ^= true;
                 break;
             case SDLK_H:
-                engine->throttle_open_ratio = 0.00;
+                engine->throttle_open_ratio = engine->no_throttle;
                 break;
             case SDLK_J:
-                engine->throttle_open_ratio = 0.05;
+                engine->throttle_open_ratio = engine->low_throttle;
                 break;
             case SDLK_K:
-                engine->throttle_open_ratio = 0.20;
+                engine->throttle_open_ratio = engine->mid_throttle;
                 break;
             case SDLK_L:
-                engine->throttle_open_ratio = 0.99;
+                engine->throttle_open_ratio = engine->high_throttle;
                 break;
             case SDLK_Y:
                 enable_engine_cfd(engine, engine->use_cfd ^= true);

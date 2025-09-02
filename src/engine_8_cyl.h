@@ -556,4 +556,5 @@ static struct engine_s g_engine_8_cyl = {
         .no_load_angular_velocity_r_per_s = 500.0,
         .radius_m = 0.015,
     },
+    .radial_spacing = 2.5,
 };

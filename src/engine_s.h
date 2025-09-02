@@ -16,6 +16,11 @@ struct engine_s
     struct envelope_s envelope;
     double throttle_open_ratio;
     double nozzle_total_pressure_deadband_pa;
+    double no_throttle;
+    double low_throttle;
+    double mid_throttle;
+    double high_throttle;
+    double radial_spacing;
     bool use_cfd;
     bool use_convolution;
     bool can_ignite;

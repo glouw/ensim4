@@ -58,8 +58,8 @@ static constexpr double g_gamma_cp_weights_upper_h2o[] = {
 
 /* eq. 1, [1, p. 43]
  *
- *                 -2         -1         0          1          2          3          4
- * cp = R * [a0 * T   + a1 * T   + a2 * T   + a3 * T   + a4 * T   + a5 * T   + a6 * T ]
+ *                 -2       -1        0        1        2        3        4
+ * cp = R * [ a0 * T + a1 * T + a2 * T + a3 * T + a4 * T + a5 * T + a6 * T ]
  *
  */
 
