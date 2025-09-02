@@ -3,6 +3,7 @@ struct normalized_s
     float max_value;
     float avg_value;
     float min_value;
+    float div_value;
     bool is_success;
 };
 
@@ -32,6 +33,7 @@ normalize_samples(float samples[], size_t size)
     {
         return normalized;
     }
+    normalized.div_value = normalized.max_value / normalized.min_value;
     for(size_t i = 0; i < size; i++)
     {
         samples[i] = (samples[i] - normalized.min_value) / range;

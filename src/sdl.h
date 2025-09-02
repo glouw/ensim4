@@ -1,4 +1,4 @@
-static const char* const g_sdl_title = "ENSIM4";
+static const char* const g_sdl_title = "ensim4";
 static constexpr bool g_sdl_use_full_screen = true;
 static constexpr float g_sdl_xres_p = 1920.0f;
 static constexpr float g_sdl_yres_p = 1080.0f;
@@ -9,7 +9,7 @@ static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr float g_sdl_radial_spacing = 2.2f;
 static constexpr float g_sdl_column_width_ratio = 0.5f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_sdl_plot_lowpass_filter_hz = 5000.0f;
+static constexpr float g_sdl_plot_lowpass_filter_hz = 1000.0f;
 static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
 static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
 static constexpr float g_sdl_piston_space_p = 4.0;
@@ -399,8 +399,8 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
         size_t sampler_size = sampler->size;
         copy_samples(samples, sampler->channel[channel][sample_name], sampler_size);
         sampler_size = down_sample_samples(samples, sampler_size, g_sdl_max_display_samples, &step);
-        cleanup_samples(samples, sampler_size);
         struct normalized_s normalized = normalize_samples(samples, sampler_size);
+        cleanup_samples(samples, sampler_size);
         const SDL_FRect* rect = &rects[sample_name];
         struct
         {
@@ -408,11 +408,14 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
             float value;
         }
         lines[] = {
-            { "stp: %0.0f", step },
             { "max: %+.3e", normalized.max_value },
-            { "avg: %+.3e", normalized.avg_value },
             { "min: %+.3e", normalized.min_value },
-            { "div: %3.3f", normalized.min_value < 1e-6 ? 0.0 : normalized.max_value / normalized.min_value },
+            { "div: %3.3f", normalized.div_value },
+#if 0
+            /* Nice to have, but takes up too much real estate */
+            { "stp: %0.0f", step },
+            { "avg: %+.3e", normalized.avg_value },
+#endif
         };
         if(channel == sampler->channel_index - 1)
         {
@@ -684,7 +687,6 @@ draw_right_info_waves(
                 break;
             }
             struct sdl_panel_s* panel = &wave_panel[wave_index];
-            panel->panic = wave->solver.should_panic;
             push_panel_prim(panel, wave->solver.prim, g_wave_cells);
             draw_panel_info(panel, scroll);
             wave_index++;

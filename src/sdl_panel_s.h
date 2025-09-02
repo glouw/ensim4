@@ -46,4 +46,5 @@ push_panel_prim(struct sdl_panel_s* self, struct wave_prim_s prim[], size_t size
     }
     self->size = size;
     self->normalized = normalize_samples(self->sample, self->size);
+    self->panic = self->normalized.is_success == false;
 }

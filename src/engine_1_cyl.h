@@ -156,5 +156,5 @@ static struct engine_s g_engine_1_cyl = {
         .max_value = 0.5,
         .limiter = 1000.0,
     },
-    .nozzle_total_pressure_deadband_pa = 1000.0,
+    .nozzle_total_pressure_deadband_pa = 100.0,
 };

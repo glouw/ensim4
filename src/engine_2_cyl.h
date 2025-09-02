@@ -216,7 +216,7 @@ static struct node_s g_node_2_cyl[] = {
 };
 
 static struct engine_s g_engine_2_cyl = {
-    "twin",
+    "parallel twin",
     engine_is(g_node_2_cyl),
     .crankshaft = {
         .mass_kg = 1.0,
@@ -239,5 +239,5 @@ static struct engine_s g_engine_2_cyl = {
         .max_value = 0.5,
         .limiter = 1200.0,
     },
-    .nozzle_total_pressure_deadband_pa = 1000.0,
+    .nozzle_total_pressure_deadband_pa = 500.0,
 };

@@ -75,10 +75,10 @@ static struct sdl_panel_s g_convolution_panel_time_domain = {
 };
 
 static struct sdl_panel_s g_wave_panel[] = {
-    { .title = "hllc_wave_0_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
-    { .title = "hllc_wave_1_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
-    { .title = "hllc_wave_2_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
-    { .title = "hllc_wave_3_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
+    { .title = "wave_0_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
+    { .title = "wave_1_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
+    { .title = "wave_2_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
+    { .title = "wave_3_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
 };
 
 static constexpr size_t g_wave_panel_size = len(g_wave_panel);

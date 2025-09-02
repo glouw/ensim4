@@ -1,10 +1,10 @@
-static constexpr size_t g_wave_cells = 64;
+static constexpr size_t g_wave_cells = 48;
+static constexpr size_t g_wave_substeps = 4;
 static constexpr size_t g_flux_cells = g_wave_cells + 1;
 static constexpr size_t g_wave_signal_cell_index = 0;
 static constexpr size_t g_wave_first_interior_cell_index = 1;
 static constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
 static constexpr size_t g_wave_ambient_cell_index = g_wave_cells - 1;
-static constexpr size_t g_wave_substeps = 5;
 static constexpr size_t g_wave_max_waves = 16;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.31;
@@ -20,23 +20,32 @@ static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_
 
 struct wave_prim_s
 {
-    double r; /* static_density_kg_per_m3 */
-    double u; /* velocity_m_per_s */
-    double p; /* static_pressure_pa */
+    /* static_density_kg_per_m3 */
+    double r;
+    /* velocity_m_per_s */
+    double u;
+    /* static_pressure_pa */
+    double p;
 };
 
 struct wave_cons_s
 {
-    double r; /* static_density_kg_per_m3 */
-    double m; /* momentum_density_kg_per_m2_s */
-    double e; /* total_energy_density_j_per_m_3 */
+    /* static_density_kg_per_m3 */
+    double r;
+    /* momentum_density_kg_per_m2_s */
+    double m;
+    /* total_energy_density_j_per_m_3 */
+    double e;
 };
 
 struct wave_flux_s
 {
-    double r; /* mass_flux_kg_per_m2_s */
-    double m; /* momentum_flux_n_per_m2 */
-    double e; /* energy_flux_w_per_m2 */
+    /* mass_flux_kg_per_m2_s */
+    double r;
+    /* momentum_flux_n_per_m2 */
+    double m;
+    /* energy_flux_w_per_m2 */
+    double e;
 };
 
 struct wave_solver_s
@@ -44,7 +53,6 @@ struct wave_solver_s
     struct wave_prim_s prim[g_wave_cells];
     struct wave_cons_s cons[g_wave_cells];
     struct wave_flux_s flux[g_flux_cells];
-    bool should_panic;
 };
 
 struct wave_data_s
@@ -70,7 +78,7 @@ static constexpr struct wave_prim_s g_wave_ambient_cell = {
     .p = g_gas_ambient_static_pressure_pa,
 };
 
-static inline struct wave_cons_s
+static struct wave_cons_s
 prim_to_cons(struct wave_prim_s self)
 {
     /*       p      1         2
@@ -84,7 +92,7 @@ prim_to_cons(struct wave_prim_s self)
     };
 }
 
-static inline struct wave_prim_s
+static struct wave_prim_s
 cons_to_prim(struct wave_cons_s self)
 {
     /*                  2
@@ -101,7 +109,7 @@ cons_to_prim(struct wave_cons_s self)
 }
 
 static struct wave_flux_s
-calc_solver_flux(struct wave_solver_s* self, struct wave_prim_s ql, struct wave_prim_s qr)
+calc_solver_flux(struct wave_prim_s ql, struct wave_prim_s qr)
 {
     struct wave_cons_s ul = prim_to_cons(ql);
     struct wave_cons_s ur = prim_to_cons(qr);
@@ -110,21 +118,16 @@ calc_solver_flux(struct wave_solver_s* self, struct wave_prim_s ql, struct wave_
     struct wave_flux_s fl = { .r = ul.m, .m = ul.m * ql.u + ql.p, .e = (ul.e + ql.p) * ql.u };
     struct wave_flux_s fr = { .r = ur.m, .m = ur.m * qr.u + qr.p, .e = (ur.e + qr.p) * qr.u };
     double a = fmax(fabs(ql.u) + cl, fabs(qr.u) + cr);
-    if(a > g_wave_max_wave_speed_m_per_s)
-    {
-        g_std_panic_message = "wave flux solver exceeded max speed";
-        self->should_panic = true;
-    }
-    /*       1               1
+    /*
+     *       1               1
      * FC = --- (FL + FR) - --- a *(UR - UL)
      *       2               2
      */
-    struct wave_flux_s flux = {
+    return (struct wave_flux_s) {
         .r = 0.5 * (fl.r + fr.r) - 0.5 * a * (ur.r - ul.r),
         .m = 0.5 * (fl.m + fr.m) - 0.5 * a * (ur.m - ul.m),
         .e = 0.5 * (fl.e + fr.e) - 0.5 * a * (ur.e - ul.e),
     };
-    return flux;
 }
 
 static void
@@ -133,13 +136,13 @@ compute_wave_flux(struct wave_solver_s* self)
     size_t l = g_wave_signal_cell_index;
     size_t r = g_wave_cells;
     size_t z = g_wave_ambient_cell_index;
-    self->flux[l] = calc_solver_flux(self, self->prim[l], self->prim[l]);
-    self->flux[r] = calc_solver_flux(self, self->prim[z], self->prim[z]);
+    self->flux[l] = calc_solver_flux(self->prim[l], self->prim[l]);
+    self->flux[r] = calc_solver_flux(self->prim[z], self->prim[z]);
     for(size_t i = 1; i < g_wave_cells; i++)
     {
         size_t x = i - 1;
         size_t y = i;
-        self->flux[y] = calc_solver_flux(self, self->prim[x], self->prim[y]);
+        self->flux[y] = calc_solver_flux(self->prim[x], self->prim[y]);
     }
 }
 
