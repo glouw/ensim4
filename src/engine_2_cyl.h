@@ -24,6 +24,7 @@ static constexpr double g_engine_2_cyl_piston_head_compression_height_m = 0.018;
 static constexpr double g_engine_2_cyl_piston_head_clearance_height_m = 0.007;
 static constexpr double g_engine_2_cyl_gas_momentum_damping_time_constant_s = 0.5e-3;
 static constexpr double g_engine_2_cyl_runner_gas_momentum_damping_time_constant_s = 2.0 * g_engine_2_cyl_gas_momentum_damping_time_constant_s;
+static constexpr double g_engine_2_cyl_eplenum_pipe_length_m = 0.9;
 
 static struct node_s g_node_2_cyl[] = {
     [0] = {
@@ -189,6 +190,7 @@ static struct node_s g_node_2_cyl[] = {
                 .gas_momentum_damping_time_constant_s = g_engine_2_cyl_gas_momentum_damping_time_constant_s,
             },
             .wave_index = 0,
+            .pipe_length_m = g_engine_2_cyl_eplenum_pipe_length_m,
         },
         .next = {11}
     },

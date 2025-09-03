@@ -10,9 +10,6 @@ static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_w
 static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
 static constexpr double g_wave_mic_position_ratio = 1.00;
-static constexpr double g_wave_pipe_length_m = 0.6; /* TODO: per engine */
-static constexpr double g_wave_dx_m = g_wave_pipe_length_m / g_wave_cells;
-static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_s;
 
 /*
  * Units and longform names were ommited from variable names to simplify readability.
@@ -20,31 +17,55 @@ static constexpr double g_wave_max_wave_speed_m_per_s = g_wave_dx_m / g_wave_dt_
 
 struct wave_prim_s
 {
-    /* static_density_kg_per_m3 */
+    /*
+     * static_density_kg_per_m3
+     */
     double r;
-    /* velocity_m_per_s */
+
+    /*
+     * velocity_m_per_s
+     */
     double u;
-    /* static_pressure_pa */
+
+    /*
+     * static_pressure_pa
+     */
     double p;
 };
 
 struct wave_cons_s
 {
-    /* static_density_kg_per_m3 */
+    /*
+     * static_density_kg_per_m3
+     */
     double r;
-    /* momentum_density_kg_per_m2_s */
+
+    /*
+     * momentum_density_kg_per_m2_s
+     */
     double m;
-    /* total_energy_density_j_per_m_3 */
+
+    /*
+     * total_energy_density_j_per_m_3
+     */
     double e;
 };
 
 struct wave_flux_s
 {
-    /* mass_flux_kg_per_m2_s */
+    /*
+     * mass_flux_kg_per_m2_s
+     */
     double r;
-    /* momentum_flux_n_per_m2 */
+
+    /*
+     * momentum_flux_n_per_m2
+     */
     double m;
-    /* energy_flux_w_per_m2 */
+
+    /*
+     * energy_flux_w_per_m2
+     */
     double e;
 };
 
@@ -67,6 +88,8 @@ struct wave_s
 {
     struct wave_data_s data;
     struct wave_solver_s solver;
+    double max_wave_speed_m_per_s;
+    double pipe_length_m;
 }
 g_wave_table[g_wave_max_waves] = {};
 
@@ -147,15 +170,15 @@ compute_wave_flux(struct wave_solver_s* self)
 }
 
 static void
-update_wave_state(struct wave_solver_s* self)
+update_wave_state(struct wave_solver_s* self, double gradient_s_per_m)
 {
     for(size_t i = 1; i < g_wave_ambient_cell_index; i++)
     {
         size_t x = i;
         size_t y = i + 1;
-        self->cons[x].r -= g_wave_dt_s / g_wave_dx_m * (self->flux[y].r - self->flux[x].r);
-        self->cons[x].m -= g_wave_dt_s / g_wave_dx_m * (self->flux[y].m - self->flux[x].m);
-        self->cons[x].e -= g_wave_dt_s / g_wave_dx_m * (self->flux[y].e - self->flux[x].e);
+        self->cons[x].r -= gradient_s_per_m * (self->flux[y].r - self->flux[x].r);
+        self->cons[x].m -= gradient_s_per_m * (self->flux[y].m - self->flux[x].m);
+        self->cons[x].e -= gradient_s_per_m * (self->flux[y].e - self->flux[x].e);
         self->prim[x] = cons_to_prim(self->cons[x]);
     }
 }
@@ -168,7 +191,7 @@ set_solver_wave_cell(struct wave_solver_s* self, size_t index, struct wave_prim_
 }
 
 static void
-step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell)
+step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, double gradient_s_per_m)
 {
     if(signal_cell.u == 0.0)
     {
@@ -189,7 +212,7 @@ step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell)
         set_solver_wave_cell(self, g_wave_signal_cell_index, signal_cell);
         set_solver_wave_cell(self, g_wave_ambient_cell_index, ambient_cell);
         compute_wave_flux(self);
-        update_wave_state(self);
+        update_wave_state(self, gradient_s_per_m);
     }
 }
 
@@ -250,14 +273,18 @@ flip_wave(size_t wave_index)
 }
 
 static void
-batch_step_wave(size_t wave_index, bool use_cfd)
+batch_wave(size_t wave_index, bool use_cfd, double pipe_length_m)
 {
     struct wave_s* self = &g_wave_table[wave_index];
+    double wave_dx_m = pipe_length_m / g_wave_cells;
+    double gradient_s_per_m = g_wave_dt_s / wave_dx_m;
+    self->max_wave_speed_m_per_s = wave_dx_m / g_wave_dt_s;
+    self->pipe_length_m = pipe_length_m;
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
         if(use_cfd)
         {
-            step_solver_wave(&self->solver, self->data.buffer1[i]);
+            step_solver_wave(&self->solver, self->data.buffer1[i], gradient_s_per_m);
             self->data.wave_sub_buffer_pa[i] = sample_solver_wave(&self->solver);
         }
         else

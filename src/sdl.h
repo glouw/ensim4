@@ -7,7 +7,7 @@ static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
 static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_sdl_plot_lowpass_filter_hz = 2000.0f;
+static constexpr float g_sdl_plot_lowpass_filter_hz = 800.0f;
 static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
 static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
 static constexpr float g_sdl_piston_space_p = 4.0;
@@ -226,7 +226,7 @@ calc_radial_diameter_p(const struct engine_s* engine)
 static float
 calc_plot_column_width_p(const struct engine_s* engine)
 {
-    return (g_sdl_xres_p - calc_radial_diameter_p(engine)) / 2.0f - 1.5f * g_sdl_supported_widget_w_p;
+    return (g_sdl_xres_p - calc_radial_diameter_p(engine)) / 2.0f - 1.4f * g_sdl_supported_widget_w_p;
 }
 
 static SDL_FPoint
@@ -555,7 +555,6 @@ draw_general_info(struct sdl_scroll_s* scroll)
         { "monitor_hz: %.0f", g_std_monitor_refresh_rate },
         { "node_s_bytes: %.0f", sizeof(struct node_s) },
         { "supported_channels: %.0f", g_sampler_max_channels },
-        { "max_wave_speed_m_per_s: %.0f", g_wave_max_wave_speed_m_per_s },
     };
     for(size_t i = 0; i < len(lines); i++)
     {
@@ -687,6 +686,9 @@ draw_right_info_waves(
             struct sdl_panel_s* panel = &wave_panel[wave_index];
             push_panel_prim(panel, wave->solver.prim, g_wave_cells);
             draw_panel_info(panel, scroll);
+            SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "max_m_per_s %.2f", wave->max_wave_speed_m_per_s);
+            SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "pipe_len_m %.2f", wave->pipe_length_m);
+            newline(scroll);
             wave_index++;
         }
     }

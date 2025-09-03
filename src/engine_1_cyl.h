@@ -19,6 +19,7 @@ static constexpr double g_engine_1_cyl_piston_head_mass_density_kg_per_m3 = 7800
 static constexpr double g_engine_1_cyl_piston_head_compression_height_m = 0.0143;
 static constexpr double g_engine_1_cyl_piston_head_clearance_height_m = 0.007;
 static constexpr double g_engine_1_cyl_gas_momentum_damping_time_constant_s = 1.5e-3;
+static constexpr double g_engine_1_cyl_eplenum_pipe_length_m = 0.6;
 
 static struct node_s g_node_1_cyl[] = {
     [0] = {
@@ -117,6 +118,7 @@ static struct node_s g_node_1_cyl[] = {
                 .gas_momentum_damping_time_constant_s = g_engine_1_cyl_gas_momentum_damping_time_constant_s,
             },
             .wave_index = 0,
+            .pipe_length_m = g_engine_1_cyl_eplenum_pipe_length_m,
         },
         .next = {7}
     },
@@ -149,12 +151,12 @@ static struct engine_s g_engine_1_cyl = {
     },
     .starter = {
         .rated_torque_n_m = 30.0,
-        .no_load_angular_velocity_r_per_s = 600.0,
+        .no_load_angular_velocity_r_per_s = 500.0,
         .radius_m = 0.015,
     },
     .envelope = {
         .max_value = 0.5,
-        .limiter = 700.0,
+        .limiter = 1000.0,
     },
     .nozzle_total_pressure_deadband_pa = 1.0,
     .no_throttle = 0.0025,

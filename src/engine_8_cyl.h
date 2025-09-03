@@ -444,6 +444,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.006
             },
             .wave_index = 0,
+            .pipe_length_m = 0.6,
         },
         .next = {32}
     },
@@ -456,6 +457,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.006
             },
             .wave_index = 1,
+            .pipe_length_m = 0.6,
         },
         .next = {33}
     },
@@ -468,6 +470,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.006
             },
             .wave_index = 2,
+            .pipe_length_m = 0.6,
         },
         .next = {34}
     },
@@ -480,6 +483,7 @@ static struct node_s g_node_8_cyl[] = {
                 .nozzle_max_flow_area_m2 = 0.006
             },
             .wave_index = 3,
+            .pipe_length_m = 0.6,
         },
         .next = {35}
     },
@@ -556,5 +560,5 @@ static struct engine_s g_engine_8_cyl = {
         .no_load_angular_velocity_r_per_s = 500.0,
         .radius_m = 0.015,
     },
-    .radial_spacing = 2.5,
+    .radial_spacing = 2.25,
 };
