@@ -7,7 +7,7 @@ static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
 static constexpr float g_sdl_node_w_p = 32.0f;
 static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
 static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_sdl_plot_lowpass_filter_hz = 800.0f;
+static constexpr float g_sdl_plot_lowpass_filter_hz = 1000.0f;
 static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
 static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
 static constexpr float g_sdl_piston_space_p = 4.0;
@@ -349,13 +349,13 @@ static void
 cleanup_samples(float samples[], size_t size)
 {
     float first = samples[0];
-    struct lowpass_filter_s lowpass_filter = {
+    struct lowpass_filter_s filter = {
         .prev_input = first,
         .prev_output = first,
     };
     for(size_t i = 0; i < size; i++)
     {
-        samples[i] = filter_lowpass(&lowpass_filter, g_sdl_plot_lowpass_filter_hz, samples[i]);
+        samples[i] = filter_lowpass(&filter, g_sdl_plot_lowpass_filter_hz, samples[i]);
     }
 }
 

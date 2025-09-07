@@ -16,8 +16,9 @@
 #include "normalized_s.h"
 #include "gain_filter_s.h"
 #include "convo_filter_s.h"
-#include "lowpass_filter_s.h"
+#include "butterworth_s.h"
 #include "highpass_filter_s.h"
+#include "lowpass_filter_s.h"
 
 /* engine fluids */
 #include "gamma.h"

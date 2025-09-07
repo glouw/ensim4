@@ -9,9 +9,9 @@ static constexpr double g_engine_2_cyl_0_theta_r = (0.0 / 4.0) * g_std_four_pi_r
 static constexpr double g_engine_2_cyl_1_theta_r = (1.0 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_2_cyl_channel_volume_m3 = 1.2e-4;
 static constexpr double g_engine_2_cyl_junction_volume_m3 = g_engine_2_cyl_channel_volume_m3 * g_engine_2_cyl_channel_count;
-static constexpr double g_engine_2_cyl_valve_ramp_r = (0.85 / 4.0) * g_std_four_pi_r;
-static constexpr double g_engine_2_cyl_intake_stroke_theta_r = g_engine_intake_stroke_theta_r - (0.2 / 4.0) * g_std_four_pi_r;
-static constexpr double g_engine_2_cyl_exhaust_stroke_theta_r = g_engine_exhaust_stroke_theta_r - (0.2 / 4.0) * g_std_four_pi_r;
+static constexpr double g_engine_2_cyl_valve_ramp_r = (0.80 / 4.0) * g_std_four_pi_r;
+static constexpr double g_engine_2_cyl_intake_stroke_theta_r = g_engine_intake_stroke_theta_r - (0.1 / 4.0) * g_std_four_pi_r;
+static constexpr double g_engine_2_cyl_exhaust_stroke_theta_r = g_engine_exhaust_stroke_theta_r - (0.3 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_2_cyl_power_stroke_theta_r = g_engine_power_stroke_theta_r + (0.1 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_2_cyl_piston_dynamic_friction_coefficient_n_m_s_per_r = 0.01;
 static constexpr double g_engine_2_cyl_piston_static_friction_coefficient_n_m_s_per_r = 0.9;
@@ -22,7 +22,7 @@ static constexpr double g_engine_2_cyl_piston_connecting_rod_mass_kg = 0.4;
 static constexpr double g_engine_2_cyl_piston_head_mass_density_kg_per_m3 = 7800.0;
 static constexpr double g_engine_2_cyl_piston_head_compression_height_m = 0.018;
 static constexpr double g_engine_2_cyl_piston_head_clearance_height_m = 0.007;
-static constexpr double g_engine_2_cyl_gas_momentum_damping_time_constant_s = 0.5e-3;
+static constexpr double g_engine_2_cyl_gas_momentum_damping_time_constant_s = 0.25e-3;
 static constexpr double g_engine_2_cyl_runner_gas_momentum_damping_time_constant_s = 2.0 * g_engine_2_cyl_gas_momentum_damping_time_constant_s;
 static constexpr double g_engine_2_cyl_eplenum_pipe_length_m = 0.9;
 
@@ -225,7 +225,7 @@ static struct engine_s g_engine_2_cyl = {
         .radius_m = 0.04,
     },
     .flywheel = {
-        .mass_kg = 2.3,
+        .mass_kg = 2.1,
         .radius_m = 0.07,
     },
     .limiter = {
@@ -239,9 +239,9 @@ static struct engine_s g_engine_2_cyl = {
     },
     .envelope = {
         .max_value = 0.5,
-        .limiter = 1200.0,
+        .limiter = 500.0,
     },
-    .nozzle_total_pressure_deadband_pa = 500.0,
+    .nozzle_total_pressure_deadband_pa = 1000.0,
     .no_throttle = 0.0,
     .low_throttle = 0.05,
     .mid_throttle = 0.20,

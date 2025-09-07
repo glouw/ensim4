@@ -9,7 +9,7 @@ static constexpr size_t g_wave_max_waves = 16;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
-static constexpr double g_wave_mic_position_ratio = 1.00;
+static constexpr double g_wave_mic_position_ratio = 0.1;
 
 /*
  * Units and longform names were ommited from variable names to simplify readability.

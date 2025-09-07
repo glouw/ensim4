@@ -9,7 +9,7 @@ static constexpr double g_engine_1_cyl_exhaust_valve_ramp_r = (0.5 / 4.0) * g_st
 static constexpr double g_engine_1_cyl_intake_stroke_theta_r = g_engine_intake_stroke_theta_r + (0.0 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_1_cyl_exhaust_stroke_theta_r = g_engine_exhaust_stroke_theta_r + (0.2 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_1_cyl_power_stroke_theta_r = g_engine_power_stroke_theta_r + (0.15 / 4.0) * g_std_four_pi_r;
-static constexpr double g_engine_1_cyl_piston_dynamic_friction_coefficient_n_m_s_per_r = 0.025;
+static constexpr double g_engine_1_cyl_piston_dynamic_friction_coefficient_n_m_s_per_r = 0.02;
 static constexpr double g_engine_1_cyl_piston_static_friction_coefficient_n_m_s_per_r = 0.9;
 static constexpr double g_engine_1_cyl_piston_diameter_m = 0.096;
 static constexpr double g_engine_1_cyl_piston_crank_throw_length_m = 0.03105;
@@ -156,9 +156,9 @@ static struct engine_s g_engine_1_cyl = {
     },
     .envelope = {
         .max_value = 0.5,
-        .limiter = 1000.0,
+        .limiter = 500.0,
     },
-    .nozzle_total_pressure_deadband_pa = 1.0,
+    .nozzle_total_pressure_deadband_pa = 100.0,
     .no_throttle = 0.0025,
     .low_throttle = 0.20,
     .mid_throttle = 0.50,
