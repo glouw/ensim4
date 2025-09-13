@@ -96,7 +96,7 @@ visualize_chamber_s()
     FILE* file_flow = fopen("visualize/chamber_s_flow.txt", "w");
     for(size_t cycle = 0; cycle < 3'000; cycle++)
     {
-        struct nozzle_flow_s nozzle_flow = flow(&x, &y, 0.0);
+        struct nozzle_flow_s nozzle_flow = flow(&x, &y);
         if(nozzle_flow.is_success)
         {
             mail_gas_mail(&nozzle_flow.gas_mail);

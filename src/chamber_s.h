@@ -81,6 +81,12 @@ calc_total_temperature_k(const struct chamber_s* self)
     return Ts * (1.0 + (y - 1.0) / 2.0 * pow(M, 2.0));
 }
 
+static double
+calc_bulk_static_density_kg_per_m3(const struct chamber_s* self)
+{
+    return self->gas.mass_kg / self->volume_m3;
+}
+
 /*             __________________________
  *            /
  *           /                (y - 1)
@@ -91,25 +97,17 @@ calc_total_temperature_k(const struct chamber_s* self)
  */
 
 static double
-calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other, double nozzle_total_pressure_deadband_pa)
+calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
 {
-    double Pt0 = calc_total_pressure_pa(self);
-    double Pt1 = calc_total_pressure_pa(other);
-    if(Pt0 - Pt1 < nozzle_total_pressure_deadband_pa)
-    {
-        return 0.0;
-    }
-    else
-    {
-        double y = calc_mixed_gamma(&self->gas);
-        double Ps = calc_static_pressure_pa(other);
-        double M = sqrt((2.0 / (y - 1.0)) * (pow(Pt0 / Ps, (y - 1.0) / y) - 1.0));
+    double Pt = calc_total_pressure_pa(self);
+    double y = calc_mixed_gamma(&self->gas);
+    double Ps = calc_static_pressure_pa(other);
+    double M = sqrt((2.0 / (y - 1.0)) * (pow(Pt / Ps, (y - 1.0) / y) - 1.0));
 
-        /* Assumes straight nozzle or convergent nozzle,
-         * preventing supersonic mach numbers.
-         */
-        return clamp(M, 0.0, 1.0);
-    }
+    /* Assumes straight nozzle or convergent nozzle,
+     * preventing supersonic mach numbers.
+     */
+    return clamp(M, 0.0, 1.0);
 }
 
 /*
@@ -192,6 +190,15 @@ static double
 calc_nozzle_static_density_kg_per_m3(double nozzle_mass_flow_rate_kg_per_s, double nozzle_flow_area_m2, double nozzle_flow_velocity_m_per_s)
 {
     return nozzle_mass_flow_rate_kg_per_s / (nozzle_flow_area_m2 * nozzle_flow_velocity_m_per_s);
+}
+
+static double
+calc_nozzle_static_pressure_pa(const struct chamber_s* self, double nozzle_mach)
+{
+    double gamma = calc_mixed_gamma(&self->gas);
+    double p0 = calc_total_pressure_pa(self);
+    double M = nozzle_mach;
+    return p0 * pow(1.0 + 0.5*(gamma-1.0)*M*M, -gamma/(gamma-1.0));
 }
 
 /*                   y - 1

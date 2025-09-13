@@ -237,11 +237,7 @@ static struct engine_s g_engine_2_cyl = {
         .no_load_angular_velocity_r_per_s = 500.0,
         .radius_m = 0.015,
     },
-    .envelope = {
-        .max_value = 0.5,
-        .limiter = 500.0,
-    },
-    .nozzle_total_pressure_deadband_pa = 1000.0,
+    .volume = 0.25,
     .no_throttle = 0.0,
     .low_throttle = 0.05,
     .mid_throttle = 0.20,

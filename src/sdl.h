@@ -172,7 +172,7 @@ draw_progress_bar(const struct sdl_progress_bar_s* self)
     percent = clamp(percent, 0.0, 1.0);
     SDL_FRect fill = self->rect;
     fill.w = self->rect.w * percent;
-    draw_filled_rect(fill, g_sdl_line_color);
+    draw_filled_rect(fill, get_channel_color(2));
     draw_rect(self->rect, g_sdl_container_color);
 }
 
@@ -350,8 +350,8 @@ cleanup_samples(float samples[], size_t size)
 {
     float first = samples[0];
     struct lowpass_filter_s filter = {
-        .prev_input = first,
-        .prev_output = first,
+        .x0 = first,
+        .y0 = first,
     };
     for(size_t i = 0; i < size; i++)
     {
@@ -409,8 +409,7 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
             { "max: %+.3e", normalized.max_value },
             { "min: %+.3e", normalized.min_value },
             { "div: %3.3f", normalized.div_value },
-#if 0
-            /* Nice to have, but takes up too much real estate */
+#if 0       /* Nice to have, but takes up too much real estate */
             { "stp: %0.0f", step },
             { "avg: %+.3e", normalized.avg_value },
 #endif
@@ -703,7 +702,6 @@ draw_right_info(
     struct sdl_panel_s wave_panel[],
     size_t wave_panel_size,
     struct sdl_panel_s* synth_sample_panel,
-    struct sdl_progress_bar_s* synth_envelope_progress_bar,
     struct sdl_progress_bar_s* throttle_progress_bar)
 {
     struct sdl_scroll_s scroll = {
@@ -715,7 +713,6 @@ draw_right_info(
     draw_progress_bar_info(rad_per_sec_progress_bar, &scroll);
     draw_right_info_waves(engine, wave_panel, wave_panel_size, &scroll);
     draw_panel_info(synth_sample_panel, &scroll);
-    draw_progress_bar_info(synth_envelope_progress_bar, &scroll);
     draw_progress_bar_info(throttle_progress_bar, &scroll);
 }
 
@@ -813,7 +810,6 @@ draw_to_renderer(
     struct sdl_time_panel_s* audio_buffer_time_panel,
     struct sdl_progress_bar_s* r_per_s_progress_bar,
     struct sdl_progress_bar_s* frames_per_sec_progress_bar,
-    struct sdl_progress_bar_s* synth_envelope_progress_bar,
     struct sdl_progress_bar_s* throttle_progress_bar,
     struct sdl_panel_s* starter_panel_r_per_s,
     struct sdl_panel_s* convolution_panel_time_domain,
@@ -825,7 +821,7 @@ draw_to_renderer(
     draw_plots(engine, sampler);
     draw_radial_chambers(engine);
     draw_left_info(engine, loop_time_panel, engine_time_panel, audio_buffer_time_panel, frames_per_sec_progress_bar);
-    draw_right_info(engine, starter_panel_r_per_s, convolution_panel_time_domain, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel, synth_envelope_progress_bar, throttle_progress_bar);
+    draw_right_info(engine, starter_panel_r_per_s, convolution_panel_time_domain, r_per_s_progress_bar, wave_panel, wave_panel_size, synth_sample_panel, throttle_progress_bar);
     draw_pistons(engine);
     draw_panic_message();
 }

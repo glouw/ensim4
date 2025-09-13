@@ -13,14 +13,13 @@ struct engine_s
     struct flywheel_s flywheel;
     struct starter_s starter;
     struct limiter_s limiter;
-    struct envelope_s envelope;
     double throttle_open_ratio;
-    double nozzle_total_pressure_deadband_pa;
     double no_throttle;
     double low_throttle;
     double mid_throttle;
     double high_throttle;
     double radial_spacing;
+    double volume;
     bool use_cfd;
     bool use_convolution;
     bool can_ignite;
@@ -100,7 +99,7 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
         for(size_t next, j = 0; (next = x->next[j]); j++)
         {
             struct node_s* y = &self->node[next];
-            struct nozzle_flow_s nozzle_flow = flow(&x->as.chamber, &y->as.chamber, self->nozzle_total_pressure_deadband_pa);
+            struct nozzle_flow_s nozzle_flow = flow(&x->as.chamber, &y->as.chamber);
             if(x->is_selected)
             {
                 sample_channel(sampler, x, &nozzle_flow, &self->crankshaft);
@@ -120,7 +119,7 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
                 struct wave_prim_s prim = {
                     .r = nozzle_flow.flow_field.static_density_kg_per_m3,
                     .u = nozzle_flow.flow_field.velocity_m_per_s,
-                    .p = calc_static_pressure_pa(&x->as.chamber),
+                    .p = nozzle_flow.flow_field.static_pressure_pa,
                 };
                 stage_wave(wave_index, prim);
             }
@@ -362,7 +361,7 @@ push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth, s
     sum_engine_waves(self);
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
-        sampler_synth[i] = push_synth(synth, &self->envelope, &self->crankshaft, g_wave_buffer_pa[i], self->use_convolution);
+        sampler_synth[i] = push_synth(synth, &self->crankshaft, g_wave_buffer_pa[i], self->use_convolution, self->volume);
     }
 }
 

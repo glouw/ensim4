@@ -1,11 +1,11 @@
-static constexpr size_t g_wave_cells = 128;
-static constexpr size_t g_wave_substeps = 10;
+static constexpr size_t g_wave_cells = 256;
+static constexpr size_t g_wave_substeps = 12;
 static constexpr size_t g_flux_cells = g_wave_cells + 1;
 static constexpr size_t g_wave_signal_cell_index = 0;
 static constexpr size_t g_wave_first_interior_cell_index = 1;
 static constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
 static constexpr size_t g_wave_ambient_cell_index = g_wave_cells - 1;
-static constexpr size_t g_wave_max_waves = 16;
+static constexpr size_t g_wave_max_waves = 4;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
@@ -193,11 +193,6 @@ set_solver_wave_cell(struct wave_solver_s* self, size_t index, struct wave_prim_
 static void
 step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, double gradient_s_per_m)
 {
-    if(signal_cell.u == 0.0)
-    {
-        signal_cell = self->prim[g_wave_first_interior_cell_index];
-        signal_cell.u = 0.0;
-    }
     for(size_t i = 0; i < g_wave_substeps; i++)
     {
         struct wave_prim_s last_interior_cell = self->prim[g_wave_last_interior_cell_index];

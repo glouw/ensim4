@@ -11,12 +11,8 @@
 #include "std.h"
 
 /* signal processing */
-#include "moving_average_filter_s.h"
-#include "envelope_s.h"
 #include "normalized_s.h"
-#include "gain_filter_s.h"
 #include "convo_filter_s.h"
-#include "butterworth_s.h"
 #include "highpass_filter_s.h"
 #include "lowpass_filter_s.h"
 
@@ -132,7 +128,6 @@ main()
             &g_audio_buffer_time_panel,
             &g_r_per_s_progress_bar,
             &g_frames_per_sec_progress_bar,
-            &g_synth_envelope_progress_bar,
             &g_throttle_progress_bar,
             &g_starter_panel_r_per_s,
             &g_convolution_panel_time_domain,

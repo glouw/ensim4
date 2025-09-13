@@ -55,13 +55,6 @@ static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
     .rect.h = 16,
 };
 
-static struct sdl_progress_bar_s g_synth_envelope_progress_bar = {
-    .title = "rms_envelope",
-    .max_value = 1.0,
-    .rect.w = g_sdl_supported_widget_w_p,
-    .rect.h = 16,
-};
-
 static struct sdl_progress_bar_s g_throttle_progress_bar = {
     .title = "throttle",
     .max_value = 1.0,
@@ -81,11 +74,11 @@ static struct sdl_panel_s g_convolution_panel_time_domain = {
     .rect.h = 64,
 };
 
-static struct sdl_panel_s g_wave_panel[] = {
-    { .title = "wave_0_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
-    { .title = "wave_1_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
-    { .title = "wave_2_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
-    { .title = "wave_3_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 32 },
+static struct sdl_panel_s g_wave_panel[g_wave_max_waves] = {
+    { .title = "wave_0_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
+    { .title = "wave_1_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
+    { .title = "wave_2_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
+    { .title = "wave_3_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
 };
 
 static constexpr size_t g_wave_panel_size = len(g_wave_panel);
@@ -143,7 +136,6 @@ push_widgets(
         }
     );
     g_r_per_s_progress_bar.value = engine->crankshaft.angular_velocity_r_per_s;
-    g_synth_envelope_progress_bar.value = engine->envelope.value;
     g_throttle_progress_bar.value = engine->throttle_open_ratio;
     g_frames_per_sec_progress_bar.value = 1000.0 / widget_time->vsync_time_ms;
     push_panel(&g_starter_panel_r_per_s, sampler->starter, sampler->size);
