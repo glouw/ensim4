@@ -1,5 +1,5 @@
-static SDL_AudioStream* g_sdl_audio_stream = nullptr;
-static SDL_AudioSpec g_sdl_audio_spec = {};
+SDL_AudioStream* g_sdl_audio_stream = nullptr;
+SDL_AudioSpec g_sdl_audio_spec = {};
 
 static void
 init_sdl_audio()

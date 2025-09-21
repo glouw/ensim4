@@ -1,4 +1,4 @@
-static constexpr size_t g_sdl_slide_buffer_size = 128;
+constexpr size_t g_sdl_slide_buffer_size = 128;
 
 typedef float sdl_slide_buffer_t[g_sdl_slide_buffer_size];
 

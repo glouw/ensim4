@@ -1,4 +1,4 @@
-static constexpr size_t g_nodes_node_children = 16;
+constexpr size_t g_nodes_node_children = 16;
 
 #define TYPES   \
     X(chamber)  \
@@ -21,7 +21,7 @@ enum node_type_e
 #undef X
 };
 
-static const char* g_node_name_string[] = {
+char* g_node_name_string[] = {
 #define X(type) #type,
     TYPES
 #undef X

@@ -1,6 +1,6 @@
-static constexpr size_t g_sampler_max_channels = 8;
-static constexpr size_t g_sampler_max_samples = 16384;
-static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r * g_std_audio_sample_rate_hz / g_sampler_max_samples;
+constexpr size_t g_sampler_max_channels = 8;
+constexpr size_t g_sampler_max_samples = 16384;
+constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r * g_std_audio_sample_rate_hz / g_sampler_max_samples;
 
 #define SAMPLES                                 \
     X(g_sample_volume_m3)                       \
@@ -31,11 +31,13 @@ enum sample_name_e
     g_sample_name_e_size
 };
 
-static const char* g_sample_name_string[] = {
+char* g_sample_name_string[] = {
 #define X(N) #N,
     SAMPLES
 #undef X
 };
+
+#undef SAMPLES
 
 typedef float sampler_synth_t[g_synth_buffer_size];
 
@@ -111,5 +113,3 @@ skip_sample_namespace(const char* string)
 {
     return till_underscore(till_underscore(string));
 }
-
-#undef SAMPLES

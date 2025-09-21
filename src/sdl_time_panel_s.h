@@ -1,4 +1,4 @@
-static constexpr size_t g_sdl_time_panel_size = 8;
+constexpr size_t g_sdl_time_panel_size = 8;
 
 struct sdl_time_panel_s
 {

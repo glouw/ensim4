@@ -1,9 +1,9 @@
-static constexpr size_t g_std_audio_sample_rate_hz = 48000;
-static constexpr size_t g_std_monitor_refresh_rate = ENSIM4_MONITOR_REFRESH_RATE_HZ;
-static constexpr double g_std_dt_s = 1.0 / g_std_audio_sample_rate_hz;
-static constexpr double g_std_pi_r = 3.141592653589793;
-static constexpr double g_std_four_pi_r = 4.0 * g_std_pi_r;
-static const char* g_std_panic_message = nullptr;
+constexpr size_t g_std_audio_sample_rate_hz = 48000;
+constexpr size_t g_std_monitor_refresh_rate = ENSIM4_MONITOR_REFRESH_RATE_HZ;
+constexpr double g_std_dt_s = 1.0 / g_std_audio_sample_rate_hz;
+constexpr double g_std_pi_r = 3.141592653589793;
+constexpr double g_std_four_pi_r = 4.0 * g_std_pi_r;
+char* g_std_panic_message = nullptr;
 
 #define len(x) (sizeof(x) / sizeof(x[0]))
 #define clear(x) memset(x, 0, sizeof(x));

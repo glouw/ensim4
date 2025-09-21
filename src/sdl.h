@@ -1,20 +1,20 @@
-static const char* const g_sdl_title = "ensim4";
-static constexpr bool g_sdl_use_full_screen = true;
-static constexpr float g_sdl_xres_p = 1920.0f;
-static constexpr float g_sdl_yres_p = 1080.0f;
-static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
-static constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
-static constexpr float g_sdl_node_w_p = 32.0f;
-static constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
-static constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-static constexpr float g_sdl_plot_lowpass_filter_hz = 1000.0f;
-static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
-static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
-static constexpr float g_sdl_piston_space_p = 4.0;
-static constexpr size_t g_sdl_supported_widget_w_p = 192;
-static constexpr float g_sdl_zero_line_mix = 0.66f;
+char* g_sdl_title = "ensim4";
+constexpr bool g_sdl_use_full_screen = true;
+constexpr float g_sdl_xres_p = 1920.0f;
+constexpr float g_sdl_yres_p = 1080.0f;
+constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
+constexpr float g_sdl_mid_y_p = g_sdl_yres_p / 2.0f;
+constexpr float g_sdl_node_w_p = 32.0f;
+constexpr float g_sdl_node_half_w_p = g_sdl_node_w_p / 2.0f;
+constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
+constexpr float g_sdl_plot_lowpass_filter_hz = 1000.0f;
+constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
+constexpr float g_sdl_piston_scale_p_per_m = 400.0;
+constexpr float g_sdl_piston_space_p = 4.0;
+constexpr size_t g_sdl_supported_widget_w_p = 192;
+constexpr float g_sdl_zero_line_mix = 0.66f;
 
-static constexpr SDL_FColor g_sdl_channel_color[] = {
+constexpr SDL_FColor g_sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
      [1] = {0.00f, 1.00f, 0.00f, 1.0f},
      [2] = {0.00f, 0.50f, 1.00f, 1.0f},
@@ -39,27 +39,27 @@ get_channel_color(size_t index)
     return g_sdl_channel_color[index % len(g_sdl_channel_color)];
 }
 
-static constexpr SDL_FColor g_sdl_panic_color = {
+constexpr SDL_FColor g_sdl_panic_color = {
     1.00f, 0.00f, 0.00f, 1.0f
 };
 
-static constexpr SDL_FColor g_sdl_black_color = {
+constexpr SDL_FColor g_sdl_black_color = {
     0.00f, 0.00f, 0.00f, 1.0f
 };
 
-static constexpr SDL_FColor g_sdl_dark_line_color = {
+constexpr SDL_FColor g_sdl_dark_line_color = {
     0.15f, 0.15f, 0.15f, 1.0f
 };
 
-static constexpr SDL_FColor g_sdl_line_color = {
+constexpr SDL_FColor g_sdl_line_color = {
     0.28f, 0.28f, 0.28f, 1.0f
 };
 
-static constexpr SDL_FColor g_sdl_container_color = {
+constexpr SDL_FColor g_sdl_container_color = {
     0.50f, 0.50f, 0.50f, 1.0f
 };
 
-static constexpr SDL_FColor g_sdl_text_color = {
+constexpr SDL_FColor g_sdl_text_color = {
     1.00f, 1.00f, 1.00f, 1.0f
 };
 
@@ -401,7 +401,7 @@ static void
 draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_s* sampler, bool use_plot_filter)
 {
     size_t buffered = 0;
-    static constexpr size_t max_buffer_size = g_sample_name_e_size * g_sdl_max_display_samples;
+    constexpr size_t max_buffer_size = g_sample_name_e_size * g_sdl_max_display_samples;
     static SDL_FPoint buffer[max_buffer_size];
     static float samples[g_sampler_max_samples];
     SDL_FColor color = get_channel_color(channel);

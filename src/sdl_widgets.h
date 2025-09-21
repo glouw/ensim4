@@ -1,4 +1,4 @@
-static struct sdl_time_panel_s g_loop_time_panel = {
+struct sdl_time_panel_s g_loop_time_panel = {
     .title = "loop_time_ms",
     .labels = {
         "n/a",
@@ -12,7 +12,7 @@ static struct sdl_time_panel_s g_loop_time_panel = {
     .rect.h = 96,
 };
 
-static struct sdl_time_panel_s g_engine_time_panel = {
+struct sdl_time_panel_s g_engine_time_panel = {
     .title = "engine_time_ms",
     .labels = {
         "fluids",
@@ -27,7 +27,7 @@ static struct sdl_time_panel_s g_engine_time_panel = {
     .rect.h = 96,
 };
 
-static struct sdl_time_panel_s g_audio_buffer_time_panel = {
+struct sdl_time_panel_s g_audio_buffer_time_panel = {
     .title = "audio_buffer_size",
     .labels = {
         "buffer_size",
@@ -41,49 +41,49 @@ static struct sdl_time_panel_s g_audio_buffer_time_panel = {
     .rect.h = 96,
 };
 
-static struct sdl_progress_bar_s g_r_per_s_progress_bar = {
+struct sdl_progress_bar_s g_r_per_s_progress_bar = {
     .title = "crank_r_per_s",
     .max_value = 2000.0,
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
-static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
+struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
     .title = "frames_per_sec",
     .max_value = 100.0,
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
-static struct sdl_progress_bar_s g_throttle_progress_bar = {
+struct sdl_progress_bar_s g_throttle_progress_bar = {
     .title = "throttle",
     .max_value = 1.0,
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
-static struct sdl_panel_s g_starter_panel_r_per_s = {
+struct sdl_panel_s g_starter_panel_r_per_s = {
     .title = "starter_r_per_s",
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,
 };
 
-static struct sdl_panel_s g_convolution_panel_time_domain = {
+struct sdl_panel_s g_convolution_panel_time_domain = {
     .title = "impulse x[n]",
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,
 };
 
-static struct sdl_panel_s g_wave_panel[g_wave_max_waves] = {
+struct sdl_panel_s g_wave_panel[g_wave_max_waves] = {
     { .title = "wave_0_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
     { .title = "wave_1_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
     { .title = "wave_2_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
     { .title = "wave_3_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
 };
 
-static constexpr size_t g_wave_panel_size = len(g_wave_panel);
+constexpr size_t g_wave_panel_size = len(g_wave_panel);
 
-static struct sdl_panel_s g_synth_sample_panel = {
+struct sdl_panel_s g_synth_sample_panel = {
     .title = "synth_samples",
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,

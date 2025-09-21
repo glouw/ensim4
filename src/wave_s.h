@@ -1,15 +1,15 @@
-static constexpr size_t g_wave_cells = 192;
-static constexpr size_t g_wave_substeps = 13;
-static constexpr size_t g_flux_cells = g_wave_cells + 1;
-static constexpr size_t g_wave_signal_cell_index = 0;
-static constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
-static constexpr size_t g_wave_ambient_cell_index = g_wave_cells - 1;
-static constexpr size_t g_wave_max_waves = 4;
-static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
-static constexpr double g_wave_gamma = 1.31;
-static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
-static constexpr double g_wave_mic_position_ratio = 0.5;
-static constexpr double g_wave_velocity_low_pass_filter_hz = 5000.0;
+constexpr size_t g_wave_cells = 192;
+constexpr size_t g_wave_substeps = 13;
+constexpr size_t g_flux_cells = g_wave_cells + 1;
+constexpr size_t g_wave_signal_cell_index = 0;
+constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
+constexpr size_t g_wave_ambient_cell_index = g_wave_cells - 1;
+constexpr size_t g_wave_max_waves = 4;
+constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
+constexpr double g_wave_gamma = 1.31;
+constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
+constexpr double g_wave_mic_position_ratio = 0.5;
+constexpr double g_wave_velocity_low_pass_filter_hz = 5000.0;
 
 /*
  * Units and longform names were ommited from variable names to simplify readability.
@@ -70,9 +70,9 @@ struct wave_s
 }
 g_wave_table[g_wave_max_waves] = {};
 
-static double g_wave_buffer_pa[g_synth_buffer_size] = {};
+double g_wave_buffer_pa[g_synth_buffer_size] = {};
 
-static constexpr struct wave_prim_s g_wave_ambient_cell = {
+constexpr struct wave_prim_s g_wave_ambient_cell = {
     .r = g_gas_ambient_static_density_kg_per_m3,
     .u = 0.0,
     .p = g_gas_ambient_static_pressure_pa,

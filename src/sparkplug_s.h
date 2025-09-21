@@ -1,4 +1,4 @@
-static constexpr double g_sparkplug_voltage = 3e4;
+constexpr double g_sparkplug_voltage = 3e4;
 
 struct sparkplug_s
 {

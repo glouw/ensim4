@@ -17,7 +17,7 @@
  *    o    + origin
  */
 
-static constexpr double g_static_friction_upper_angular_velocity_r_per_s = g_std_four_pi_r;
+constexpr double g_static_friction_upper_angular_velocity_r_per_s = g_std_four_pi_r;
 
 struct piston_s
 {

@@ -1,6 +1,6 @@
-static constexpr float g_sdl_char_size_p = SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE;
-static constexpr float g_sdl_half_char_size_p = g_sdl_char_size_p / 2.0f;
-static constexpr float g_sdl_line_spacing_p = 1.5f * g_sdl_char_size_p;
+constexpr float g_sdl_char_size_p = SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE;
+constexpr float g_sdl_half_char_size_p = g_sdl_char_size_p / 2.0f;
+constexpr float g_sdl_line_spacing_p = 1.5f * g_sdl_char_size_p;
 
 struct sdl_scroll_s
 {
