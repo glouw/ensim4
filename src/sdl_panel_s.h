@@ -2,7 +2,7 @@ struct sdl_panel_s
 {
     char* title;
     SDL_FRect rect;
-    float sample[g_sampler_max_samples];
+    double sample[g_sampler_max_samples];
     size_t size;
     struct normalized_s normalized;
     bool panic;
@@ -16,7 +16,7 @@ clear_panel(struct sdl_panel_s* self)
 }
 
 void
-push_panel(struct sdl_panel_s* self, float value[], size_t size)
+push_panel(struct sdl_panel_s* self, double value[], size_t size)
 {
     for(size_t i = 0; i < size; i++)
     {

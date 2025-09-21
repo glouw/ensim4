@@ -109,7 +109,7 @@ push_widgets(
 {
     push_time_panel(
         &g_loop_time_panel,
-        (float[]) {
+        (double[]) {
             widget_time->n_a_time_ms,
             widget_time->engine_time_ms,
             widget_time->draw_time_ms,
@@ -118,7 +118,7 @@ push_widgets(
     );
     push_time_panel(
         &g_engine_time_panel,
-        (float[]) {
+        (double[]) {
             engine_time->fluids_time_ms,
             engine_time->kinematics_time_ms,
             engine_time->thermo_time_ms,
@@ -128,7 +128,7 @@ push_widgets(
     );
     push_time_panel(
         &g_audio_buffer_time_panel,
-        (float[]) {
+        (double[]) {
             audio_buffer_size,
             g_synth_buffer_min_size,
             0.0,

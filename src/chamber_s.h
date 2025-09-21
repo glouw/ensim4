@@ -230,7 +230,7 @@ void
 add_momentum(struct chamber_s* self, double momentum_kg_m_per_s)
 {
     self->gas.momentum_kg_m_per_s += momentum_kg_m_per_s;
-    double momentum_damping_coeffecient = expf(-g_std_dt_s / self->gas_momentum_damping_time_constant_s);
+    double momentum_damping_coeffecient = exp(-g_std_dt_s / self->gas_momentum_damping_time_constant_s);
     self->gas.momentum_kg_m_per_s *= momentum_damping_coeffecient;
 }
 

@@ -1,4 +1,3 @@
-/* c23 standard lib */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,37 +5,25 @@
 #include <float.h>
 #include <math.h>
 #include <threads.h>
-
-/* engine sim common defs */
 #include "std.h"
-
-/* signal processing */
 #include "normalized_s.h"
 #include "convo_filter_s.h"
 #include "highpass_filter_s.h"
 #include "lowpass_filter_s.h"
-
-/* engine fluids */
 #include "gamma.h"
 #include "gas_s.h"
 #include "chamber_s.h"
 #include "gas_mail_s.h"
 #include "nozzle_flow_s.h"
 #include "visualize.h"
-
-/* engine peripherals */
 #include "crankshaft_s.h"
 #include "sparkplug_s.h"
 #include "flywheel_s.h"
 #include "starter_s.h"
 #include "limiter_s.h"
 #include "valve_s.h"
-
-/* engine synth */
 #include "synth_s.h"
 #include "wave_s.h"
-
-/* engine nodes */
 #include "source_s.h"
 #include "filter_s.h"
 #include "iplenum_s.h"
@@ -49,15 +36,9 @@
 #include "exhaust_s.h"
 #include "sink_s.h"
 #include "node_s.h"
-
-/* engine data collection */
 #include "sampler_s.h"
-
-/* engine assembly */
 #include "engine_s.h"
 #include "engine_2_cyl.h"
-
-/* sdl3 (video, input, and audio access) + helpers */
 #include <SDL3/SDL.h>
 #include "sdl_scroll_s.h"
 #include "sdl_slide_buffer_t.h"

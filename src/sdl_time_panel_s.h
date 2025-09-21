@@ -5,13 +5,13 @@ struct sdl_time_panel_s
     char* title;
     char* labels[g_sdl_time_panel_size];
     SDL_FRect rect;
-    float min_value;
-    float max_value;
+    double min_value;
+    double max_value;
     sdl_slide_buffer_t slide_buffer[g_sdl_time_panel_size];
 };
 
 void
-push_time_panel(struct sdl_time_panel_s* self, float sample[])
+push_time_panel(struct sdl_time_panel_s* self, double sample[])
 {
     for(size_t i = 0; i < g_sdl_time_panel_size; i++)
     {

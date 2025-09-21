@@ -1,11 +1,11 @@
 constexpr size_t g_sdl_slide_buffer_size = 128;
 
-typedef float sdl_slide_buffer_t[g_sdl_slide_buffer_size];
+typedef double sdl_slide_buffer_t[g_sdl_slide_buffer_size];
 
-float
+double
 calc_slide_buffer_average(sdl_slide_buffer_t self)
 {
-    float average = 0.0;
+    double average = 0.0;
     for(size_t i = 0; i < g_sdl_slide_buffer_size; i++)
     {
         average += self[i];
@@ -14,7 +14,7 @@ calc_slide_buffer_average(sdl_slide_buffer_t self)
 }
 
 void
-push_slide_buffer(sdl_slide_buffer_t self, float value)
+push_slide_buffer(sdl_slide_buffer_t self, double value)
 {
     for(size_t i = 0; i < g_sdl_slide_buffer_size - 1; i++)
     {

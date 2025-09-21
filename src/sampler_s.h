@@ -39,25 +39,25 @@ char* g_sample_name_string[] = {
 
 #undef SAMPLES
 
-typedef float sampler_synth_t[g_synth_buffer_size];
+typedef double sampler_synth_t[g_synth_buffer_size];
 
 struct sampler_s
 {
-    float channel[g_sampler_max_channels][g_sample_name_e_size][g_sampler_max_samples];
-    float starter[g_sampler_max_samples];
+    double channel[g_sampler_max_channels][g_sample_name_e_size][g_sampler_max_samples];
+    double starter[g_sampler_max_samples];
     size_t index;
     size_t channel_index;
     size_t size;
 };
 
 void
-sample_starter(struct sampler_s* self, float starter_angular_velocity_r_per_s)
+sample_starter(struct sampler_s* self, double starter_angular_velocity_r_per_s)
 {
     self->starter[self->index] = starter_angular_velocity_r_per_s;
 }
 
 void
-sample_value(struct sampler_s* self, enum sample_name_e sample_name, float sample)
+sample_value(struct sampler_s* self, enum sample_name_e sample_name, double sample)
 {
     self->channel[self->channel_index][sample_name][self->index] = sample;
 }

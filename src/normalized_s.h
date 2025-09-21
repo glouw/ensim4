@@ -1,14 +1,14 @@
 struct normalized_s
 {
-    float max_value;
-    float avg_value;
-    float min_value;
-    float div_value;
+    double max_value;
+    double avg_value;
+    double min_value;
+    double div_value;
     bool is_success;
 };
 
 struct normalized_s
-normalize_samples(float samples[], size_t size)
+normalize_samples(double samples[], size_t size)
 {
     struct normalized_s normalized = {
         .max_value = -FLT_MAX,
@@ -28,8 +28,8 @@ normalize_samples(float samples[], size_t size)
     {
         normalized.min_value = min(normalized.min_value, samples[i]);
     }
-    float range = normalized.max_value - normalized.min_value;
-    if(range < 1e-9f)
+    double range = normalized.max_value - normalized.min_value;
+    if(range < 1e-9)
     {
         return normalized;
     }
