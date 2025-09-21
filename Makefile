@@ -41,6 +41,7 @@ visualize: all
 	@./$(BIN)
 
 perf: all
+	@git log -1 --pretty=format:"%H %an %ad %s" >> perf.txt;
 	@perf stat -e\
 cpu-cycles,instructions,\
 L1-dcache-loads,L1-dcache-load-misses,\
@@ -50,7 +51,7 @@ dTLB-loads,dTLB-load-misses,\
 dTLB-stores,dTLB-store-misses,\
 iTLB-loads,iTLB-load-misses \
 ./$(BIN) \
-&>>perf.txt
+&>> perf.txt
 
 clean:
 	rm -f visualize/*.txt
