@@ -7,7 +7,7 @@ struct eplenum_s
     double pipe_length_m;
 };
 
-static int
+int
 run_eplenum_wave_thread(void* argument)
 {
     struct eplenum_s* self = argument;
@@ -15,13 +15,13 @@ run_eplenum_wave_thread(void* argument)
     return 0;
 }
 
-static void
+void
 launch_eplenum_wave_thread(struct eplenum_s* self)
 {
     thrd_create(&self->thread, run_eplenum_wave_thread, self);
 }
 
-static void
+void
 wait_for_eplenum_wave_thread(struct eplenum_s* self)
 {
     thrd_join(self->thread, nullptr);

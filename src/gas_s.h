@@ -34,29 +34,29 @@ constexpr struct gas_s g_gas_ambient_atomized_c8h18_fuel = {
     .static_temperature_k = g_gas_ambient_static_temperature_k
 };
 
-static double
-calc_mol_air_ratio(const struct gas_s* self)
+double
+calc_mol_air_ratio(struct gas_s* self)
 {
     return self->mol_ratio_n2
          + self->mol_ratio_o2
          + self->mol_ratio_ar;
 }
 
-static double
-calc_mol_combusted_ratio(const struct gas_s* self)
+double
+calc_mol_combusted_ratio(struct gas_s* self)
 {
     return self->mol_ratio_co2
          + self->mol_ratio_h2o;
 }
 
-static double
-calc_mol_air_fuel_ratio(const struct gas_s* self)
+double
+calc_mol_air_fuel_ratio(struct gas_s* self)
 {
     return calc_mol_air_ratio(self) / self->mol_ratio_c8h18;
 }
 
-static double
-calc_mixed_molar_mass_kg_per_mol(const struct gas_s* self)
+double
+calc_mixed_molar_mass_kg_per_mol(struct gas_s* self)
 {
     return
         self->mol_ratio_n2 * g_gas_molar_mass_kg_per_mol_n2 +
@@ -67,8 +67,8 @@ calc_mixed_molar_mass_kg_per_mol(const struct gas_s* self)
         self->mol_ratio_h2o * g_gas_molar_mass_kg_per_mol_h2o;
 }
 
-static double
-calc_mixed_cp_j_per_mol_k(const struct gas_s* self)
+double
+calc_mixed_cp_j_per_mol_k(struct gas_s* self)
 {
     return
         self->mol_ratio_n2 * lookup_cp_n2_j_per_mol_k(self->static_temperature_k) +
@@ -79,14 +79,14 @@ calc_mixed_cp_j_per_mol_k(const struct gas_s* self)
         self->mol_ratio_h2o * lookup_cp_h2o_j_per_mol_k(self->static_temperature_k);
 }
 
-static double
-calc_mixed_cv_j_per_mol_k(const struct gas_s* self)
+double
+calc_mixed_cv_j_per_mol_k(struct gas_s* self)
 {
     return calc_cv_j_per_mol_k(calc_mixed_cp_j_per_mol_k(self));
 }
 
-static double
-calc_mixed_gamma(const struct gas_s* self)
+double
+calc_mixed_gamma(struct gas_s* self)
 {
     return lookup_gamma(calc_mixed_cp_j_per_mol_k(self));
 }
@@ -97,22 +97,22 @@ calc_mixed_gamma(const struct gas_s* self)
  *      M
  */
 
-static double
-calc_moles(const struct gas_s* self)
+double
+calc_moles(struct gas_s* self)
 {
     double m = self->mass_kg;
     double M = calc_mixed_molar_mass_kg_per_mol(self);
     return m / M;
 }
 
-static double
-calc_total_cp_j_per_k(const struct gas_s* self)
+double
+calc_total_cp_j_per_k(struct gas_s* self)
 {
     return calc_moles(self) * calc_mixed_cp_j_per_mol_k(self);
 }
 
-static double
-calc_total_cv_j_per_k(const struct gas_s* self)
+double
+calc_total_cv_j_per_k(struct gas_s* self)
 {
     return calc_moles(self) * calc_mixed_cv_j_per_mol_k(self);
 }
@@ -123,8 +123,8 @@ calc_total_cv_j_per_k(const struct gas_s* self)
  *       M
  */
 
-static double
-calc_specific_gas_constant_j_per_kg_k(const struct gas_s* self)
+double
+calc_specific_gas_constant_j_per_kg_k(struct gas_s* self)
 {
     double R = g_gamma_universal_gas_constant_j_per_mol_k;
     double M = calc_mixed_molar_mass_kg_per_mol(self);
@@ -137,8 +137,8 @@ calc_specific_gas_constant_j_per_kg_k(const struct gas_s* self)
  *      m
  */
 
-static double
-calc_bulk_flow_velocity_m_per_s(const struct gas_s* self)
+double
+calc_bulk_flow_velocity_m_per_s(struct gas_s* self)
 {
     double p = self->momentum_kg_m_per_s;
     double m = self->mass_kg;
@@ -151,8 +151,8 @@ calc_bulk_flow_velocity_m_per_s(const struct gas_s* self)
  *      \/
  */
 
-static double
-calc_bulk_speed_of_sound_m_per_s(const struct gas_s* self)
+double
+calc_bulk_speed_of_sound_m_per_s(struct gas_s* self)
 {
     double y = calc_mixed_gamma(self);
     double Rs = calc_specific_gas_constant_j_per_kg_k(self);
@@ -166,8 +166,8 @@ calc_bulk_speed_of_sound_m_per_s(const struct gas_s* self)
  *      a
  */
 
-static double
-calc_bulk_mach(const struct gas_s* self)
+double
+calc_bulk_mach(struct gas_s* self)
 {
     double u = calc_bulk_flow_velocity_m_per_s(self);
     double a = calc_bulk_speed_of_sound_m_per_s(self);
@@ -179,8 +179,8 @@ calc_bulk_mach(const struct gas_s* self)
  *
  */
 
-static double
-calc_max_bulk_momentum_kg_m_per_s(const struct gas_s* self)
+double
+calc_max_bulk_momentum_kg_m_per_s(struct gas_s* self)
 {
     double m = self->mass_kg;
     double a = calc_bulk_speed_of_sound_m_per_s(self);
@@ -192,13 +192,13 @@ calc_max_bulk_momentum_kg_m_per_s(const struct gas_s* self)
  *            w1 + w
  */
 
-static double
+double
 calc_mix(double value1, double weight1, double value2, double weight2)
 {
     return (value1 * weight1 + value2 * weight2) / (weight1 + weight2);
 }
 
-static void
+void
 clamp_momentum(struct gas_s* self)
 {
     double max_bulk_momentum_kg_m_per_s = calc_max_bulk_momentum_kg_m_per_s(self);

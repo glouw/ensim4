@@ -6,7 +6,7 @@ struct gas_mail_s
     bool is_from_reservoir;
 };
 
-static void
+void
 mail_gas_mail(struct gas_mail_s* self)
 {
     if(self->is_from_reservoir == false)

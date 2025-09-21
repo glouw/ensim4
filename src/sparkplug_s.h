@@ -6,8 +6,8 @@ struct sparkplug_s
     double on_r;
 };
 
-static bool
-is_sparkplug_enabled(const struct sparkplug_s* self, const struct crankshaft_s* crankshaft)
+bool
+is_sparkplug_enabled(struct sparkplug_s* self, struct crankshaft_s* crankshaft)
 {
     double current_theta_r = fmod(crankshaft->theta_r, g_std_four_pi_r);
     double normalized_engage_r = fmod(self->engage_r, g_std_four_pi_r);
@@ -27,8 +27,8 @@ is_sparkplug_enabled(const struct sparkplug_s* self, const struct crankshaft_s* 
     }
 }
 
-static double
-calc_sparkplug_voltage_v(const struct sparkplug_s* self, const struct crankshaft_s* crankshaft)
+double
+calc_sparkplug_voltage_v(struct sparkplug_s* self, struct crankshaft_s* crankshaft)
 {
     return g_sparkplug_voltage * is_sparkplug_enabled(self, crankshaft);
 }

@@ -50,19 +50,19 @@ struct sampler_s
     size_t size;
 };
 
-static void
+void
 sample_starter(struct sampler_s* self, float starter_angular_velocity_r_per_s)
 {
     self->starter[self->index] = starter_angular_velocity_r_per_s;
 }
 
-static void
+void
 sample_value(struct sampler_s* self, enum sample_name_e sample_name, float sample)
 {
     self->channel[self->channel_index][sample_name][self->index] = sample;
 }
 
-static void
+void
 sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s* nozzle_flow, struct crankshaft_s* crankshaft)
 {
     if(self->channel_index < g_sampler_max_channels)
@@ -90,26 +90,26 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
     }
 }
 
-static void
+void
 clear_channel_sampler(struct sampler_s* self)
 {
     clear(self->channel);
 }
 
-static void
+void
 reset_sampler_channel(struct sampler_s* self)
 {
     self->channel_index = 0;
 }
 
-static const char*
-till_underscore(const char* string)
+char*
+till_underscore(char* string)
 {
     return strchr(string, '_') + 1;
 }
 
-static const char*
-skip_sample_namespace(const char* string)
+char*
+skip_sample_namespace(char* string)
 {
     return till_underscore(till_underscore(string));
 }

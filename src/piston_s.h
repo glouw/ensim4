@@ -40,38 +40,38 @@ struct piston_s
     double static_friction_coefficient_n_m_s_per_r;
 };
 
-static double
-calc_piston_theta_r(const struct piston_s* self, const struct crankshaft_s* crankshaft)
+double
+calc_piston_theta_r(struct piston_s* self, struct crankshaft_s* crankshaft)
 {
     return crankshaft->theta_r + self->theta_r;
 }
 
-static double
-calc_piston_top_dead_center_m(const struct piston_s* self)
+double
+calc_piston_top_dead_center_m(struct piston_s* self)
 {
     return self->connecting_rod_length_m + self->crank_throw_length_m + self->head_compression_height_m;
 }
 
-static double
-calc_piston_block_deck_surface_m(const struct piston_s* self)
+double
+calc_piston_block_deck_surface_m(struct piston_s* self)
 {
     return calc_piston_top_dead_center_m(self) + self->head_clearance_height_m;
 }
 
-static double
-calc_piston_chamber_depth_at_m(const struct piston_s* self, double y_m)
+double
+calc_piston_chamber_depth_at_m(struct piston_s* self, double y_m)
 {
     return calc_piston_block_deck_surface_m(self) - (y_m + self->head_compression_height_m);
 }
 
-static double
-calc_piston_chamber_depth_m(const struct piston_s* self)
+double
+calc_piston_chamber_depth_m(struct piston_s* self)
 {
     return calc_piston_chamber_depth_at_m(self, self->pin_y_m);
 }
 
-static double
-calc_piston_gas_torque_n_m(const struct piston_s* self, const struct crankshaft_s* crankshaft)
+double
+calc_piston_gas_torque_n_m(struct piston_s* self, struct crankshaft_s* crankshaft)
 {
     double theta_r = calc_piston_theta_r(self, crankshaft);
     double term1 = calc_static_gauge_pressure_pa(&self->chamber) * calc_circle_area_m2(self->diameter_m) * self->crank_throw_length_m * sin(theta_r);
@@ -79,28 +79,28 @@ calc_piston_gas_torque_n_m(const struct piston_s* self, const struct crankshaft_
     return term1 * term2;
 }
 
-static double
-calc_piston_head_mass_kg(const struct piston_s* self)
+double
+calc_piston_head_mass_kg(struct piston_s* self)
 {
     return self->head_mass_density_kg_per_m3 * calc_cylinder_volume_m3(self->diameter_m, 2.0 * self->head_compression_height_m);
 }
 
-static double
-calc_piston_volume_m3(const struct piston_s* self)
+double
+calc_piston_volume_m3(struct piston_s* self)
 {
     double depth_m = calc_piston_chamber_depth_m(self);
     return calc_cylinder_volume_m3(self->diameter_m, depth_m);
 }
 
-static double
-calc_piston_moment_of_inertia_kg_per_m2(const struct piston_s* self)
+double
+calc_piston_moment_of_inertia_kg_per_m2(struct piston_s* self)
 {
     double mass_reciprocating_kg = calc_piston_head_mass_kg(self) + 0.5 * self->connecting_rod_mass_kg;
     return mass_reciprocating_kg * pow(self->crank_throw_length_m, 2.0);
 }
 
-static double
-calc_piston_inertia_torque_n_m(const struct piston_s* self, const struct crankshaft_s* crankshaft)
+double
+calc_piston_inertia_torque_n_m(struct piston_s* self, struct crankshaft_s* crankshaft)
 {
     double theta_r = calc_piston_theta_r(self, crankshaft);
     double term1 = 0.25 * sin(1.0 * theta_r) * self->crank_throw_length_m / self->connecting_rod_length_m;
@@ -109,8 +109,8 @@ calc_piston_inertia_torque_n_m(const struct piston_s* self, const struct cranksh
     return calc_piston_moment_of_inertia_kg_per_m2(self) * pow(crankshaft->angular_velocity_r_per_s, 2.0) * (term1 - term2 - term3);
 }
 
-static double
-calc_piston_friction_torque_n_m(const struct piston_s* self, const struct crankshaft_s* crankshaft)
+double
+calc_piston_friction_torque_n_m(struct piston_s* self, struct crankshaft_s* crankshaft)
 {
     double friction_coefficient_n_m_s_per_r = 0.0;
     if(fabs(crankshaft->angular_velocity_r_per_s) < g_static_friction_upper_angular_velocity_r_per_s)
@@ -124,14 +124,14 @@ calc_piston_friction_torque_n_m(const struct piston_s* self, const struct cranks
     return -crankshaft->angular_velocity_r_per_s * friction_coefficient_n_m_s_per_r;
 }
 
-static void
+void
 update_piston_bearing_position(struct piston_s* self, double theta_r)
 {
     self->bearing_x_m = self->crank_throw_length_m * sin(theta_r);
     self->bearing_y_m = self->crank_throw_length_m * cos(theta_r);
 }
 
-static void
+void
 update_piston_pin_position(struct piston_s* self, double theta_r)
 {
     self->pin_x_m = 0.0;
@@ -140,8 +140,8 @@ update_piston_pin_position(struct piston_s* self, double theta_r)
     self->pin_y_m = term1 + term2;
 }
 
-static void
-rig_piston(struct piston_s* self, const struct crankshaft_s* crankshaft)
+void
+rig_piston(struct piston_s* self, struct crankshaft_s* crankshaft)
 {
     double theta_r = calc_piston_theta_r(self, crankshaft);
     update_piston_bearing_position(self, theta_r);
@@ -149,8 +149,8 @@ rig_piston(struct piston_s* self, const struct crankshaft_s* crankshaft)
     self->chamber.volume_m3 = calc_piston_volume_m3(self);
 }
 
-static void
-compress_piston(struct piston_s* self, const struct crankshaft_s* crankshaft)
+void
+compress_piston(struct piston_s* self, struct crankshaft_s* crankshaft)
 {
     double old_volume_m3 = calc_piston_volume_m3(self);
     rig_piston(self, crankshaft);

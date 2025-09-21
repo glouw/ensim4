@@ -63,7 +63,7 @@ constexpr double g_gamma_cp_weights_upper_h2o[] = {
  *
  */
 
-static double
+double
 calc_cp_j_per_mol_k(double static_temperature_k, const double* lower, const double* upper)
 {
     double T1 = clamp(static_temperature_k, 200.0, 6000.0);
@@ -76,43 +76,43 @@ calc_cp_j_per_mol_k(double static_temperature_k, const double* lower, const doub
     return (a[0] * inv_T2 + a[1] * inv_T1 + a[2] + a[3] * T1 + a[4] * T2 + a[5] * T3 + a[6] * T4) * g_gamma_universal_gas_constant_j_per_mol_k;
 }
 
-static double
+double
 calc_cp_n2_j_per_mol_k(double static_temperature_k)
 {
     return calc_cp_j_per_mol_k(static_temperature_k, g_gamma_cp_weights_lower_n2, g_gamma_cp_weights_upper_n2);
 }
 
-static double
+double
 calc_cp_o2_j_per_mol_k(double static_temperature_k)
 {
     return calc_cp_j_per_mol_k(static_temperature_k, g_gamma_cp_weights_lower_o2, g_gamma_cp_weights_upper_o2);
 }
 
-static double
+double
 calc_cp_ar_j_per_mol_k(double static_temperature_k)
 {
     return calc_cp_j_per_mol_k(static_temperature_k, g_gamma_cp_weights_lower_ar, g_gamma_cp_weights_upper_ar);
 }
 
-static double
+double
 calc_cp_c8h18_j_per_mol_k(double static_temperature_k)
 {
     return calc_cp_j_per_mol_k(static_temperature_k, g_gamma_cp_weights_lower_c8h18, g_gamma_cp_weights_upper_c8h18);
 }
 
-static double
+double
 calc_cp_co2_j_per_mol_k(double static_temperature_k)
 {
     return calc_cp_j_per_mol_k(static_temperature_k, g_gamma_cp_weights_lower_co2, g_gamma_cp_weights_upper_co2);
 }
 
-static double
+double
 calc_cp_h2o_j_per_mol_k(double static_temperature_k)
 {
     return calc_cp_j_per_mol_k(static_temperature_k, g_gamma_cp_weights_lower_h2o, g_gamma_cp_weights_upper_h2o);
 }
 
-static void
+void
 precompute_cp()
 {
     for(size_t i = 0; i < g_gamma_cp_precompute_buffer_size; i++)
@@ -132,43 +132,43 @@ precompute_cp()
  *
  */
 
-static double
+double
 calc_cv_j_per_mol_k(double cp_j_per_mol_k)
 {
     return cp_j_per_mol_k - g_gamma_universal_gas_constant_j_per_mol_k;
 }
 
-static double
+double
 lookup_cp_n2_j_per_mol_k(size_t static_temperature_k)
 {
     return g_cp_n2_j_per_mol_k[static_temperature_k];
 }
 
-static double
+double
 lookup_cp_o2_j_per_mol_k(size_t static_temperature_k)
 {
     return g_cp_o2_j_per_mol_k[static_temperature_k];
 }
 
-static double
+double
 lookup_cp_ar_j_per_mol_k(size_t static_temperature_k)
 {
     return g_cp_ar_j_per_mol_k[static_temperature_k];
 }
 
-static double
+double
 lookup_cp_c8h18_j_per_mol_k(size_t static_temperature_k)
 {
     return g_cp_c8h18_j_per_mol_k[static_temperature_k];
 }
 
-static double
+double
 lookup_cp_co2_j_per_mol_k(size_t static_temperature_k)
 {
     return g_cp_co2_j_per_mol_k[static_temperature_k];
 }
 
-static double
+double
 lookup_cp_h2o_j_per_mol_k(size_t static_temperature_k)
 {
     return g_cp_h2o_j_per_mol_k[static_temperature_k];
@@ -180,43 +180,43 @@ lookup_cp_h2o_j_per_mol_k(size_t static_temperature_k)
  *
  */
 
-static double
+double
 lookup_gamma(double cp_j_per_mol_k)
 {
     return cp_j_per_mol_k / calc_cv_j_per_mol_k(cp_j_per_mol_k);
 }
 
-static double
+double
 lookup_gamma_n2(double static_temperature_k)
 {
     return lookup_gamma(lookup_cp_n2_j_per_mol_k(static_temperature_k));
 }
 
-static double
+double
 lookup_gamma_o2(double static_temperature_k)
 {
     return lookup_gamma(lookup_cp_o2_j_per_mol_k(static_temperature_k));
 }
 
-static double
+double
 lookup_gamma_ar(double static_temperature_k)
 {
     return lookup_gamma(lookup_cp_ar_j_per_mol_k(static_temperature_k));
 }
 
-static double
+double
 lookup_gamma_c8h18(double static_temperature_k)
 {
     return lookup_gamma(lookup_cp_c8h18_j_per_mol_k(static_temperature_k));
 }
 
-static double
+double
 lookup_gamma_co2(double static_temperature_k)
 {
     return lookup_gamma(lookup_cp_co2_j_per_mol_k(static_temperature_k));
 }
 
-static double
+double
 lookup_gamma_h2o(double static_temperature_k)
 {
     return lookup_gamma(lookup_cp_h2o_j_per_mol_k(static_temperature_k));

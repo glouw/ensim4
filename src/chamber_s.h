@@ -17,8 +17,8 @@ struct chamber_s
  *          V
  */
 
-static double
-calc_static_pressure_pa(const struct chamber_s* self)
+double
+calc_static_pressure_pa(struct chamber_s* self)
 {
     double m = self->gas.mass_kg;
     double Rs = calc_specific_gas_constant_j_per_kg_k(&self->gas);
@@ -27,8 +27,8 @@ calc_static_pressure_pa(const struct chamber_s* self)
     return m * Rs * Ts / V;
 }
 
-static double
-calc_static_gauge_pressure_pa(const struct chamber_s* self)
+double
+calc_static_gauge_pressure_pa(struct chamber_s* self)
 {
     return calc_static_pressure_pa(self) - g_gas_ambient_static_pressure_pa;
 }
@@ -39,8 +39,8 @@ calc_static_gauge_pressure_pa(const struct chamber_s* self)
  *     Rs * Ts
  */
 
-static double
-calc_mass_at_kg(const struct chamber_s* self, double static_pressure_pa)
+double
+calc_mass_at_kg(struct chamber_s* self, double static_pressure_pa)
 {
     double Ps = static_pressure_pa;
     double V = self->volume_m3;
@@ -56,8 +56,8 @@ calc_mass_at_kg(const struct chamber_s* self, double static_pressure_pa)
  *                   2
  */
 
-static double
-calc_total_pressure_pa(const struct chamber_s* self)
+double
+calc_total_pressure_pa(struct chamber_s* self)
 {
     double y = calc_mixed_gamma(&self->gas);
     double Ps = calc_static_pressure_pa(self);
@@ -71,8 +71,8 @@ calc_total_pressure_pa(const struct chamber_s* self)
  *                   2
  */
 
-static double
-calc_total_temperature_k(const struct chamber_s* self)
+double
+calc_total_temperature_k(struct chamber_s* self)
 {
     double y = calc_mixed_gamma(&self->gas);
     double Ts = self->gas.static_temperature_k;
@@ -80,8 +80,8 @@ calc_total_temperature_k(const struct chamber_s* self)
     return Ts * (1.0 + (y - 1.0) / 2.0 * pow(M, 2.0));
 }
 
-static double
-calc_bulk_static_density_kg_per_m3(const struct chamber_s* self)
+double
+calc_bulk_static_density_kg_per_m3(struct chamber_s* self)
 {
     return self->gas.mass_kg / self->volume_m3;
 }
@@ -95,8 +95,8 @@ calc_bulk_static_density_kg_per_m3(const struct chamber_s* self)
  *      \/    y - 1       Ps
  */
 
-static double
-calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
+double
+calc_nozzle_mach(struct chamber_s* self, struct chamber_s* other)
 {
     double Pt = calc_total_pressure_pa(self);
     double y = calc_mixed_gamma(&self->gas);
@@ -121,8 +121,8 @@ calc_nozzle_mach(const struct chamber_s* self, const struct chamber_s* other)
  *                                      2
  */
 
-static double
-calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_s* self, double nozzle_flow_area_m2, double nozzle_mach)
+double
+calc_nozzle_mass_flow_rate_kg_per_s(struct chamber_s* self, double nozzle_flow_area_m2, double nozzle_mach)
 {
     double y = calc_mixed_gamma(&self->gas);
     double M = nozzle_mach;
@@ -142,8 +142,8 @@ calc_nozzle_mass_flow_rate_kg_per_s(const struct chamber_s* self, double nozzle_
  *        \/           2
  */
 
-static double
-calc_nozzle_flow_velocity_m_per_s(const struct chamber_s* self, double nozzle_mach)
+double
+calc_nozzle_flow_velocity_m_per_s(struct chamber_s* self, double nozzle_mach)
 {
     double y = calc_mixed_gamma(&self->gas);
     double M = nozzle_mach;
@@ -158,8 +158,8 @@ calc_nozzle_flow_velocity_m_per_s(const struct chamber_s* self, double nozzle_ma
  *      M
  */
 
-static double
-calc_nozzle_speed_of_sound_m_per_s(const struct chamber_s* self, double nozzle_mach, double nozzle_flow_velocity_m_per_s)
+double
+calc_nozzle_speed_of_sound_m_per_s(struct chamber_s* self, double nozzle_mach, double nozzle_flow_velocity_m_per_s)
 {
     double u = nozzle_flow_velocity_m_per_s;
     double M = nozzle_mach;
@@ -173,8 +173,8 @@ calc_nozzle_speed_of_sound_m_per_s(const struct chamber_s* self, double nozzle_m
     }
 }
 
-static double
-calc_nozzle_flow_area_m2(const struct chamber_s* self)
+double
+calc_nozzle_flow_area_m2(struct chamber_s* self)
 {
     return self->nozzle_max_flow_area_m2 * self->nozzle_open_ratio;
 }
@@ -185,14 +185,25 @@ calc_nozzle_flow_area_m2(const struct chamber_s* self)
  *      (A * u)
  */
 
-static double
-calc_nozzle_static_density_kg_per_m3(double nozzle_mass_flow_rate_kg_per_s, double nozzle_flow_area_m2, double nozzle_flow_velocity_m_per_s)
+double
+calc_nozzle_static_density_kg_per_m3(
+    double nozzle_mass_flow_rate_kg_per_s,
+    double nozzle_flow_area_m2,
+    double nozzle_flow_velocity_m_per_s)
 {
     return nozzle_mass_flow_rate_kg_per_s / (nozzle_flow_area_m2 * nozzle_flow_velocity_m_per_s);
 }
 
-static double
-calc_nozzle_static_pressure_pa(const struct chamber_s* self, double nozzle_mach)
+/*                             -y
+ *                            -----
+ *                            y - 1
+ *                y - 1    2
+ * Ps = Pt * (1 + ----- * M )
+ *                  2
+ */
+
+double
+calc_nozzle_static_pressure_pa(struct chamber_s* self, double nozzle_mach)
 {
     double y = calc_mixed_gamma(&self->gas);
     double Pt = calc_total_pressure_pa(self);
@@ -206,8 +217,8 @@ calc_nozzle_static_pressure_pa(const struct chamber_s* self, double nozzle_mach)
  *               V2
  */
 
-static double
-calc_new_adiabatic_static_temperature_from_volume_delta_k(const struct chamber_s* self, double old_volume_m3)
+double
+calc_new_adiabatic_static_temperature_from_volume_delta_k(struct chamber_s* self, double old_volume_m3)
 {
     double V1 = old_volume_m3;
     double V2 = self->volume_m3;
@@ -215,7 +226,7 @@ calc_new_adiabatic_static_temperature_from_volume_delta_k(const struct chamber_s
     return self->gas.static_temperature_k * pow(V1 / V2, y - 1.0);
 }
 
-static void
+void
 add_momentum(struct chamber_s* self, double momentum_kg_m_per_s)
 {
     self->gas.momentum_kg_m_per_s += momentum_kg_m_per_s;
@@ -223,8 +234,8 @@ add_momentum(struct chamber_s* self, double momentum_kg_m_per_s)
     self->gas.momentum_kg_m_per_s *= momentum_damping_coeffecient;
 }
 
-static void
-remove_gas(struct chamber_s* self, const struct gas_s* mail)
+void
+remove_gas(struct chamber_s* self, struct gas_s* mail)
 {
     self->gas.mass_kg -= mail->mass_kg;
     if(self->gas.mass_kg < 0.0)
@@ -235,7 +246,7 @@ remove_gas(struct chamber_s* self, const struct gas_s* mail)
     add_momentum(self, -mail->momentum_kg_m_per_s);
 }
 
-static void
+void
 normalize_chamber(struct chamber_s* self)
 {
     self->gas = g_gas_ambient_air;
@@ -247,7 +258,7 @@ normalize_chamber(struct chamber_s* self)
  * Mass is doubled and temperature s raised to simulate a high-pressure fuel injection source.
  */
 
-static void
+void
 normalize_injection_chamber(struct chamber_s* self)
 {
     self->gas = g_gas_ambient_atomized_c8h18_fuel;
@@ -256,11 +267,22 @@ normalize_injection_chamber(struct chamber_s* self)
     self->gas.static_temperature_k += 30.0;
 }
 
+double
+calc_mol_ratio(struct chamber_s* self)
+{
+    return self->gas.mol_ratio_n2
+         + self->gas.mol_ratio_o2
+         + self->gas.mol_ratio_ar
+         + self->gas.mol_ratio_c8h18
+         + self->gas.mol_ratio_co2
+         + self->gas.mol_ratio_h2o;
+}
+
 /*
  *  c8h18 + 12.5 o2 -> 8 co2 + 9 h2o
  */
 
-static void
+void
 combust_c8h18(struct chamber_s* self, double fraction)
 {
     double mol_ratio_c8h18 = self->gas.mol_ratio_c8h18 * fraction;
@@ -274,13 +296,7 @@ combust_c8h18(struct chamber_s* self, double fraction)
     self->gas.mol_ratio_o2 -= mol_ratio_o2;
     self->gas.mol_ratio_co2 += 8.0 * mol_ratio_c8h18;
     self->gas.mol_ratio_h2o += 9.0 * mol_ratio_c8h18;
-    double mol_ratio
-        = self->gas.mol_ratio_n2
-        + self->gas.mol_ratio_o2
-        + self->gas.mol_ratio_ar
-        + self->gas.mol_ratio_c8h18
-        + self->gas.mol_ratio_co2
-        + self->gas.mol_ratio_h2o;
+    double mol_ratio = calc_mol_ratio(self);
     self->gas.mol_ratio_n2 /= mol_ratio;
     self->gas.mol_ratio_o2 /= mol_ratio;
     self->gas.mol_ratio_ar /= mol_ratio;
@@ -291,8 +307,8 @@ combust_c8h18(struct chamber_s* self, double fraction)
     self->gas.static_temperature_k += energy_j_per_mol / calc_mixed_cv_j_per_mol_k(&self->gas);
 }
 
-static void
-mix_in_gas(struct chamber_s* self, const struct gas_s* mail)
+void
+mix_in_gas(struct chamber_s* self, struct gas_s* mail)
 {
     double self_moles = calc_moles(&self->gas);
     double mail_moles = calc_moles(mail);

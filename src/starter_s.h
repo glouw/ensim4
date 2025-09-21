@@ -6,20 +6,20 @@ struct starter_s
     bool is_on;
 };
 
-static double
+double
 calc_flywheel_to_starter_gear_ratio(
-    const struct starter_s* self,
-    const struct flywheel_s* flywheel)
+    struct starter_s* self,
+    struct flywheel_s* flywheel)
 {
     double starter_gear_ratio = flywheel->radius_m / self->radius_m;
     return starter_gear_ratio;
 }
 
-static double
+double
 calc_starter_angular_velocity_r_per_s(
-    const struct starter_s* self,
-    const struct flywheel_s* flywheel,
-    const struct crankshaft_s* crankshaft)
+    struct starter_s* self,
+    struct flywheel_s* flywheel,
+    struct crankshaft_s* crankshaft)
 {
     if(self->is_on == false)
     {
@@ -30,11 +30,11 @@ calc_starter_angular_velocity_r_per_s(
     return starter_angular_velocity_r_per_s;
 }
 
-static double
+double
 calc_starter_torque_on_flywheel_n_m(
-    const struct starter_s* self,
-    const struct flywheel_s* flywheel,
-    const struct crankshaft_s* crankshaft)
+    struct starter_s* self,
+    struct flywheel_s* flywheel,
+    struct crankshaft_s* crankshaft)
 {
     if(self->is_on == false)
     {

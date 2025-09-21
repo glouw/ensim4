@@ -16,7 +16,7 @@ struct nozzle_flow_s
     bool is_success;
 };
 
-static struct nozzle_flow_s
+struct nozzle_flow_s
 flow(struct chamber_s* x, struct chamber_s* y)
 {
     double nozzle_flow_area_m2 = calc_nozzle_flow_area_m2(x);

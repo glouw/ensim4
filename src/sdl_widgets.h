@@ -98,7 +98,7 @@ struct widget_time_s
     double (*get_ticks_ms)();
 };
 
-static void
+void
 push_widgets(
     struct engine_s* engine,
     struct engine_time_s* engine_time,

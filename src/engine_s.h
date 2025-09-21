@@ -1,6 +1,6 @@
 struct engine_s
 {
-    const char* name;
+    char* name;
     struct node_s* node;
     size_t size;
     struct crankshaft_s crankshaft;
@@ -32,8 +32,8 @@ struct engine_time_s
 
 #define engine_is(engine) .node = engine, .size = len(engine)
 
-static void
-analyze_engine(const struct engine_s* self)
+void
+analyze_engine(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
     {
@@ -63,7 +63,7 @@ analyze_engine(const struct engine_s* self)
     }
 }
 
-static void
+void
 normalize_engine(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -72,7 +72,7 @@ normalize_engine(struct engine_s* self)
     }
 }
 
-static void
+void
 rig_engine_pistons(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -85,7 +85,7 @@ rig_engine_pistons(struct engine_s* self)
     }
 }
 
-static void
+void
 flow_engine(struct engine_s* self, struct sampler_s* sampler)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -122,8 +122,8 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
     }
 }
 
-static double
-calc_engine_torque_n_m(const struct engine_s* self)
+double
+calc_engine_torque_n_m(struct engine_s* self)
 {
     double torque_n_m = 0.0;
     for(size_t i = 0; i < self->size; i++)
@@ -140,8 +140,8 @@ calc_engine_torque_n_m(const struct engine_s* self)
     return torque_n_m;
 }
 
-static double
-calc_engine_moment_of_inertia_kg_m2(const struct engine_s* self)
+double
+calc_engine_moment_of_inertia_kg_m2(struct engine_s* self)
 {
     double moment_of_inertia_kg_m2 = 0.0;
     for(size_t i = 0; i < self->size; i++)
@@ -157,7 +157,7 @@ calc_engine_moment_of_inertia_kg_m2(const struct engine_s* self)
     return moment_of_inertia_kg_m2;
 }
 
-static void
+void
 crank_engine(struct engine_s* self, struct sampler_s* sampler)
 {
     double torque_n_m = calc_engine_torque_n_m(self);
@@ -185,7 +185,7 @@ crank_engine(struct engine_s* self, struct sampler_s* sampler)
     maybe_limit_engine(&self->limiter, &self->crankshaft, &self->can_ignite);
 }
 
-static void
+void
 combust_engine_piston_chambers(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -202,7 +202,7 @@ combust_engine_piston_chambers(struct engine_s* self)
     }
 }
 
-static void
+void
 compress_engine_pistons(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -215,7 +215,7 @@ compress_engine_pistons(struct engine_s* self)
     }
 }
 
-static void
+void
 update_engine_nozzle_open_ratios(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -269,7 +269,7 @@ update_engine_nozzle_open_ratios(struct engine_s* self)
     }
 }
 
-static void
+void
 enable_engine_cfd(struct engine_s* self, bool use_cfd)
 {
     self->use_cfd = use_cfd;
@@ -283,7 +283,7 @@ enable_engine_cfd(struct engine_s* self, bool use_cfd)
     }
 }
 
-static void
+void
 reset_engine(struct engine_s* self)
 {
     analyze_engine(self);
@@ -298,8 +298,8 @@ reset_engine(struct engine_s* self)
     select_nodes(self->node, self->size, g_is_piston);
 }
 
-static void
-flip_engine_waves(const struct engine_s* self)
+void
+flip_engine_waves(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
     {
@@ -311,8 +311,8 @@ flip_engine_waves(const struct engine_s* self)
     }
 }
 
-static void
-launch_engine_waves(const struct engine_s* self)
+void
+launch_engine_waves(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
     {
@@ -324,8 +324,8 @@ launch_engine_waves(const struct engine_s* self)
     }
 }
 
-static void
-wait_for_engine_waves(const struct engine_s* self)
+void
+wait_for_engine_waves(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
     {
@@ -337,8 +337,8 @@ wait_for_engine_waves(const struct engine_s* self)
     }
 }
 
-static void
-sum_engine_waves(const struct engine_s* self)
+void
+sum_engine_waves(struct engine_s* self)
 {
     clear_wave_buffer();
     for(size_t i = 0; i < self->size; i++)
@@ -351,7 +351,7 @@ sum_engine_waves(const struct engine_s* self)
     }
 }
 
-static void
+void
 push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth, sampler_synth_t sampler_synth)
 {
     sum_engine_waves(self);
@@ -361,7 +361,7 @@ push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth, s
     }
 }
 
-static void
+void
 step_engine(
     struct engine_s* self,
     struct engine_time_s* engine_time,
@@ -387,7 +387,7 @@ step_engine(
     engine_time->thermo_time_ms += t3 - t2;
 }
 
-static void
+void
 run_engine_with_waves(
     struct engine_s* self,
     struct engine_time_s* engine_time,
@@ -412,7 +412,7 @@ run_engine_with_waves(
     }
 }
 
-static void
+void
 run_engine(
     struct engine_s* self,
     struct engine_time_s* engine_time,

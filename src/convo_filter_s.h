@@ -10,7 +10,7 @@ struct convo_filter_s
     size_t index;
 };
 
-static double
+double
 filter_convo(struct convo_filter_s* self, double sample)
 {
     self->buffer[self->index] = sample;

@@ -78,7 +78,7 @@ constexpr struct wave_prim_s g_wave_ambient_cell = {
     .p = g_gas_ambient_static_pressure_pa,
 };
 
-static struct wave_cons_s
+struct wave_cons_s
 prim_to_cons(struct wave_prim_s self)
 {
     /*       p      1         2
@@ -92,7 +92,7 @@ prim_to_cons(struct wave_prim_s self)
     };
 }
 
-static struct wave_prim_s
+struct wave_prim_s
 cons_to_prim(struct wave_cons_s self)
 {
     /*                  2
@@ -108,7 +108,7 @@ cons_to_prim(struct wave_cons_s self)
     };
 }
 
-static struct wave_flux_s
+struct wave_flux_s
 calc_solver_flux(struct wave_prim_s ql, struct wave_prim_s qr)
 {
     struct wave_cons_s ul = prim_to_cons(ql);
@@ -130,7 +130,7 @@ calc_solver_flux(struct wave_prim_s ql, struct wave_prim_s qr)
     };
 }
 
-static void
+void
 compute_wave_flux(struct wave_solver_s* self)
 {
     size_t l = g_wave_signal_cell_index;
@@ -146,7 +146,7 @@ compute_wave_flux(struct wave_solver_s* self)
     }
 }
 
-static void
+void
 update_wave_state(struct wave_solver_s* self, double gradient_s_per_m)
 {
     for(size_t i = 1; i < g_wave_ambient_cell_index; i++)
@@ -160,14 +160,14 @@ update_wave_state(struct wave_solver_s* self, double gradient_s_per_m)
     }
 }
 
-static void
+void
 set_solver_wave_cell(struct wave_solver_s* self, size_t index, struct wave_prim_s prim)
 {
     self->prim[index] = prim;
     self->cons[index] = prim_to_cons(prim);
 }
 
-static void
+void
 step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, double gradient_s_per_m)
 {
     signal_cell.u = filter_lowpass_3(&self->u_filter, g_wave_velocity_low_pass_filter_hz, signal_cell.u);
@@ -189,20 +189,20 @@ step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, dou
     }
 }
 
-static double
+double
 sample_solver_wave(struct wave_solver_s* self)
 {
     size_t index = g_wave_last_interior_cell_index * g_wave_mic_position_ratio;
     return self->prim[index].p;
 }
 
-static void
+void
 clear_wave_buffer()
 {
     clear(g_wave_buffer_pa);
 }
 
-static void
+void
 add_to_wave_buffer(size_t wave_index)
 {
     for(size_t i = 0; i < g_synth_buffer_size; i++)
@@ -211,7 +211,7 @@ add_to_wave_buffer(size_t wave_index)
     }
 }
 
-static void
+void
 reset_solver_wave_cells(struct wave_solver_s* self)
 {
     for(size_t i = 0; i < g_wave_cells; i++)
@@ -220,7 +220,7 @@ reset_solver_wave_cells(struct wave_solver_s* self)
     }
 }
 
-static void
+void
 reset_all_waves()
 {
     for(size_t i = 0; i < g_wave_max_waves; i++)
@@ -234,7 +234,7 @@ reset_all_waves()
     }
 }
 
-static void
+void
 flip_wave(size_t wave_index)
 {
     struct wave_s* self = &g_wave_table[wave_index];
@@ -245,7 +245,7 @@ flip_wave(size_t wave_index)
     self->data.index = 0;
 }
 
-static void
+void
 batch_wave(size_t wave_index, bool use_cfd, double pipe_length_m)
 {
     struct wave_s* self = &g_wave_table[wave_index];
@@ -267,7 +267,7 @@ batch_wave(size_t wave_index, bool use_cfd, double pipe_length_m)
     }
 }
 
-static void
+void
 stage_wave(size_t wave_index, struct wave_prim_s prim)
 {
     struct wave_s* self = &g_wave_table[wave_index];

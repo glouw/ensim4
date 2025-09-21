@@ -14,26 +14,26 @@ struct synth_s
     size_t index;
 };
 
-static void
+void
 sample_synth(struct synth_s* self, double value)
 {
     self->value[self->index++] += value;
 }
 
-static void
+void
 clear_synth(struct synth_s* self)
 {
     self->index = 0;
     clear(self->value);
 }
 
-static double
+double
 clamp_synth(double value)
 {
     return clamp(value, -g_synth_clamp, g_synth_clamp);
 }
 
-static double
+double
 set_synth_deadzone(double value, struct crankshaft_s* crankshaft)
 {
     double absolute_angular_velocity_r_per_s = fabs(crankshaft->angular_velocity_r_per_s);
@@ -44,7 +44,7 @@ set_synth_deadzone(double value, struct crankshaft_s* crankshaft)
     return value;
 }
 
-static double
+double
 push_synth(struct synth_s* self, struct crankshaft_s* crankshaft, double value, bool use_convolution, double volume)
 {
     value = filter_highpass(&self->dc_filter, g_synth_dc_filter_cutoff_frequency_hz, value);

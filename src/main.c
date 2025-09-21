@@ -68,7 +68,7 @@
 #include "sdl_widgets.h"
 #include "sdl_audio.h"
 
-static double
+double
 get_ticks_ms()
 {
     double ticks_ns = SDL_GetTicksNS();

@@ -9,31 +9,31 @@ char* g_std_panic_message = nullptr;
 #define clear(x) memset(x, 0, sizeof(x));
 #define swap(x, y) { auto copy = (x); (x) = (y); (y) = copy; }
 
-static double
+double
 min(double x, double y)
 {
     return x < y ? x : y;
 }
 
-static double
+double
 max(double x, double y)
 {
     return x > y ? x : y;
 }
 
-static double
+double
 clamp(double value, double lower, double upper)
 {
     return value < lower ? lower : value > upper ? upper : value;
 }
 
-static double
+double
 calc_circle_area_m2(double diameter_m)
 {
     return g_std_pi_r * pow(diameter_m / 2.0, 2.0);
 }
 
-static double
+double
 calc_cylinder_volume_m3(double diameter_m, double depth_m)
 {
     return calc_circle_area_m2(diameter_m) * depth_m;
