@@ -1,6 +1,6 @@
 #!/bin/bash
 
-unused_globals=$(cat src/* | grep "static constexpr" | awk '{print $4}' | grep -o '^[A-Za-z0-9_]\+')
+unused_globals=$(cat src/* | grep "constexpr" | awk '{print $4}' | grep -o '^[A-Za-z0-9_]\+')
 
 for global in $unused_globals
 do
