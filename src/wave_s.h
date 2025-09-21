@@ -2,7 +2,6 @@ static constexpr size_t g_wave_cells = 192;
 static constexpr size_t g_wave_substeps = 13;
 static constexpr size_t g_flux_cells = g_wave_cells + 1;
 static constexpr size_t g_wave_signal_cell_index = 0;
-static constexpr size_t g_wave_first_interior_cell_index = 1;
 static constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
 static constexpr size_t g_wave_ambient_cell_index = g_wave_cells - 1;
 static constexpr size_t g_wave_max_waves = 4;
