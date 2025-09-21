@@ -8,7 +8,7 @@ static constexpr double g_engine_piston_head_clearance_height_m = 0.007;
 static constexpr double g_engine_piston_dynamic_friction_coefficient_n_m_s_per_r = 0.020;
 static constexpr double g_engine_piston_static_friction_coefficient_n_m_s_per_r = 0.9;
 static constexpr double g_engine_ideal_chamber_volume_m3 = 2e-4;
-static constexpr double g_engine_ideal_nozzle_max_flow_area_m2 = 1.0e-3;
+static constexpr double g_engine_ideal_nozzle_max_flow_area_m2 = 2.4e-3;
 static constexpr double g_engine_ideal_gas_momentum_damping_time_constant_s = 0.33e-3;
 
 static struct node_s g_engine_node[] = {
@@ -39,11 +39,11 @@ static struct node_s g_engine_node[] = {
         .as.irunner = {
             .chamber = {
                 .volume_m3 = g_engine_ideal_chamber_volume_m3,
-                .nozzle_max_flow_area_m2 = g_engine_ideal_nozzle_max_flow_area_m2,
+                .nozzle_max_flow_area_m2 = 1.2 * g_engine_ideal_nozzle_max_flow_area_m2,
                 .gas_momentum_damping_time_constant_s = g_engine_ideal_gas_momentum_damping_time_constant_s,
             },
             .valve = {
-                .engage_r = -0.00 * g_std_pi_r,
+                .engage_r = -0.10 * g_std_pi_r,
                 .ramp_r = 0.8 * g_std_pi_r,
             },
         },
@@ -54,7 +54,7 @@ static struct node_s g_engine_node[] = {
         .as.injector = {
             .chamber = {
                 .volume_m3 = g_engine_ideal_chamber_volume_m3,
-                .nozzle_max_flow_area_m2 = g_engine_ideal_nozzle_max_flow_area_m2,
+                .nozzle_max_flow_area_m2 = 0.0015 * g_engine_ideal_nozzle_max_flow_area_m2,
                 .gas_momentum_damping_time_constant_s = g_engine_ideal_gas_momentum_damping_time_constant_s,
             },
             .nozzle_index = 2,
@@ -65,7 +65,7 @@ static struct node_s g_engine_node[] = {
         .type = g_is_piston,
         .as.piston = {
             .chamber = {
-                .nozzle_max_flow_area_m2 = g_engine_ideal_nozzle_max_flow_area_m2,
+                .nozzle_max_flow_area_m2 = 0.45 * g_engine_ideal_nozzle_max_flow_area_m2,
                 .gas_momentum_damping_time_constant_s = g_engine_ideal_gas_momentum_damping_time_constant_s,
             },
             .valve = {
@@ -157,10 +157,10 @@ static struct engine_s g_engine = {
         .no_load_angular_velocity_r_per_s = 500.0,
         .radius_m = 0.015,
     },
-    .volume = 1.0,
+    .volume = 0.5,
     .no_throttle = 0.0,
     .low_throttle = 0.01,
-    .mid_throttle = 0.20,
+    .mid_throttle = 0.10,
     .high_throttle = 0.99,
     .radial_spacing = 5.5,
 };

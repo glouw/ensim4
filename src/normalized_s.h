@@ -41,3 +41,9 @@ normalize_samples(float samples[], size_t size)
     normalized.is_success = true;
     return normalized;
 }
+
+static double
+calc_normalized_zero_offset_ratio(struct normalized_s* self)
+{
+    return self->max_value / (self->max_value - self->min_value);
+}

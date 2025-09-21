@@ -12,6 +12,7 @@ static constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
 static constexpr float g_sdl_piston_scale_p_per_m = 400.0;
 static constexpr float g_sdl_piston_space_p = 4.0;
 static constexpr size_t g_sdl_supported_widget_w_p = 192;
+static constexpr float g_sdl_zero_line_mix = 0.66f;
 
 static constexpr SDL_FColor g_sdl_channel_color[] = {
      [0] = {1.00f, 0.00f, 0.00f, 1.0f},
@@ -381,24 +382,45 @@ down_sample_samples(float samples[], size_t size, size_t cap, size_t* step)
 }
 
 static void
+draw_zero_line(struct SDL_FRect rect, struct normalized_s* normalized, SDL_FColor color)
+{
+    float zero_line_offset_p = rect.h * calc_normalized_zero_offset_ratio(normalized);
+    float zero_line_y_p = rect.y + zero_line_offset_p;
+    bool in_bounds = zero_line_y_p > rect.y && zero_line_y_p < rect.y + rect.h;
+    if(in_bounds)
+    {
+        SDL_FPoint a = { rect.x, zero_line_y_p };
+        SDL_FPoint b = { rect.x + rect.w, zero_line_y_p };
+        SDL_FColor zero_line_color = mix_fcolors(color, g_sdl_black_color, g_sdl_zero_line_mix);
+        draw_line(a, b, zero_line_color);
+    }
+}
+
+/* Gathers all sample plot points for one channel into a single array, then renders with one color. */
+static void
 draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_s* sampler, bool use_plot_filter)
 {
     size_t buffered = 0;
     static constexpr size_t max_buffer_size = g_sample_name_e_size * g_sdl_max_display_samples;
     static SDL_FPoint buffer[max_buffer_size];
     static float samples[g_sampler_max_samples];
+    SDL_FColor color = get_channel_color(channel);
     for(enum sample_name_e sample_name = 0; sample_name < g_sample_name_e_size; sample_name++)
     {
+        /* Less points can be rendered without loss of visual fidelity. */
         size_t step = 0;
         size_t sampler_size = sampler->size;
         copy_samples(samples, sampler->channel[channel][sample_name], sampler_size);
         sampler_size = down_sample_samples(samples, sampler_size, g_sdl_max_display_samples, &step);
         struct normalized_s normalized = normalize_samples(samples, sampler_size);
+
+        /* Noisy signals benefit from a low pass filter, though this requires disablement
+         * if phase and / or overlap needs to be studied. */
         if(use_plot_filter)
         {
             cleanup_samples(samples, sampler_size);
         }
-        const SDL_FRect* rect = &rects[sample_name];
+        SDL_FRect rect = rects[sample_name];
         struct
         {
             const char* name;
@@ -408,39 +430,45 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
             { "max: %+.3e", normalized.max_value },
             { "min: %+.3e", normalized.min_value },
             { "div: %3.3f", normalized.div_value },
-#if 0       /* Nice to have, but takes up too much real estate */
+#if 0
+            /* These take up real estate, but can be flipped on for down sample debugging. */
             { "stp: %0.0f", step },
             { "avg: %+.3e", normalized.avg_value },
 #endif
         };
-        if(channel == sampler->channel_index - 1)
+
+        /* Plots only have space for one channel text display, so the last channel is used. */
+        bool is_last_channel = channel == sampler->channel_index - 1;
+        if(is_last_channel)
         {
             struct sdl_scroll_s scroll = {
-                rect->x + 1 * g_sdl_line_spacing_p,
-                rect->y + 2 * g_sdl_line_spacing_p,
+                rect.x + 1 * g_sdl_line_spacing_p,
+                rect.y + 2 * g_sdl_line_spacing_p,
             };
             for(size_t i = 0; i < len(lines); i++)
             {
-                set_render_color(get_channel_color(channel));
+                set_render_color(color);
                 SDL_RenderDebugTextFormat(g_sdl_renderer, scroll.x_p, newline(&scroll), lines[i].name, lines[i].value);
             }
         }
+
+        /* No need to buffer zero-data plots. */
         if(normalized.is_success)
         {
+            size_t data_rect_y_offset_p = calc_scroll_newline_pixels_p(len(lines));
+            SDL_FRect data_rect = {
+                rect.x, rect.y + data_rect_y_offset_p,
+                rect.w, rect.h - data_rect_y_offset_p,
+            };
+            /* Zero lines allow for better flow direction study and comparison. Enabled for all channels. */
+            draw_zero_line(data_rect, &normalized, color);
             for(size_t i = 0; i < sampler_size; i++)
             {
-                size_t h_offset_p = calc_scroll_newline_pixels_p(len(lines));
-                SDL_FRect barred_rect = {
-                    rect->x,
-                    rect->y + h_offset_p,
-                    rect->w,
-                    rect->h - h_offset_p,
-                };
-                buffer[buffered++] = calc_point_in_rect(samples[i], barred_rect, i, sampler_size);
+                buffer[buffered++] = calc_point_in_rect(samples[i], data_rect, i, sampler_size);
             }
         }
     }
-    draw_points(buffer, buffered, get_channel_color(channel));
+    draw_points(buffer, buffered, color);
 }
 
 static void

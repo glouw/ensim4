@@ -66,9 +66,6 @@ flow(struct chamber_s* x, struct chamber_s* y)
         }
     }
     return (struct nozzle_flow_s) {
-        .area_m2 = nozzle_flow_area_m2,
-        .is_success = false,
-        .flow_field.velocity_m_per_s = 0.0,
         .flow_field.static_density_kg_per_m3 = calc_bulk_static_density_kg_per_m3(x),
         .flow_field.static_pressure_pa = calc_static_pressure_pa(x),
     };
