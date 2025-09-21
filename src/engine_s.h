@@ -23,6 +23,7 @@ struct engine_s
     bool use_cfd;
     bool use_convolution;
     bool can_ignite;
+    bool use_plot_filter;
 };
 
 struct engine_time_s

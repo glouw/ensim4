@@ -195,10 +195,10 @@ calc_nozzle_static_density_kg_per_m3(double nozzle_mass_flow_rate_kg_per_s, doub
 static double
 calc_nozzle_static_pressure_pa(const struct chamber_s* self, double nozzle_mach)
 {
-    double gamma = calc_mixed_gamma(&self->gas);
-    double p0 = calc_total_pressure_pa(self);
+    double y = calc_mixed_gamma(&self->gas);
+    double Pt = calc_total_pressure_pa(self);
     double M = nozzle_mach;
-    return p0 * pow(1.0 + 0.5*(gamma-1.0)*M*M, -gamma/(gamma-1.0));
+    return Pt * pow(1.0 + 0.5 * (y - 1.0) * pow(M, 2.0), -y / (y - 1.0));
 }
 
 /*                   y - 1

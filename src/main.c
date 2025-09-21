@@ -78,9 +78,7 @@ get_ticks_ms()
 }
 
 static struct sampler_s g_sampler = {};
-
 static sampler_synth_t g_sampler_synth = {};
-
 static struct synth_s g_synth = {};
 
 int
@@ -96,7 +94,8 @@ main()
     init_sdl();
     init_sdl_audio();
 #ifdef ENSIM4_PERF
-    for(size_t cycle = 0; cycle < 360; cycle++)
+    size_t perf_max_cycles = 360;
+    for(size_t cycle = 0; cycle < perf_max_cycles; cycle++)
 #else
     for(;;)
 #endif

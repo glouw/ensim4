@@ -7,10 +7,11 @@ static constexpr double g_sampler_min_angular_velocity_r_per_s = g_std_four_pi_r
     X(g_sample_sparkplug_voltage_v)             \
     X(g_sample_nozzle_area_m2)                  \
     X(g_sample_nozzle_mach)                     \
+    X(g_sample_nozzle_static_density_kg_per_m3) \
     X(g_sample_nozzle_velocity_m_per_s)         \
+    X(g_sample_nozzle_static_pressure_pa)       \
     X(g_sample_nozzle_mass_flow_rate_kg_per_s)  \
     X(g_sample_nozzle_speed_of_sound_m_per_s)   \
-    X(g_sample_nozzle_static_density_kg_per_m3) \
     X(g_sample_piston_gas_torque_n_m)           \
     X(g_sample_piston_inertia_torque_n_m)       \
     X(g_sample_static_pressure_pa)              \
@@ -76,10 +77,11 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
         sample_value(self, g_sample_piston_inertia_torque_n_m, node->type == g_is_piston ? calc_piston_inertia_torque_n_m(&node->as.piston, crankshaft) : 0.0);
         sample_value(self, g_sample_nozzle_area_m2, nozzle_flow->area_m2);
         sample_value(self, g_sample_nozzle_mach, nozzle_flow->flow_field.mach);
+        sample_value(self, g_sample_nozzle_static_density_kg_per_m3, nozzle_flow->flow_field.static_density_kg_per_m3);
         sample_value(self, g_sample_nozzle_velocity_m_per_s, nozzle_flow->flow_field.velocity_m_per_s);
+        sample_value(self, g_sample_nozzle_static_pressure_pa, nozzle_flow->flow_field.static_pressure_pa);
         sample_value(self, g_sample_nozzle_mass_flow_rate_kg_per_s, nozzle_flow->flow_field.mass_flow_rate_kg_per_s);
         sample_value(self, g_sample_nozzle_speed_of_sound_m_per_s, nozzle_flow->flow_field.speed_of_sound_m_per_s);
-        sample_value(self, g_sample_nozzle_static_density_kg_per_m3, nozzle_flow->flow_field.static_density_kg_per_m3);
         sample_value(self, g_sample_gamma, calc_mixed_gamma(&node->as.chamber.gas));
         sample_value(self, g_sample_momentum_kg_m_per_s, node->as.chamber.gas.momentum_kg_m_per_s);
         self->channel_index++;

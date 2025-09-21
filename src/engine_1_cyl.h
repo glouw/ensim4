@@ -154,7 +154,7 @@ static struct engine_s g_engine_1_cyl = {
         .no_load_angular_velocity_r_per_s = 500.0,
         .radius_m = 0.015,
     },
-    .volume = 0.1,
+    .volume = 0.7,
     .no_throttle = 0.0025,
     .low_throttle = 0.20,
     .mid_throttle = 0.50,

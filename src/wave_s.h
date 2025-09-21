@@ -1,5 +1,5 @@
-static constexpr size_t g_wave_cells = 256;
-static constexpr size_t g_wave_substeps = 12;
+static constexpr size_t g_wave_cells = 192;
+static constexpr size_t g_wave_substeps = 13;
 static constexpr size_t g_flux_cells = g_wave_cells + 1;
 static constexpr size_t g_wave_signal_cell_index = 0;
 static constexpr size_t g_wave_first_interior_cell_index = 1;
@@ -9,7 +9,8 @@ static constexpr size_t g_wave_max_waves = 4;
 static constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 static constexpr double g_wave_gamma = 1.31;
 static constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
-static constexpr double g_wave_mic_position_ratio = 0.1;
+static constexpr double g_wave_mic_position_ratio = 0.5;
+static constexpr double g_wave_velocity_low_pass_filter_hz = 5000.0;
 
 /*
  * Units and longform names were ommited from variable names to simplify readability.
@@ -17,55 +18,31 @@ static constexpr double g_wave_mic_position_ratio = 0.1;
 
 struct wave_prim_s
 {
-    /*
-     * static_density_kg_per_m3
-     */
+    /* static_density_kg_per_m3 */
     double r;
-
-    /*
-     * velocity_m_per_s
-     */
+    /* velocity_m_per_s */
     double u;
-
-    /*
-     * static_pressure_pa
-     */
+    /* static_pressure_pa */
     double p;
 };
 
 struct wave_cons_s
 {
-    /*
-     * static_density_kg_per_m3
-     */
+    /* static_density_kg_per_m3 */
     double r;
-
-    /*
-     * momentum_density_kg_per_m2_s
-     */
+    /* momentum_density_kg_per_m2_s */
     double m;
-
-    /*
-     * total_energy_density_j_per_m_3
-     */
+    /* total_energy_density_j_per_m_3 */
     double e;
 };
 
 struct wave_flux_s
 {
-    /*
-     * mass_flux_kg_per_m2_s
-     */
+    /* mass_flux_kg_per_m2_s */
     double r;
-
-    /*
-     * momentum_flux_n_per_m2
-     */
+    /* momentum_flux_n_per_m2 */
     double m;
-
-    /*
-     * energy_flux_w_per_m2
-     */
+    /* energy_flux_w_per_m2 */
     double e;
 };
 
@@ -74,6 +51,7 @@ struct wave_solver_s
     struct wave_prim_s prim[g_wave_cells];
     struct wave_cons_s cons[g_wave_cells];
     struct wave_flux_s flux[g_flux_cells];
+    struct lowpass_filter_3_s u_filter;
 };
 
 struct wave_data_s
@@ -193,6 +171,7 @@ set_solver_wave_cell(struct wave_solver_s* self, size_t index, struct wave_prim_
 static void
 step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, double gradient_s_per_m)
 {
+    signal_cell.u = filter_lowpass_3(&self->u_filter, g_wave_velocity_low_pass_filter_hz, signal_cell.u);
     for(size_t i = 0; i < g_wave_substeps; i++)
     {
         struct wave_prim_s last_interior_cell = self->prim[g_wave_last_interior_cell_index];

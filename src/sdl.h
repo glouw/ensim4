@@ -1,5 +1,5 @@
 static const char* const g_sdl_title = "ensim4";
-static constexpr bool g_sdl_use_full_screen = true;
+static constexpr bool g_sdl_use_full_screen = false;
 static constexpr float g_sdl_xres_p = 1920.0f;
 static constexpr float g_sdl_yres_p = 1080.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
@@ -348,11 +348,7 @@ draw_radial_chambers(const struct engine_s* engine)
 static void
 cleanup_samples(float samples[], size_t size)
 {
-    float first = samples[0];
-    struct lowpass_filter_s filter = {
-        .x0 = first,
-        .y0 = first,
-    };
+    struct lowpass_filter_s filter = { .last = samples[0] };
     for(size_t i = 0; i < size; i++)
     {
         samples[i] = filter_lowpass(&filter, g_sdl_plot_lowpass_filter_hz, samples[i]);
@@ -385,7 +381,7 @@ down_sample_samples(float samples[], size_t size, size_t cap, size_t* step)
 }
 
 static void
-draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_s* sampler)
+draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_s* sampler, bool use_plot_filter)
 {
     size_t buffered = 0;
     static constexpr size_t max_buffer_size = g_sample_name_e_size * g_sdl_max_display_samples;
@@ -398,7 +394,10 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
         copy_samples(samples, sampler->channel[channel][sample_name], sampler_size);
         sampler_size = down_sample_samples(samples, sampler_size, g_sdl_max_display_samples, &step);
         struct normalized_s normalized = normalize_samples(samples, sampler_size);
-        cleanup_samples(samples, sampler_size);
+        if(use_plot_filter)
+        {
+            cleanup_samples(samples, sampler_size);
+        }
         const SDL_FRect* rect = &rects[sample_name];
         struct
         {
@@ -445,11 +444,11 @@ draw_plot_channel(const SDL_FRect rects[], size_t channel, const struct sampler_
 }
 
 static void
-draw_plot_channels(const SDL_FRect rects[], const struct sampler_s* sampler, size_t channels)
+draw_plot_channels(const SDL_FRect rects[], const struct sampler_s* sampler, size_t channels, bool use_plot_filter)
 {
     for(size_t channel = 0; channel < channels; channel++)
     {
-        draw_plot_channel(rects, channel, sampler);
+        draw_plot_channel(rects, channel, sampler, use_plot_filter);
     }
 }
 
@@ -503,7 +502,7 @@ draw_plots(const struct engine_s* engine, const struct sampler_s* sampler)
 {
     static SDL_FRect rects[g_sample_name_e_size];
     position_plot_containers(engine, rects);
-    draw_plot_channels(rects, sampler, sampler->channel_index);
+    draw_plot_channels(rects, sampler, sampler->channel_index, engine->use_plot_filter);
     draw_plot_containers(rects);
 }
 
@@ -578,6 +577,7 @@ draw_info_title(const struct engine_s* engine, struct sdl_scroll_s* scroll)
         { "  1-9: engine select"        , simple                                    },
         { "    t: use_convolution"      , engine->use_convolution ? active : simple },
         { "    y: use_cfd"              , engine->use_cfd         ? active : simple },
+        { "    u: use_plot_filter"      , engine->use_plot_filter ? active : simple },
         { "    d: ignition_on"          , engine->can_ignite      ? active : simple },
         { "space: starter_on"           , engine->starter.is_on   ? active : simple },
         { "------ nodes --------------" , simple                                    },
@@ -860,6 +860,9 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
                 break;
             case SDLK_Y:
                 enable_engine_cfd(engine, engine->use_cfd ^= true);
+                break;
+            case SDLK_U:
+                engine->use_plot_filter ^= true;
                 break;
             case SDLK_T:
                 engine->use_convolution ^= true;

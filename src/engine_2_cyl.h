@@ -1,30 +1,45 @@
-static constexpr double g_engine_2_cyl_channel_count = 2.0;
-static constexpr double g_engine_2_cyl_intake_channel_max_flow_area_m2 = 2.5e-3;
-static constexpr double g_engine_2_cyl_exhaust_channel_max_flow_area_m2 = 2.9e-3;
-static constexpr double g_engine_2_cyl_exhaust_junction_max_flow_area_m2 = g_engine_2_cyl_channel_count * g_engine_2_cyl_exhaust_channel_max_flow_area_m2;
-static constexpr double g_engine_2_cyl_throttle_max_flow_area_m2 = g_engine_2_cyl_intake_channel_max_flow_area_m2 / 32.0;
-static constexpr double g_engine_2_cyl_injector_max_flow_area_m2 = g_engine_2_cyl_intake_channel_max_flow_area_m2 / 128.0;
+/* twin engine config */
+
+static const char* const g_engine_2_cyl_name = "parallel twin";
+static constexpr size_t g_engine_2_cyl_channel_count = 2;
+
+/* flow area spec */
+
+static constexpr double g_engine_2_cyl_injector_max_flow_area_m2 = 0.025e-3;
+static constexpr double g_engine_2_cyl_throttle_max_flow_area_m2 = 0.75e-3;
+static constexpr double g_engine_2_cyl_intake_channel_max_flow_area_m2 = 3.9e-3;
+static constexpr double g_engine_2_cyl_exhaust_channel_max_flow_area_m2 = 3.4e-3;
+static constexpr double g_engine_2_cyl_exhaust_junction_max_flow_area_m2 = 0.85 * g_engine_2_cyl_channel_count * g_engine_2_cyl_exhaust_channel_max_flow_area_m2;
+
+/* volume spec */
+
+static constexpr double g_engine_2_cyl_channel_volume_m3 = 1.0e-4;
+static constexpr double g_engine_2_cyl_junction_volume_m3 = 1.5 * g_engine_2_cyl_channel_volume_m3;
+
+/* piston spec */
+
+static constexpr double g_engine_2_cyl_piston_dynamic_friction_coefficient_n_m_s_per_r = 0.020;
+static constexpr double g_engine_2_cyl_piston_static_friction_coefficient_n_m_s_per_r = 0.9;
 static constexpr double g_engine_2_cyl_sparkplug_on_theta_r = (2.0 / 32.0) * g_std_four_pi_r;
 static constexpr double g_engine_2_cyl_0_theta_r = (0.0 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_2_cyl_1_theta_r = (1.0 / 4.0) * g_std_four_pi_r;
-static constexpr double g_engine_2_cyl_channel_volume_m3 = 1.2e-4;
-static constexpr double g_engine_2_cyl_junction_volume_m3 = g_engine_2_cyl_channel_volume_m3 * g_engine_2_cyl_channel_count;
-static constexpr double g_engine_2_cyl_valve_ramp_r = (0.80 / 4.0) * g_std_four_pi_r;
+static constexpr double g_engine_2_cyl_intake_valve_ramp_r = (0.94 / 4.0) * g_std_four_pi_r;
+static constexpr double g_engine_2_cyl_exhaust_valve_ramp_r = (0.94 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_2_cyl_intake_stroke_theta_r = g_engine_intake_stroke_theta_r - (0.1 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_2_cyl_exhaust_stroke_theta_r = g_engine_exhaust_stroke_theta_r - (0.3 / 4.0) * g_std_four_pi_r;
 static constexpr double g_engine_2_cyl_power_stroke_theta_r = g_engine_power_stroke_theta_r + (0.1 / 4.0) * g_std_four_pi_r;
-static constexpr double g_engine_2_cyl_piston_dynamic_friction_coefficient_n_m_s_per_r = 0.01;
-static constexpr double g_engine_2_cyl_piston_static_friction_coefficient_n_m_s_per_r = 0.9;
-static constexpr double g_engine_2_cyl_piston_diameter_m = 0.057;
+static constexpr double g_engine_2_cyl_piston_diameter_m = 0.062;
 static constexpr double g_engine_2_cyl_piston_crank_throw_length_m = 0.031;
 static constexpr double g_engine_2_cyl_piston_connecting_rod_length_m = 0.11;
 static constexpr double g_engine_2_cyl_piston_connecting_rod_mass_kg = 0.4;
 static constexpr double g_engine_2_cyl_piston_head_mass_density_kg_per_m3 = 7800.0;
 static constexpr double g_engine_2_cyl_piston_head_compression_height_m = 0.018;
 static constexpr double g_engine_2_cyl_piston_head_clearance_height_m = 0.007;
-static constexpr double g_engine_2_cyl_gas_momentum_damping_time_constant_s = 0.25e-3;
-static constexpr double g_engine_2_cyl_runner_gas_momentum_damping_time_constant_s = 2.0 * g_engine_2_cyl_gas_momentum_damping_time_constant_s;
-static constexpr double g_engine_2_cyl_eplenum_pipe_length_m = 0.9;
+
+/* piping spec */
+
+static constexpr double g_engine_2_cyl_gas_momentum_damping_time_constant_s = 0.33e-3;
+static constexpr double g_engine_2_cyl_eplenum_pipe_length_m = 0.5;
 
 static struct node_s g_node_2_cyl[] = {
     [0] = {
@@ -55,11 +70,11 @@ static struct node_s g_node_2_cyl[] = {
             .chamber = {
                 .volume_m3 = g_engine_2_cyl_channel_volume_m3,
                 .nozzle_max_flow_area_m2 = g_engine_2_cyl_intake_channel_max_flow_area_m2,
-                .gas_momentum_damping_time_constant_s = g_engine_2_cyl_runner_gas_momentum_damping_time_constant_s,
+                .gas_momentum_damping_time_constant_s = g_engine_2_cyl_gas_momentum_damping_time_constant_s,
             },
             .valve = {
-                .engage_r = g_engine_2_cyl_0_theta_r + g_engine_2_cyl_intake_stroke_theta_r,
-                .ramp_r = g_engine_2_cyl_valve_ramp_r,
+                .engage_r = g_engine_2_cyl_0_theta_r + g_engine_2_cyl_intake_stroke_theta_r - 1.0,
+                .ramp_r = g_engine_2_cyl_intake_valve_ramp_r,
             },
         },
         .next = {4}
@@ -85,7 +100,7 @@ static struct node_s g_node_2_cyl[] = {
             },
             .valve = {
                 .engage_r = g_engine_2_cyl_0_theta_r + g_engine_2_cyl_exhaust_stroke_theta_r,
-                .ramp_r = g_engine_2_cyl_valve_ramp_r,
+                .ramp_r = g_engine_2_cyl_exhaust_valve_ramp_r,
             },
             .sparkplug = {
                 .engage_r = g_engine_2_cyl_0_theta_r + g_engine_2_cyl_power_stroke_theta_r,
@@ -110,7 +125,7 @@ static struct node_s g_node_2_cyl[] = {
             .chamber = {
                 .volume_m3 = g_engine_2_cyl_channel_volume_m3,
                 .nozzle_max_flow_area_m2 = g_engine_2_cyl_exhaust_channel_max_flow_area_m2,
-                .gas_momentum_damping_time_constant_s = g_engine_2_cyl_runner_gas_momentum_damping_time_constant_s,
+                .gas_momentum_damping_time_constant_s = g_engine_2_cyl_gas_momentum_damping_time_constant_s,
             },
         },
         .next = {10}
@@ -121,11 +136,11 @@ static struct node_s g_node_2_cyl[] = {
             .chamber = {
                 .volume_m3 = g_engine_2_cyl_channel_volume_m3,
                 .nozzle_max_flow_area_m2 = g_engine_2_cyl_intake_channel_max_flow_area_m2,
-                .gas_momentum_damping_time_constant_s = g_engine_2_cyl_runner_gas_momentum_damping_time_constant_s,
+                .gas_momentum_damping_time_constant_s = g_engine_2_cyl_gas_momentum_damping_time_constant_s,
             },
             .valve = {
                 .engage_r = g_engine_2_cyl_1_theta_r + g_engine_2_cyl_intake_stroke_theta_r,
-                .ramp_r = g_engine_2_cyl_valve_ramp_r,
+                .ramp_r = g_engine_2_cyl_intake_valve_ramp_r,
             },
         },
         .next = {8}
@@ -151,7 +166,7 @@ static struct node_s g_node_2_cyl[] = {
             },
             .valve = {
                 .engage_r = g_engine_2_cyl_1_theta_r + g_engine_2_cyl_exhaust_stroke_theta_r,
-                .ramp_r = g_engine_2_cyl_valve_ramp_r,
+                .ramp_r = g_engine_2_cyl_exhaust_valve_ramp_r,
             },
             .sparkplug = {
                 .engage_r = g_engine_2_cyl_1_theta_r + g_engine_2_cyl_power_stroke_theta_r,
@@ -176,7 +191,7 @@ static struct node_s g_node_2_cyl[] = {
             .chamber = {
                 .volume_m3 = g_engine_2_cyl_channel_volume_m3,
                 .nozzle_max_flow_area_m2 = g_engine_2_cyl_exhaust_channel_max_flow_area_m2,
-                .gas_momentum_damping_time_constant_s = g_engine_2_cyl_runner_gas_momentum_damping_time_constant_s,
+                .gas_momentum_damping_time_constant_s = g_engine_2_cyl_gas_momentum_damping_time_constant_s,
             },
         },
         .next = {10}
@@ -218,28 +233,28 @@ static struct node_s g_node_2_cyl[] = {
 };
 
 static struct engine_s g_engine_2_cyl = {
-    "parallel twin",
+    g_engine_2_cyl_name,
     engine_is(g_node_2_cyl),
     .crankshaft = {
         .mass_kg = 1.0,
         .radius_m = 0.04,
     },
     .flywheel = {
-        .mass_kg = 2.1,
-        .radius_m = 0.07,
+        .mass_kg = 1.25,
+        .radius_m = 0.08,
     },
     .limiter = {
-        .cutoff_angular_velocity_r_per_s = 1100.0,
-        .relaxed_angular_velocity_r_per_s = 200.0,
+        .cutoff_angular_velocity_r_per_s = 1000.0,
+        .relaxed_angular_velocity_r_per_s = 300.0,
     },
     .starter = {
         .rated_torque_n_m = 20.0,
         .no_load_angular_velocity_r_per_s = 500.0,
         .radius_m = 0.015,
     },
-    .volume = 0.25,
+    .volume = 1.0,
     .no_throttle = 0.0,
-    .low_throttle = 0.05,
+    .low_throttle = 0.01,
     .mid_throttle = 0.20,
     .high_throttle = 0.99,
     .radial_spacing = 3.5,
