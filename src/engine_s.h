@@ -1,9 +1,3 @@
-static constexpr double g_engine_stroke_ratio = 1.0 / 4.0;
-static constexpr double g_engine_intake_stroke_theta_r = 0.0 * g_engine_stroke_ratio * g_std_four_pi_r;
-static constexpr double g_engine_compression_stroke_theta_r = 1.0 * g_engine_stroke_ratio * g_std_four_pi_r;
-static constexpr double g_engine_power_stroke_theta_r = 2.0 * g_engine_stroke_ratio * g_std_four_pi_r;
-static constexpr double g_engine_exhaust_stroke_theta_r = 3.0 * g_engine_stroke_ratio * g_std_four_pi_r;
-
 struct engine_s
 {
     const char* name;
@@ -295,6 +289,7 @@ reset_engine(struct engine_s* self)
     analyze_engine(self);
     enable_engine_cfd(self, true);
     self->use_convolution = true;
+    self->use_plot_filter = true;
     self->starter.is_on = false;
     self->throttle_open_ratio = 0.01;
     reset_all_waves();

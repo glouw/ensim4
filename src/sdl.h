@@ -1,5 +1,5 @@
 static const char* const g_sdl_title = "ensim4";
-static constexpr bool g_sdl_use_full_screen = false;
+static constexpr bool g_sdl_use_full_screen = true;
 static constexpr float g_sdl_xres_p = 1920.0f;
 static constexpr float g_sdl_yres_p = 1080.0f;
 static constexpr float g_sdl_mid_x_p = g_sdl_xres_p / 2.0f;
@@ -574,7 +574,6 @@ draw_info_title(const struct engine_s* engine, struct sdl_scroll_s* scroll)
     lines[] = {
         { g_sdl_title                   , simple                                    },
         { "the inline engine simulator" , simple                                    },
-        { "  1-9: engine select"        , simple                                    },
         { "    t: use_convolution"      , engine->use_convolution ? active : simple },
         { "    y: use_cfd"              , engine->use_cfd         ? active : simple },
         { "    u: use_plot_filter"      , engine->use_plot_filter ? active : simple },
@@ -827,9 +826,8 @@ draw_to_renderer(
 }
 
 static bool
-handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
+handle_input(struct engine_s* engine, struct sampler_s* sampler)
 {
-    struct engine_s* engine = *engine_ref;
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
@@ -874,33 +872,6 @@ handle_input(struct engine_s** engine_ref, struct sampler_s* sampler)
             {
             case SDLK_SPACE:
                 engine->starter.is_on = false;
-                break;
-            case SDLK_1:
-                reset_engine(*engine_ref = &g_engine_1_cyl);
-                break;
-            case SDLK_2:
-                reset_engine(*engine_ref = &g_engine_2_cyl);
-                break;
-            case SDLK_3:
-                reset_engine(*engine_ref = &g_engine_8_cyl);
-                break;
-            case SDLK_4:
-                reset_engine(*engine_ref = &g_engine_8_cyl);
-                break;
-            case SDLK_5:
-                reset_engine(*engine_ref = &g_engine_8_cyl);
-                break;
-            case SDLK_6:
-                reset_engine(*engine_ref = &g_engine_8_cyl);
-                break;
-            case SDLK_7:
-                reset_engine(*engine_ref = &g_engine_8_cyl);
-                break;
-            case SDLK_8:
-                reset_engine(*engine_ref = &g_engine_8_cyl);
-                break;
-            case SDLK_9:
-                reset_engine(*engine_ref = &g_engine_8_cyl);
                 break;
             case SDLK_P:
                 deselect_all_nodes(engine->node, engine->size);

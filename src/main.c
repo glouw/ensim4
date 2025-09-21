@@ -55,9 +55,7 @@
 
 /* engine assembly */
 #include "engine_s.h"
-#include "engine_1_cyl.h"
 #include "engine_2_cyl.h"
-#include "engine_8_cyl.h"
 
 /* sdl3 (video, input, and audio access) + helpers */
 #include <SDL3/SDL.h>
@@ -89,8 +87,7 @@ main()
     visualize_gamma();
     visualize_chamber_s();
 #endif
-    struct engine_s* engine = &g_engine_2_cyl;
-    reset_engine(engine);
+    reset_engine(&g_engine);
     init_sdl();
     init_sdl_audio();
 #ifdef ENSIM4_PERF
@@ -107,7 +104,7 @@ main()
         clear_synth(&g_synth);
         size_t audio_buffer_size = get_audio_buffer_size();
         run_engine(
-            engine,
+            &g_engine,
             &engine_time,
             &g_sampler,
             &g_synth,
@@ -115,12 +112,12 @@ main()
             g_sampler_synth);
         buffer_audio(&g_synth);
         double t2 = widget_time.get_ticks_ms();
-        if(handle_input(&engine, &g_sampler))
+        if(handle_input(&g_engine, &g_sampler))
         {
             break;
         }
         draw_to_renderer(
-            engine,
+            &g_engine,
             &g_sampler,
             &g_loop_time_panel,
             &g_engine_time_panel,
@@ -141,7 +138,7 @@ main()
         widget_time.draw_time_ms = t3 - t2;
         widget_time.vsync_time_ms = t4 - t0;
         push_widgets(
-            engine,
+            &g_engine,
             &engine_time,
             &g_sampler,
             g_sampler_synth,
