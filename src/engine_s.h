@@ -1,6 +1,6 @@
 struct engine_s
 {
-    char* name;
+    const char* name;
     struct node_s* node;
     size_t size;
     struct crankshaft_s crankshaft;
