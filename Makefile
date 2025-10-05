@@ -5,12 +5,13 @@ WFLAGS = -Wall -Wextra -Wpedantic
 LDFLAGS = -lm -lSDL3
 DFLAGS = -DENSIM4_MONITOR_REFRESH_RATE_HZ=60
 
-ifeq (0,1)
-CFLAGS += -Rpass=loop-vectorize
+ifeq ($(MAKECMDGOALS),sanitize)
+CFLAGS += -fsanitize=address,undefined -g
 endif
 
-ifeq (0,1)
-CFLAGS+= -fsanitize=address,undefined -g
+ifeq ($(MAKECMDGOALS),vector)
+CFLAGS += -Rpass-missed=loop-vectorize
+FILTER = 2>&1 | grep "loop not vectorized"
 endif
 
 ifeq ($(MAKECMDGOALS),visualize)
@@ -25,7 +26,7 @@ BIN = ensim4
 SRC = src/main.c
 
 all:
-	$(CC) $(CFLAGS) $(WFLAGS) $(DFLAGS) $(SRC) $(LDFLAGS) -o $(BIN)
+	$(CC) $(CFLAGS) $(WFLAGS) $(DFLAGS) $(SRC) $(LDFLAGS) -o $(BIN) $(FILTER)
 	@echo -e "\033[0;32m"
 	@echo -e "Remember to set your monitor refresh rate in the Makefile"
 	@echo -e "\033[0m"
@@ -33,9 +34,14 @@ all:
 vroom: all
 	@./$(BIN)
 
+sanitize: all
+	@./$(BIN)
+
 size: all
 	@objdump -d -M intel $(BIN) > $(BIN).asm
 	@size $(BIN)
+
+vector: all
 
 visualize: all
 	@./$(BIN)
