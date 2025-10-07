@@ -38,6 +38,7 @@
 #include "node_s.h"
 #include "sampler_s.h"
 #include "engine_s.h"
+#include "engine_blueprints.h"
 #include "engine_2_cyl.h"
 #include <SDL3/SDL.h>
 #include "sdl_scroll_s.h"
@@ -57,8 +58,38 @@ get_ticks_ms()
 }
 
 struct sampler_s g_sampler = {};
+
 sampler_synth_t g_sampler_synth = {};
+
 struct synth_s g_synth = {};
+
+struct engine_s g_engine = {
+    .name = g_engine_name,
+    engine_is(g_engine_node),
+    .crankshaft = {
+        .mass_kg = g_engine_crankshaft_mass_kg,
+        .radius_m = g_engine_crankshaft_radius_m,
+    },
+    .flywheel = {
+        .mass_kg = g_engine_flywheel_mass_kg,
+        .radius_m = g_engine_flywheel_radius_m,
+    },
+    .limiter = {
+        .cutoff_angular_velocity_r_per_s = g_engine_limiter_cutoff_r_per_s,
+        .relaxed_angular_velocity_r_per_s = g_engine_limiter_relaxed_r_per_s,
+    },
+    .starter = {
+        .rated_torque_n_m = e_engine_starter_rated_torque_n_m,
+        .no_load_angular_velocity_r_per_s = g_engine_starter_no_load_r_per_s,
+        .radius_m = g_engine_starter_radius_m,
+    },
+    .volume = g_engine_sound_volume,
+    .no_throttle = g_engine_no_throttle,
+    .low_throttle = g_engine_low_throttle,
+    .mid_throttle = g_engine_mid_throttle,
+    .high_throttle = g_engine_high_throttle,
+    .radial_spacing = g_engine_radial_spacing,
+};
 
 int
 main()

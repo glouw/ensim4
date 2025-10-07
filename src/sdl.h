@@ -579,7 +579,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
     lines[] = {
         { "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s },
         { "monitor_hz: %.0f", g_std_monitor_refresh_rate },
-        { "node_s_bytes: %.0f", sizeof(struct node_s) },
+        { "g_engine_node_bytes: %.0f", sizeof(g_engine_node) },
         { "supported_channels: %.0f", g_sampler_max_channels },
     };
     for(size_t i = 0; i < len(lines); i++)
