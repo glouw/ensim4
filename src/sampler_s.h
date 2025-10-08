@@ -31,7 +31,7 @@ enum sample_name_e
     g_sample_name_e_size
 };
 
-char* g_sample_name_string[] = {
+const char* g_sample_name_string[] = {
 #define X(N) #N,
     SAMPLES
 #undef X
@@ -102,14 +102,14 @@ reset_sampler_channel(struct sampler_s* self)
     self->channel_index = 0;
 }
 
-char*
-till_underscore(char* string)
+const char*
+till_underscore(const char* string)
 {
     return strchr(string, '_') + 1;
 }
 
-char*
-skip_sample_namespace(char* string)
+const char*
+skip_sample_namespace(const char* string)
 {
     return till_underscore(till_underscore(string));
 }

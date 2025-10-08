@@ -5,13 +5,15 @@ struct eplenum_s
     thrd_t thread;
     bool use_cfd;
     double pipe_length_m;
+    double mic_position_ratio;
+    double velocity_low_pass_cutoff_frequency_hz;
 };
 
 int
 run_eplenum_wave_thread(void* argument)
 {
     struct eplenum_s* self = argument;
-    batch_wave(self->wave_index, self->use_cfd, self->pipe_length_m);
+    batch_wave(self->wave_index, self->use_cfd, self->pipe_length_m, self->mic_position_ratio, self->velocity_low_pass_cutoff_frequency_hz);
     return 0;
 }
 

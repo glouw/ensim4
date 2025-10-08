@@ -2,8 +2,8 @@ constexpr size_t g_sdl_time_panel_size = 8;
 
 struct sdl_time_panel_s
 {
-    char* title;
-    char* labels[g_sdl_time_panel_size];
+    const char* title;
+    const char* labels[g_sdl_time_panel_size];
     SDL_FRect rect;
     double min_value;
     double max_value;

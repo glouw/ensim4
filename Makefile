@@ -1,3 +1,11 @@
+ENGINE ?= ENGINE_3_CYL
+
+ALLOWED_ENGINES := ENGINE_2_CYL ENGINE_3_CYL
+
+ifeq (,$(filter $(ENGINE),$(ALLOWED_ENGINES)))
+$(error Engines available: '$(ALLOWED_ENGINES)')
+endif
+
 CC = clang
 
 CFLAGS = -std=c23 -O3 -ffast-math -march=native
@@ -11,7 +19,7 @@ endif
 
 ifeq ($(MAKECMDGOALS),vector)
 CFLAGS += -Rpass-missed=loop-vectorize
-FILTER = 2>&1 | grep "loop not vectorized"
+SIMD_FILTER = 2>&1 | grep "loop not vectorized"
 endif
 
 ifeq ($(MAKECMDGOALS),visualize)
@@ -26,7 +34,7 @@ BIN = ensim4
 SRC = src/main.c
 
 all:
-	$(CC) $(CFLAGS) $(WFLAGS) $(DFLAGS) $(SRC) $(LDFLAGS) -o $(BIN) $(FILTER)
+	$(CC) $(CFLAGS) $(WFLAGS) $(DFLAGS) $(SRC) $(LDFLAGS) -D$(ENGINE) -o $(BIN) $(SIMD_FILTER)
 	@echo -e "\033[0;32m"
 	@echo -e "Remember to set your monitor refresh rate in the Makefile"
 	@echo -e "\033[0m"

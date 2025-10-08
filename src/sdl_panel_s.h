@@ -1,6 +1,6 @@
 struct sdl_panel_s
 {
-    char* title;
+    const char* title;
     SDL_FRect rect;
     double sample[g_sampler_max_samples];
     size_t size;

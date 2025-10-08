@@ -1,5 +1,9 @@
+/*
+ * One dimensional (pipe) computational fluid dynamics.
+ */
+
 constexpr size_t g_wave_cells = 192;
-constexpr size_t g_wave_substeps = 13;
+constexpr size_t g_wave_substeps = 10;
 constexpr size_t g_flux_cells = g_wave_cells + 1;
 constexpr size_t g_wave_signal_cell_index = 0;
 constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
@@ -8,41 +12,30 @@ constexpr size_t g_wave_max_waves = 4;
 constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 constexpr double g_wave_gamma = 1.31;
 constexpr double g_wave_dt_s = 1.0 / g_wave_sample_rate_hz;
-constexpr double g_wave_mic_position_ratio = 0.5;
-constexpr double g_wave_velocity_low_pass_filter_hz = 5000.0;
 
 /*
- * Units and longform names were ommited from variable names to simplify readability.
+ * Units and long form names were omitted from variable names to simplify readability.
  */
 
 struct wave_prim_s
 {
-    /* static_density_kg_per_m3 */
-    double r;
-    /* velocity_m_per_s */
-    double u;
-    /* static_pressure_pa */
-    double p;
+    double r; // static_density_kg_per_m3
+    double u; // velocity_m_per_s
+    double p; // static_pressure_pa
 };
 
 struct wave_cons_s
 {
-    /* static_density_kg_per_m3 */
-    double r;
-    /* momentum_density_kg_per_m2_s */
-    double m;
-    /* total_energy_density_j_per_m_3 */
-    double e;
+    double r; // static_density_kg_per_m3
+    double m; // momentum_density_kg_per_m2_s
+    double e; // total_energy_density_j_per_m_3
 };
 
 struct wave_flux_s
 {
-    /* mass_flux_kg_per_m2_s */
-    double r;
-    /* momentum_flux_n_per_m2 */
-    double m;
-    /* energy_flux_w_per_m2 */
-    double e;
+    double r; // mass_flux_kg_per_m2_s
+    double m; // momentum_flux_n_per_m2
+    double e; // energy_flux_w_per_m2
 };
 
 struct wave_solver_s
@@ -67,6 +60,7 @@ struct wave_s
     struct wave_solver_s solver;
     double max_wave_speed_m_per_s;
     double pipe_length_m;
+    double mic_position_ratio;
 }
 g_wave_table[g_wave_max_waves] = {};
 
@@ -170,7 +164,6 @@ set_solver_wave_cell(struct wave_solver_s* self, size_t index, struct wave_prim_
 void
 step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, double gradient_s_per_m)
 {
-    signal_cell.u = filter_lowpass_3(&self->u_filter, g_wave_velocity_low_pass_filter_hz, signal_cell.u);
     for(size_t i = 0; i < g_wave_substeps; i++)
     {
         struct wave_prim_s last_interior_cell = self->prim[g_wave_last_interior_cell_index];
@@ -190,9 +183,9 @@ step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, dou
 }
 
 double
-sample_solver_wave(struct wave_solver_s* self)
+sample_solver_wave(struct wave_solver_s* self, double mic_position_ratio)
 {
-    size_t index = g_wave_last_interior_cell_index * g_wave_mic_position_ratio;
+    size_t index = g_wave_last_interior_cell_index * mic_position_ratio;
     return self->prim[index].p;
 }
 
@@ -246,19 +239,36 @@ flip_wave(size_t wave_index)
 }
 
 void
-batch_wave(size_t wave_index, bool use_cfd, double pipe_length_m)
+batch_wave(size_t wave_index, bool use_cfd, double pipe_length_m, double mic_position_ratio, double velocity_low_pass_cutoff_frequency_hz)
 {
     struct wave_s* self = &g_wave_table[wave_index];
     double wave_dx_m = pipe_length_m / g_wave_cells;
     double gradient_s_per_m = g_wave_dt_s / wave_dx_m;
+
+    /*
+     * For graphing, really. No other internal use.
+     */
     self->max_wave_speed_m_per_s = wave_dx_m / g_wave_dt_s;
     self->pipe_length_m = pipe_length_m;
+    self->mic_position_ratio = mic_position_ratio;
+
     for(size_t i = 0; i < g_synth_buffer_size; i++)
     {
         if(use_cfd)
         {
-            step_solver_wave(&self->solver, self->data.buffer1[i], gradient_s_per_m);
-            self->data.wave_sub_buffer_pa[i] = sample_solver_wave(&self->solver);
+            /*
+             * Isentropic flow equations can create fast "ping-pong" flow velocity back-and-forth switching
+             * effects which introduce more noise than signal for two equally pressurized systems.
+             */
+            struct wave_prim_s signal_cell = self->data.buffer1[i];
+            signal_cell.u = filter_lowpass_3(&self->solver.u_filter, velocity_low_pass_cutoff_frequency_hz, signal_cell.u);
+
+            /*
+             * Mic position nearing 0.1 produces deeper, guttural, spurt-like sounds. Positions nearing
+             * 0.9 are tinnier but produce what a spectator might hear.
+             */
+            step_solver_wave(&self->solver, signal_cell, gradient_s_per_m);
+            self->data.wave_sub_buffer_pa[i] = sample_solver_wave(&self->solver, mic_position_ratio);
         }
         else
         {

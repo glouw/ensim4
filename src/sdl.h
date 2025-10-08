@@ -1,4 +1,4 @@
-constexpr char g_sdl_title[] = "ensim4";
+const char* g_sdl_title = "ensim4";
 constexpr bool g_sdl_use_full_screen = true;
 constexpr double g_sdl_xres_p = 1920.0;
 constexpr double g_sdl_yres_p = 1080.0;
@@ -63,7 +63,7 @@ constexpr SDL_FColor g_sdl_text_color = {
     1.00f, 1.00f, 1.00f, 1.0f
 };
 
-char* g_sdl_spinner[] = { "|", "/", "-", "\\", "|", "/", "-", "\\" };
+const char* g_sdl_spinner[] = { "|", "/", "-", "\\", "|", "/", "-", "\\" };
 
 SDL_Window* g_sdl_window = nullptr;
 SDL_Renderer* g_sdl_renderer = nullptr;
@@ -157,7 +157,7 @@ draw_time_panel(struct sdl_time_panel_s* self)
 {
     for(size_t i = 0; i < g_sdl_time_panel_size; i++)
     {
-        char* label = self->labels[i];
+        const char* label = self->labels[i];
         if(label)
         {
             draw_slide_buffer(self->slide_buffer[i], self->rect, self->min_value, self->max_value, get_channel_color(i));
@@ -231,7 +231,7 @@ calc_plot_column_width_p(struct engine_s* engine)
 }
 
 SDL_FPoint
-center_text(SDL_FPoint point, char* text)
+center_text(SDL_FPoint point, const char* text)
 {
     size_t len = strlen(text);
     double x_p = point.x + g_sdl_node_half_w_p - g_sdl_half_char_size_p * len;
@@ -246,7 +246,7 @@ draw_node_at(struct node_s* node, SDL_FPoint point, SDL_FColor color)
     draw_filled_outline_rect(rect, node->as.chamber.should_panic ? color : g_sdl_black_color, color);
     size_t cycle = node->as.chamber.flow_cycles / g_sdl_flow_cycle_spinner_divisor;
     size_t index = cycle % len(g_sdl_spinner);
-    char* spinner = g_sdl_spinner[index];
+    const char* spinner = g_sdl_spinner[index];
     SDL_FPoint mid = point;
     mid = center_text(mid, spinner);
     set_render_color(g_sdl_text_color);
@@ -325,7 +325,7 @@ draw_radial_names(struct engine_s* engine, SDL_FPoint points[], size_t size)
     for(size_t i = 0; i < size; i++)
     {
         struct node_s* node = &engine->node[i];
-        char* node_name = g_node_name_string[node->type];
+        const char* node_name = g_node_name_string[node->type];
         SDL_FPoint point = points[i];
         point = center_text(point, node_name);
         point.y -= g_sdl_line_spacing_p;
@@ -423,7 +423,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, 
         SDL_FRect rect = rects[sample_name];
         struct
         {
-            char* name;
+            const char* name;
             double value;
         }
         lines[] = {
@@ -481,7 +481,7 @@ draw_plot_channels(SDL_FRect rects[], struct sampler_s* sampler, size_t channels
 }
 
 void
-draw_plot_container(SDL_FRect rect, char* name_string)
+draw_plot_container(SDL_FRect rect, const char* name_string)
 {
     draw_rect(rect, g_sdl_container_color);
     double x_p = rect.x + g_sdl_line_spacing_p;
@@ -554,7 +554,7 @@ draw_time_panel_info(struct sdl_time_panel_s* self, struct sdl_scroll_s* scroll)
     for(size_t i = 0; i < g_sdl_time_panel_size; i++)
     {
         double average = calc_slide_buffer_average(self->slide_buffer[i]);
-        char* label = self->labels[i];
+        const char* label = self->labels[i];
         if(label)
         {
             set_render_color(get_channel_color(i));
@@ -573,7 +573,7 @@ draw_general_info(struct sdl_scroll_s* scroll)
 {
     struct
     {
-        char* name;
+        const char* name;
         double value;
     }
     lines[] = {
@@ -670,7 +670,7 @@ draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
     SDL_RenderDebugTextFormat(g_sdl_renderer, x_p, newline(scroll), "%s", self->title);
     struct
     {
-        char* name;
+        const char* name;
         double value;
     }
     lines[] = {
@@ -712,8 +712,20 @@ draw_right_info_waves(
             struct sdl_panel_s* panel = &wave_panel[wave_index];
             push_panel_prim(panel, wave->solver.prim, g_wave_cells);
             draw_panel_info(panel, scroll);
-            SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "max_m_per_s %.2f", wave->max_wave_speed_m_per_s);
-            SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), "pipe_len_m %.2f", wave->pipe_length_m);
+            struct
+            {
+                const char* name;
+                double value;
+            }
+            lines[] = {
+                { "max_m_per_s %.1f", wave->max_wave_speed_m_per_s },
+                { "pipe_len_m %.2f", wave->pipe_length_m },
+                { "mic_position_ratio %.2f", wave->mic_position_ratio },
+            };
+            for(size_t i = 0; i < len(lines); i++)
+            {
+                SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), lines[i].name, lines[i].value);
+            }
             newline(scroll);
             wave_index++;
         }

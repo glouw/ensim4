@@ -112,16 +112,10 @@ calc_piston_inertia_torque_n_m(struct piston_s* self, struct crankshaft_s* crank
 double
 calc_piston_friction_torque_n_m(struct piston_s* self, struct crankshaft_s* crankshaft)
 {
-    double friction_n_m_s_per_r = 0.0;
-    if(fabs(crankshaft->angular_velocity_r_per_s) < g_static_friction_upper_angular_velocity_r_per_s)
-    {
-        friction_n_m_s_per_r = self->static_friction_n_m_s_per_r;
-    }
-    else
-    {
-        friction_n_m_s_per_r = self->dynamic_friction_n_m_s_per_r;
-    }
-    return -crankshaft->angular_velocity_r_per_s * friction_n_m_s_per_r;
+    bool is_static = fabs(crankshaft->angular_velocity_r_per_s) < g_static_friction_upper_angular_velocity_r_per_s;
+    double friction_n_m_s_per_r = is_static ? self->static_friction_n_m_s_per_r : self->dynamic_friction_n_m_s_per_r;
+    double direction = -1.0; // Opposes.
+    return direction * crankshaft->angular_velocity_r_per_s * friction_n_m_s_per_r;
 }
 
 void

@@ -31,7 +31,7 @@
             .gas_momentum_damping_time_constant_s = g_engine_gas_momentum_damping_time_constant_s, \
         },                                                                                         \
         .valve = {                                                                                 \
-            .engage_r = g_engine_irunner_valve_engage_r + _theta_r,                                \
+            .engage_r = _theta_r + g_engine_irunner_valve_engage_r,                                \
             .ramp_r = g_engine_irunner_valve_ramp_r,                                               \
         },                                                                                         \
     },                                                                                             \
@@ -67,7 +67,7 @@
             .on_r = g_engine_sparkplug_on_r,                                                       \
         },                                                                                         \
         .diameter_m = g_engine_piston_diameter_m,                                                  \
-        .theta_r = _theta_r,                                                                       \
+        .theta_r = -_theta_r,                                                                      \
         .crank_throw_length_m = g_engine_piston_crank_throw_length_m,                              \
         .connecting_rod_length_m = g_engine_piston_connecting_rod_length_m,                        \
         .connecting_rod_mass_kg = g_engine_piston_connecting_rod_mass_kg,                          \
@@ -102,6 +102,8 @@
         },                                                                                         \
         .wave_index = _wave_index,                                                                 \
         .pipe_length_m = g_engine_eplenum_wave_pipe_length_m,                                      \
+        .mic_position_ratio = g_engine_mic_position_ratio,                                         \
+        .velocity_low_pass_cutoff_frequency_hz = g_engine_velocity_low_pass_cutoff_frequency_hz,   \
     },                                                                                             \
     .next = __VA_ARGS__                                                                            \
 }

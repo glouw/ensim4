@@ -21,7 +21,7 @@ enum node_type_e
 #undef X
 };
 
-char* g_node_name_string[] = {
+const char* g_node_name_string[] = {
 #define X(type) #type,
     TYPES
 #undef X

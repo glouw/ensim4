@@ -39,7 +39,11 @@
 #include "sampler_s.h"
 #include "engine_s.h"
 #include "engine_blueprints.h"
-#include "engine_2_cyl.h"
+#ifdef ENGINE_2_CYL
+#  include "engine_2_cyl.h"
+#elifdef ENGINE_3_CYL
+#  include "engine_3_cyl.h"
+#endif
 #include <SDL3/SDL.h>
 #include "sdl_scroll_s.h"
 #include "sdl_slide_buffer_t.h"
