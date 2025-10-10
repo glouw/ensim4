@@ -5,7 +5,7 @@ struct limiter_s
     bool is_limiting;
 };
 
-void
+static void
 maybe_limit_engine(struct limiter_s* self, struct crankshaft_s* crankshaft, bool* can_ignite)
 {
     double delta_r_per_s = self->cutoff_angular_velocity_r_per_s - crankshaft->angular_velocity_r_per_s;

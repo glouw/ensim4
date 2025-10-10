@@ -3,7 +3,7 @@ struct lowpass_filter_s
     double last;
 };
 
-double
+static double
 filter_lowpass(struct lowpass_filter_s* self, double cutoff_frequency_hz, double sample)
 {
     double rc_constant = 1.0 / (2.0 * g_std_pi_r * cutoff_frequency_hz);
@@ -20,7 +20,7 @@ struct lowpass_filter_3_s
     struct lowpass_filter_s c;
 };
 
-double
+static double
 filter_lowpass_3(struct lowpass_filter_3_s* self, double cutoff_frequency_hz, double sample)
 {
     sample = filter_lowpass(&self->a, cutoff_frequency_hz, sample);

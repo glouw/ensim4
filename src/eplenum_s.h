@@ -9,7 +9,7 @@ struct eplenum_s
     double velocity_low_pass_cutoff_frequency_hz;
 };
 
-int
+static int
 run_eplenum_wave_thread(void* argument)
 {
     struct eplenum_s* self = argument;
@@ -17,13 +17,13 @@ run_eplenum_wave_thread(void* argument)
     return 0;
 }
 
-void
+static void
 launch_eplenum_wave_thread(struct eplenum_s* self)
 {
     thrd_create(&self->thread, run_eplenum_wave_thread, self);
 }
 
-void
+static void
 wait_for_eplenum_wave_thread(struct eplenum_s* self)
 {
     thrd_join(self->thread, nullptr);

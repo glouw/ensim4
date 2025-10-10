@@ -4,7 +4,7 @@ struct valve_s
     double ramp_r;
 };
 
-double
+static double
 calc_valve_nozzle_open_ratio(struct valve_s* self, struct crankshaft_s* crankshaft)
 {
     double otto_theta_r = fmod(crankshaft->theta_r, g_std_four_pi_r);

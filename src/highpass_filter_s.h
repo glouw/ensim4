@@ -4,7 +4,7 @@ struct highpass_filter_s
     double prev_output;
 };
 
-double
+static double
 filter_highpass(struct highpass_filter_s* self, double cutoff_frequency_hz, double sample)
 {
     double rc_constant = 1.0 / (2.0 * g_std_pi_r * cutoff_frequency_hz);

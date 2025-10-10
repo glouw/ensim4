@@ -1,6 +1,6 @@
 constexpr size_t g_synth_buffer_size = g_std_audio_sample_rate_hz / g_std_monitor_refresh_rate;
 constexpr size_t g_synth_buffer_min_size = 1 * g_synth_buffer_size;
-constexpr size_t g_synth_buffer_max_size = 5 * g_synth_buffer_size;
+constexpr size_t g_synth_buffer_max_size = 4 * g_synth_buffer_size;
 constexpr double g_synth_dc_filter_cutoff_frequency_hz = 10.0;
 constexpr double g_synth_deadzone_angular_velocity_r_per_s = 1.0;
 constexpr double g_synth_clamp = 1.0;
@@ -14,26 +14,26 @@ struct synth_s
     size_t index;
 };
 
-void
+static void
 sample_synth(struct synth_s* self, double value)
 {
     self->value[self->index++] += value;
 }
 
-void
+static void
 clear_synth(struct synth_s* self)
 {
     self->index = 0;
     clear(self->value);
 }
 
-double
+static double
 clamp_synth(double value)
 {
     return clamp(value, -g_synth_clamp, g_synth_clamp);
 }
 
-double
+static double
 set_synth_deadzone(double value, struct crankshaft_s* crankshaft)
 {
     double absolute_angular_velocity_r_per_s = fabs(crankshaft->angular_velocity_r_per_s);
@@ -44,7 +44,7 @@ set_synth_deadzone(double value, struct crankshaft_s* crankshaft)
     return value;
 }
 
-double
+static double
 push_synth(struct synth_s* self, struct crankshaft_s* crankshaft, double value, bool use_convolution, double volume)
 {
     value = filter_highpass(&self->dc_filter, g_synth_dc_filter_cutoff_frequency_hz, value);

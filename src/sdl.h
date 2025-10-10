@@ -1,4 +1,4 @@
-const char* g_sdl_title = "ensim4";
+constexpr char g_sdl_title[] = "ensim4";
 constexpr bool g_sdl_use_full_screen = true;
 constexpr double g_sdl_xres_p = 1920.0;
 constexpr double g_sdl_yres_p = 1080.0;
@@ -33,7 +33,7 @@ constexpr SDL_FColor g_sdl_channel_color[] = {
     [15] = {1.00f, 0.30f, 0.30f, 1.0f},
 };
 
-SDL_FColor
+static SDL_FColor
 get_channel_color(size_t index)
 {
     return g_sdl_channel_color[index % len(g_sdl_channel_color)];
@@ -63,39 +63,39 @@ constexpr SDL_FColor g_sdl_text_color = {
     1.00f, 1.00f, 1.00f, 1.0f
 };
 
-const char* g_sdl_spinner[] = { "|", "/", "-", "\\", "|", "/", "-", "\\" };
+constexpr char g_sdl_spinner[][2] = { "|", "/", "-", "\\", "|", "/", "-", "\\" };
 
-SDL_Window* g_sdl_window = nullptr;
-SDL_Renderer* g_sdl_renderer = nullptr;
+static SDL_Window* g_sdl_window = nullptr;
+static SDL_Renderer* g_sdl_renderer = nullptr;
 
-void
+static void
 set_render_color(SDL_FColor color)
 {
     SDL_SetRenderDrawColorFloat(g_sdl_renderer, color.r, color.g, color.b, color.a);
 }
 
-void
+static void
 draw_rect(SDL_FRect rect, SDL_FColor color)
 {
     set_render_color(color);
     SDL_RenderRect(g_sdl_renderer, &rect);
 }
 
-void
+static void
 draw_filled_rect(SDL_FRect rect, SDL_FColor color)
 {
     set_render_color(color);
     SDL_RenderFillRect(g_sdl_renderer, &rect);
 }
 
-void
+static void
 draw_filled_outline_rect(SDL_FRect rect, SDL_FColor inner, SDL_FColor outer)
 {
     draw_filled_rect(rect, inner);
     draw_rect(rect, outer);
 }
 
-SDL_FPoint
+static SDL_FPoint
 add_point(SDL_FPoint self, SDL_FPoint other)
 {
     self.x += other.x;
@@ -103,28 +103,28 @@ add_point(SDL_FPoint self, SDL_FPoint other)
     return self;
 }
 
-void
+static void
 draw_line(SDL_FPoint from, SDL_FPoint to, SDL_FColor color)
 {
     set_render_color(color);
     SDL_RenderLine(g_sdl_renderer, from.x, from.y, to.x, to.y);
 }
 
-void
+static void
 draw_lines(SDL_FPoint points[], size_t size, SDL_FColor color)
 {
     set_render_color(color);
     SDL_RenderLines(g_sdl_renderer, points, size);
 }
 
-void
+static void
 draw_points(SDL_FPoint points[], size_t size, SDL_FColor color)
 {
     set_render_color(color);
     SDL_RenderPoints(g_sdl_renderer, points, size);
 }
 
-SDL_FPoint
+static SDL_FPoint
 calc_point_in_rect(double value, SDL_FRect rect, size_t index, size_t size)
 {
     double border_p = 1.0;
@@ -139,7 +139,7 @@ calc_point_in_rect(double value, SDL_FRect rect, size_t index, size_t size)
     return point;
 }
 
-void
+static void
 draw_slide_buffer(sdl_slide_buffer_t self, SDL_FRect rect, double min_val, double max_val, SDL_FColor color)
 {
     static SDL_FPoint points[g_sdl_slide_buffer_size];
@@ -152,7 +152,7 @@ draw_slide_buffer(sdl_slide_buffer_t self, SDL_FRect rect, double min_val, doubl
     draw_lines(points, g_sdl_slide_buffer_size, color);
 }
 
-void
+static void
 draw_time_panel(struct sdl_time_panel_s* self)
 {
     for(size_t i = 0; i < g_sdl_time_panel_size; i++)
@@ -166,7 +166,7 @@ draw_time_panel(struct sdl_time_panel_s* self)
     draw_rect(self->rect, g_sdl_container_color);
 }
 
-void
+static void
 draw_progress_bar(struct sdl_progress_bar_s* self)
 {
     double percent = (self->max_value > 0.0) ? (self->value / self->max_value) : 0.0;
@@ -177,7 +177,7 @@ draw_progress_bar(struct sdl_progress_bar_s* self)
     draw_rect(self->rect, g_sdl_container_color);
 }
 
-void
+static void
 init_sdl()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -191,14 +191,14 @@ init_sdl()
     SDL_SetRenderVSync(g_sdl_renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
 }
 
-void
+static void
 clear_screen()
 {
     set_render_color(g_sdl_black_color);
     SDL_RenderClear(g_sdl_renderer);
 }
 
-void
+static void
 exit_sdl()
 {
     SDL_DestroyWindow(g_sdl_window);
@@ -206,31 +206,31 @@ exit_sdl()
     SDL_Quit();
 }
 
-void
+static void
 present_renderer()
 {
     SDL_RenderPresent(g_sdl_renderer);
 }
 
-double
+static double
 calc_radial_radius_p(struct engine_s* engine)
 {
     return engine->radial_spacing * (engine->size * g_sdl_node_w_p) / (2.0 * g_std_pi_r);
 }
 
-double
+static double
 calc_radial_diameter_p(struct engine_s* engine)
 {
     return 2.0 * calc_radial_radius_p(engine);
 }
 
-double
+static double
 calc_plot_column_width_p(struct engine_s* engine)
 {
     return (g_sdl_xres_p - calc_radial_diameter_p(engine)) / 2.0 - 1.4 * g_sdl_supported_widget_w_p;
 }
 
-SDL_FPoint
+static SDL_FPoint
 center_text(SDL_FPoint point, const char* text)
 {
     size_t len = strlen(text);
@@ -239,7 +239,7 @@ center_text(SDL_FPoint point, const char* text)
     return (SDL_FPoint) { x_p, y_p };
 }
 
-void
+static void
 draw_node_at(struct node_s* node, SDL_FPoint point, SDL_FColor color)
 {
     SDL_FRect rect = { point.x, point.y, g_sdl_node_w_p, g_sdl_node_w_p };
@@ -253,7 +253,7 @@ draw_node_at(struct node_s* node, SDL_FPoint point, SDL_FColor color)
     SDL_RenderDebugTextFormat(g_sdl_renderer, mid.x, mid.y, "%s", spinner);
 }
 
-void
+static void
 calc_radials(struct engine_s* engine, SDL_FPoint points[], size_t size)
 {
     double radius_p = calc_radial_radius_p(engine);
@@ -265,7 +265,7 @@ calc_radials(struct engine_s* engine, SDL_FPoint points[], size_t size)
     }
 }
 
-SDL_FColor
+static SDL_FColor
 mix_fcolors(SDL_FColor self, SDL_FColor other, double ratio)
 {
     SDL_FColor result;
@@ -276,7 +276,7 @@ mix_fcolors(SDL_FColor self, SDL_FColor other, double ratio)
     return result;
 }
 
-void
+static void
 draw_radial_lines(struct engine_s* engine, SDL_FPoint points[], size_t size)
 {
     for(size_t i = 0; i < size; i++)
@@ -299,7 +299,7 @@ draw_radial_lines(struct engine_s* engine, SDL_FPoint points[], size_t size)
     }
 }
 
-void
+static void
 draw_radial_nodes(struct engine_s* engine, SDL_FPoint points[], size_t size)
 {
     size_t color_index = 0;
@@ -319,7 +319,7 @@ draw_radial_nodes(struct engine_s* engine, SDL_FPoint points[], size_t size)
     }
 }
 
-void
+static void
 draw_radial_names(struct engine_s* engine, SDL_FPoint points[], size_t size)
 {
     for(size_t i = 0; i < size; i++)
@@ -335,7 +335,7 @@ draw_radial_names(struct engine_s* engine, SDL_FPoint points[], size_t size)
     }
 }
 
-void
+static void
 draw_radial_chambers(struct engine_s* engine)
 {
     size_t size = engine->size;
@@ -346,7 +346,7 @@ draw_radial_chambers(struct engine_s* engine)
     draw_radial_names(engine, points, size);
 }
 
-void
+static void
 cleanup_samples(double samples[], size_t size)
 {
     struct lowpass_filter_s filter = { .last = samples[0] };
@@ -356,7 +356,7 @@ cleanup_samples(double samples[], size_t size)
     }
 }
 
-void
+static void
 copy_samples(double samples[], double other[], size_t size)
 {
     for(size_t i = 0; i < size; i++)
@@ -365,7 +365,7 @@ copy_samples(double samples[], double other[], size_t size)
     }
 }
 
-size_t
+static size_t
 down_sample_samples(double samples[], size_t size, size_t cap, size_t* step)
 {
     if(size > cap)
@@ -381,7 +381,7 @@ down_sample_samples(double samples[], size_t size, size_t cap, size_t* step)
     return size;
 }
 
-void
+static void
 draw_zero_line(struct SDL_FRect rect, struct normalized_s* normalized, SDL_FColor color)
 {
     double zero_line_offset_p = rect.h * calc_normalized_zero_offset_ratio(normalized);
@@ -396,7 +396,7 @@ draw_zero_line(struct SDL_FRect rect, struct normalized_s* normalized, SDL_FColo
     }
 }
 
-void
+static void
 draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, bool use_plot_filter)
 {
     size_t buffered = 0;
@@ -425,7 +425,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, 
             { "max: %+.3e", normalized.max_value },
             { "min: %+.3e", normalized.min_value },
             { "div: %3.3f", normalized.div_value },
-#if 1
+#if 0
             { "stp: %0.0f", step },
             { "avg: %+.3e", normalized.avg_value },
 #endif
@@ -460,7 +460,7 @@ draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, 
     draw_points(buffer, buffered, color);
 }
 
-void
+static void
 draw_plot_channels(SDL_FRect rects[], struct sampler_s* sampler, size_t channels, bool use_plot_filter)
 {
     for(size_t channel = 0; channel < channels; channel++)
@@ -469,7 +469,7 @@ draw_plot_channels(SDL_FRect rects[], struct sampler_s* sampler, size_t channels
     }
 }
 
-void
+static void
 draw_plot_container(SDL_FRect rect, const char* name_string)
 {
     draw_rect(rect, g_sdl_container_color);
@@ -479,7 +479,7 @@ draw_plot_container(SDL_FRect rect, const char* name_string)
     SDL_RenderDebugTextFormat(g_sdl_renderer, x_p, y_p, "%s", name_string);
 }
 
-void
+static void
 draw_plot_containers(SDL_FRect rects[])
 {
     for(enum sample_name_e name = 0; name < g_sample_name_e_size; name++)
@@ -489,7 +489,7 @@ draw_plot_containers(SDL_FRect rects[])
     }
 }
 
-void
+static void
 position_plot_container(double x_p, double w_p, double h_p, enum sample_name_e* name, SDL_FRect rects[])
 {
     double y_p = 0.0;
@@ -500,7 +500,7 @@ position_plot_container(double x_p, double w_p, double h_p, enum sample_name_e* 
     }
 }
 
-void
+static void
 position_plot_containers(struct engine_s* engine, SDL_FRect rects[])
 {
     enum sample_name_e sample_name = 0;
@@ -514,7 +514,7 @@ position_plot_containers(struct engine_s* engine, SDL_FRect rects[])
     position_plot_container(g_sdl_xres_p - w_p, w_p, right_h, &sample_name, rects);
 }
 
-void
+static void
 draw_plots(struct engine_s* engine, struct sampler_s* sampler)
 {
     static SDL_FRect rects[g_sample_name_e_size];
@@ -523,7 +523,7 @@ draw_plots(struct engine_s* engine, struct sampler_s* sampler)
     draw_plot_containers(rects);
 }
 
-void
+static void
 draw_progress_bar_info(struct sdl_progress_bar_s* self, struct sdl_scroll_s* scroll)
 {
     set_render_color(g_sdl_text_color);
@@ -535,7 +535,7 @@ draw_progress_bar_info(struct sdl_progress_bar_s* self, struct sdl_scroll_s* scr
     scroll_by(scroll, self->rect.h);
 }
 
-void
+static void
 draw_time_panel_info(struct sdl_time_panel_s* self, struct sdl_scroll_s* scroll)
 {
     set_render_color(g_sdl_text_color);
@@ -557,7 +557,7 @@ draw_time_panel_info(struct sdl_time_panel_s* self, struct sdl_scroll_s* scroll)
     scroll_by(scroll, self->rect.h);
 }
 
-void
+static void
 draw_general_info(struct engine_s* engine, struct sdl_scroll_s* scroll)
 {
     SDL_FColor warning = get_channel_color(0);
@@ -581,7 +581,7 @@ draw_general_info(struct engine_s* engine, struct sdl_scroll_s* scroll)
     }
 }
 
-void
+static void
 draw_info_title(struct engine_s* engine, struct sdl_scroll_s* scroll)
 {
     SDL_FColor active = get_channel_color(0);
@@ -614,7 +614,7 @@ draw_info_title(struct engine_s* engine, struct sdl_scroll_s* scroll)
     }
 }
 
-void
+static void
 draw_left_info(
     struct engine_s* engine,
     struct sdl_time_panel_s* loop_time_panel,
@@ -634,7 +634,7 @@ draw_left_info(
     draw_general_info(engine, &scroll);
 }
 
-void
+static void
 draw_panel(struct sdl_panel_s* self, SDL_FRect rect, SDL_FColor color)
 {
     static double samples[g_sampler_max_samples];
@@ -654,7 +654,7 @@ draw_panel(struct sdl_panel_s* self, SDL_FRect rect, SDL_FColor color)
     }
 }
 
-void
+static void
 draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
 {
     double x_p = scroll->x_p;
@@ -682,7 +682,7 @@ draw_panel_info(struct sdl_panel_s* self, struct sdl_scroll_s* scroll)
     scroll_by(scroll, self->rect.h);
 }
 
-void
+static void
 draw_right_info_waves(
     struct engine_s* engine,
     struct sdl_panel_s wave_panel[],
@@ -724,7 +724,7 @@ draw_right_info_waves(
     }
 }
 
-void
+static void
 draw_right_info(
     struct engine_s* engine,
     struct sdl_panel_s* starter_panel_r_per_s,
@@ -747,7 +747,7 @@ draw_right_info(
     draw_progress_bar_info(throttle_progress_bar, &scroll);
 }
 
-void
+static void
 toggle_node_at(struct engine_s* engine, struct sampler_s* sampler, double x_p, double y_p)
 {
     size_t size = engine->size;
@@ -770,7 +770,7 @@ toggle_node_at(struct engine_s* engine, struct sampler_s* sampler, double x_p, d
     }
 }
 
-void
+static void
 draw_pistons(struct engine_s* engine)
 {
     double x_p = g_sdl_mid_x_p;
@@ -817,22 +817,22 @@ draw_pistons(struct engine_s* engine)
     }
 }
 
-void
+static void
 draw_panic_message()
 {
-    if(g_std_panic_message != nullptr)
+    if(g_panic_message != nullptr)
     {
         SDL_FPoint point = {
             .x = g_sdl_mid_x_p
         };
-        point = center_text(point, g_std_panic_message);
+        point = center_text(point, g_panic_message);
         point.y += g_sdl_line_spacing_p;
         set_render_color(g_sdl_panic_color);
-        SDL_RenderDebugTextFormat(g_sdl_renderer, point.x, point.y, "%s", g_std_panic_message);
+        SDL_RenderDebugTextFormat(g_sdl_renderer, point.x, point.y, "%s", g_panic_message);
     }
 }
 
-void
+static void
 draw_to_renderer(
     struct engine_s* engine,
     struct sampler_s* sampler,
@@ -857,7 +857,7 @@ draw_to_renderer(
     draw_panic_message();
 }
 
-bool
+static bool
 handle_input(struct engine_s* engine, struct sampler_s* sampler)
 {
     SDL_Event event;

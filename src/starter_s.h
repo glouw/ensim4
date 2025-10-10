@@ -6,7 +6,7 @@ struct starter_s
     bool is_on;
 };
 
-double
+static double
 calc_flywheel_to_starter_gear_ratio(
     struct starter_s* self,
     struct flywheel_s* flywheel)
@@ -15,7 +15,7 @@ calc_flywheel_to_starter_gear_ratio(
     return starter_gear_ratio;
 }
 
-double
+static double
 calc_starter_angular_velocity_r_per_s(
     struct starter_s* self,
     struct flywheel_s* flywheel,
@@ -30,7 +30,7 @@ calc_starter_angular_velocity_r_per_s(
     return starter_angular_velocity_r_per_s;
 }
 
-double
+static double
 calc_starter_torque_on_flywheel_n_m(
     struct starter_s* self,
     struct flywheel_s* flywheel,

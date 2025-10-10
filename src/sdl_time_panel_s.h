@@ -10,7 +10,7 @@ struct sdl_time_panel_s
     sdl_slide_buffer_t slide_buffer[g_sdl_time_panel_size];
 };
 
-void
+static void
 push_time_panel(struct sdl_time_panel_s* self, double sample[])
 {
     for(size_t i = 0; i < g_sdl_time_panel_size; i++)

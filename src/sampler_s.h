@@ -31,7 +31,7 @@ enum sample_name_e
     g_sample_name_e_size
 };
 
-const char* g_sample_name_string[] = {
+constexpr char g_sample_name_string[][64] = {
 #define X(N) #N,
     SAMPLES
 #undef X
@@ -50,19 +50,19 @@ struct sampler_s
     size_t size;
 };
 
-void
+static void
 sample_starter(struct sampler_s* self, double starter_angular_velocity_r_per_s)
 {
     self->starter[self->index] = starter_angular_velocity_r_per_s;
 }
 
-void
+static void
 sample_value(struct sampler_s* self, enum sample_name_e sample_name, double sample)
 {
     self->channel[self->channel_index][sample_name][self->index] = sample;
 }
 
-void
+static void
 sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s* nozzle_flow, struct crankshaft_s* crankshaft)
 {
     if(self->channel_index < g_sampler_max_channels)
@@ -90,25 +90,25 @@ sample_channel(struct sampler_s* self, struct node_s* node, struct nozzle_flow_s
     }
 }
 
-void
+static void
 clear_channel_sampler(struct sampler_s* self)
 {
     clear(self->channel);
 }
 
-void
+static void
 reset_sampler_channel(struct sampler_s* self)
 {
     self->channel_index = 0;
 }
 
-const char*
+static const char*
 till_underscore(const char* string)
 {
     return strchr(string, '_') + 1;
 }
 
-const char*
+static const char*
 skip_sample_namespace(const char* string)
 {
     return till_underscore(till_underscore(string));

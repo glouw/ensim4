@@ -2,8 +2,8 @@
  * One dimensional (pipe) computational fluid dynamics.
  */
 
-constexpr size_t g_wave_cells = 128;
-constexpr size_t g_wave_substeps = 5;
+constexpr size_t g_wave_cells = 192;
+constexpr size_t g_wave_substeps = 10;
 constexpr size_t g_flux_cells = g_wave_cells + 1;
 constexpr size_t g_wave_signal_cell_index = 0;
 constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
@@ -62,9 +62,9 @@ struct wave_s
     double pipe_length_m;
     double mic_position_ratio;
 }
-g_wave_table[g_wave_max_waves] = {};
+static g_wave_table[g_wave_max_waves] = {};
 
-double g_wave_buffer_pa[g_synth_buffer_size] = {};
+static double g_wave_buffer_pa[g_synth_buffer_size] = {};
 
 constexpr struct wave_prim_s g_wave_ambient_cell = {
     .r = g_gas_ambient_static_density_kg_per_m3,
@@ -72,7 +72,7 @@ constexpr struct wave_prim_s g_wave_ambient_cell = {
     .p = g_gas_ambient_static_pressure_pa,
 };
 
-struct wave_cons_s
+static struct wave_cons_s
 prim_to_cons(struct wave_prim_s self)
 {
     /*       p      1         2
@@ -86,7 +86,7 @@ prim_to_cons(struct wave_prim_s self)
     };
 }
 
-struct wave_prim_s
+static struct wave_prim_s
 cons_to_prim(struct wave_cons_s self)
 {
     /*                  2
@@ -102,7 +102,7 @@ cons_to_prim(struct wave_cons_s self)
     };
 }
 
-struct wave_flux_s
+static struct wave_flux_s
 calc_solver_flux(struct wave_prim_s ql, struct wave_prim_s qr)
 {
     struct wave_cons_s ul = prim_to_cons(ql);
@@ -124,7 +124,7 @@ calc_solver_flux(struct wave_prim_s ql, struct wave_prim_s qr)
     };
 }
 
-void
+static void
 compute_wave_flux(struct wave_solver_s* self)
 {
     size_t l = g_wave_signal_cell_index;
@@ -140,7 +140,7 @@ compute_wave_flux(struct wave_solver_s* self)
     }
 }
 
-void
+static void
 update_wave_state(struct wave_solver_s* self, double gradient_s_per_m)
 {
     for(size_t i = 1; i < g_wave_ambient_cell_index; i++)
@@ -154,14 +154,14 @@ update_wave_state(struct wave_solver_s* self, double gradient_s_per_m)
     }
 }
 
-void
+static void
 set_solver_wave_cell(struct wave_solver_s* self, size_t index, struct wave_prim_s prim)
 {
     self->prim[index] = prim;
     self->cons[index] = prim_to_cons(prim);
 }
 
-void
+static void
 step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, double gradient_s_per_m)
 {
     for(size_t i = 0; i < g_wave_substeps; i++)
@@ -182,20 +182,20 @@ step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, dou
     }
 }
 
-double
+static double
 sample_solver_wave(struct wave_solver_s* self, double mic_position_ratio)
 {
     size_t index = g_wave_last_interior_cell_index * mic_position_ratio;
     return self->prim[index].p;
 }
 
-void
+static void
 clear_wave_buffer()
 {
     clear(g_wave_buffer_pa);
 }
 
-void
+static void
 add_to_wave_buffer(size_t wave_index)
 {
     for(size_t i = 0; i < g_synth_buffer_size; i++)
@@ -204,7 +204,7 @@ add_to_wave_buffer(size_t wave_index)
     }
 }
 
-void
+static void
 reset_solver_wave_cells(struct wave_solver_s* self)
 {
     for(size_t i = 0; i < g_wave_cells; i++)
@@ -213,7 +213,7 @@ reset_solver_wave_cells(struct wave_solver_s* self)
     }
 }
 
-void
+static void
 reset_all_waves()
 {
     for(size_t i = 0; i < g_wave_max_waves; i++)
@@ -227,7 +227,7 @@ reset_all_waves()
     }
 }
 
-void
+static void
 flip_wave(size_t wave_index)
 {
     struct wave_s* self = &g_wave_table[wave_index];
@@ -238,7 +238,7 @@ flip_wave(size_t wave_index)
     self->data.index = 0;
 }
 
-void
+static void
 batch_wave(size_t wave_index, bool use_cfd, double pipe_length_m, double mic_position_ratio, double velocity_low_pass_cutoff_frequency_hz)
 {
     struct wave_s* self = &g_wave_table[wave_index];
@@ -277,7 +277,7 @@ batch_wave(size_t wave_index, bool use_cfd, double pipe_length_m, double mic_pos
     }
 }
 
-void
+static void
 stage_wave(size_t wave_index, struct wave_prim_s prim)
 {
     struct wave_s* self = &g_wave_table[wave_index];

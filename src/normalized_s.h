@@ -7,7 +7,7 @@ struct normalized_s
     bool is_success;
 };
 
-struct normalized_s
+static struct normalized_s
 normalize_samples(double samples[], size_t size)
 {
     struct normalized_s normalized = {
@@ -42,7 +42,7 @@ normalize_samples(double samples[], size_t size)
     return normalized;
 }
 
-double
+static double
 calc_normalized_zero_offset_ratio(struct normalized_s* self)
 {
     return self->max_value / (self->max_value - self->min_value);

@@ -7,6 +7,7 @@
 #include <threads.h>
 
 #include "std.h"
+#include "panic.h"
 #include "normalized_s.h"
 #include "convo_filter_s.h"
 #include "highpass_filter_s.h"
@@ -58,11 +59,11 @@
 #include "sdl.h"
 #include "sdl_audio.h"
 
-struct sampler_s g_sampler = {};
-sampler_synth_t g_sampler_synth = {};
-struct synth_s g_synth = {};
+static struct sampler_s g_sampler = {};
+static sampler_synth_t g_sampler_synth = {};
+static struct synth_s g_synth = {};
 
-struct sdl_time_panel_s g_loop_time_panel = {
+static struct sdl_time_panel_s g_loop_time_panel = {
     .title = "loop_time_ms",
     .labels = {
         "n/a",
@@ -76,7 +77,7 @@ struct sdl_time_panel_s g_loop_time_panel = {
     .rect.h = 96,
 };
 
-struct sdl_time_panel_s g_engine_time_panel = {
+static struct sdl_time_panel_s g_engine_time_panel = {
     .title = "engine_time_ms",
     .labels = {
         "fluids",
@@ -91,7 +92,7 @@ struct sdl_time_panel_s g_engine_time_panel = {
     .rect.h = 96,
 };
 
-struct sdl_time_panel_s g_audio_buffer_time_panel = {
+static struct sdl_time_panel_s g_audio_buffer_time_panel = {
     .title = "audio_buffer_size",
     .labels = {
         "buffer_size",
@@ -105,53 +106,53 @@ struct sdl_time_panel_s g_audio_buffer_time_panel = {
     .rect.h = 96,
 };
 
-struct sdl_progress_bar_s g_r_per_s_progress_bar = {
+static struct sdl_progress_bar_s g_r_per_s_progress_bar = {
     .title = "crank_r_per_s",
     .max_value = 2000.0,
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
-struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
+static struct sdl_progress_bar_s g_frames_per_sec_progress_bar = {
     .title = "frames_per_sec",
     .max_value = 100.0,
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
-struct sdl_progress_bar_s g_throttle_progress_bar = {
+static struct sdl_progress_bar_s g_throttle_progress_bar = {
     .title = "throttle",
     .max_value = 1.0,
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 16,
 };
 
-struct sdl_panel_s g_starter_panel_r_per_s = {
+static struct sdl_panel_s g_starter_panel_r_per_s = {
     .title = "starter_r_per_s",
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,
 };
 
-struct sdl_panel_s g_convolution_panel_time_domain = {
+static struct sdl_panel_s g_convolution_panel_time_domain = {
     .title = "impulse x[n]",
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,
 };
 
-struct sdl_panel_s g_wave_panel[g_wave_max_waves] = {
+static struct sdl_panel_s g_wave_panel[g_wave_max_waves] = {
     { .title = "wave_0_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
     { .title = "wave_1_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
     { .title = "wave_2_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
     { .title = "wave_3_pa", .rect.w = g_sdl_supported_widget_w_p, .rect.h = 48 },
 };
 
-struct sdl_panel_s g_synth_sample_panel = {
+static struct sdl_panel_s g_synth_sample_panel = {
     .title = "synth_samples",
     .rect.w = g_sdl_supported_widget_w_p,
     .rect.h = 64,
 };
 
-struct engine_s g_engine = {
+static struct engine_s g_engine = {
     .name = g_engine_name,
     .node = g_engine_node,
     .size = len(g_engine_node),
@@ -180,7 +181,7 @@ struct engine_s g_engine = {
     .radial_spacing = g_engine_radial_spacing,
 };
 
-double
+static double
 get_ticks_ms()
 {
     double ticks_ns = SDL_GetTicksNS();
@@ -196,7 +197,7 @@ struct widget_time_s
     double (*get_ticks_ms)();
 };
 
-void
+static void
 push_widgets(
     struct engine_s* engine,
     struct engine_time_s* engine_time,

@@ -21,7 +21,7 @@ enum node_type_e
 #undef X
 };
 
-const char* g_node_name_string[] = {
+constexpr char g_node_name_string[][16] = {
 #define X(type) #type,
     TYPES
 #undef X
@@ -42,7 +42,9 @@ struct node_s
     uint8_t next[g_nodes_node_children];
 };
 
-bool
+#undef TYPES
+
+static bool
 is_reservoir(struct node_s* self)
 {
     return self->type == g_is_injector
@@ -50,7 +52,7 @@ is_reservoir(struct node_s* self)
         || self->type == g_is_sink;
 }
 
-void
+static void
 normalize_node(struct node_s* self)
 {
     if(self->type == g_is_injector)
@@ -63,7 +65,7 @@ normalize_node(struct node_s* self)
     }
 }
 
-size_t
+static size_t
 count_node_edges(struct node_s* self)
 {
     size_t edges = 0;
@@ -74,7 +76,7 @@ count_node_edges(struct node_s* self)
     return edges;
 }
 
-void
+static void
 remove_next_selected(struct node_s* nodes, size_t size)
 {
     for(size_t i = 0; i < size; i++)
@@ -83,7 +85,7 @@ remove_next_selected(struct node_s* nodes, size_t size)
     }
 }
 
-void
+static void
 deselect_all_nodes(struct node_s* nodes, size_t size)
 {
     remove_next_selected(nodes, size);
@@ -93,7 +95,7 @@ deselect_all_nodes(struct node_s* nodes, size_t size)
     }
 }
 
-void
+static void
 select_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
 {
     remove_next_selected(nodes, size);
@@ -107,7 +109,7 @@ select_nodes(struct node_s* nodes, size_t size, enum node_type_e type)
     }
 }
 
-size_t
+static size_t
 count_selected_nodes(struct node_s* nodes, size_t size)
 {
     size_t selected = 0;
@@ -121,7 +123,7 @@ count_selected_nodes(struct node_s* nodes, size_t size)
     return selected;
 }
 
-void
+static void
 select_next(struct node_s* nodes, size_t size)
 {
     if(count_selected_nodes(nodes, size) == 1)
@@ -144,5 +146,3 @@ select_next(struct node_s* nodes, size_t size)
         }
     }
 }
-
-#undef TYPES

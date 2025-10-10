@@ -30,7 +30,7 @@ struct engine_time_s
     double (*get_ticks_ms)();
 };
 
-void
+static void
 analyze_engine(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -61,7 +61,7 @@ analyze_engine(struct engine_s* self)
     }
 }
 
-void
+static void
 normalize_engine(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -70,7 +70,7 @@ normalize_engine(struct engine_s* self)
     }
 }
 
-void
+static void
 rig_engine_pistons(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -83,7 +83,7 @@ rig_engine_pistons(struct engine_s* self)
     }
 }
 
-void
+static void
 flow_engine(struct engine_s* self, struct sampler_s* sampler)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -120,7 +120,7 @@ flow_engine(struct engine_s* self, struct sampler_s* sampler)
     }
 }
 
-double
+static double
 calc_engine_torque_n_m(struct engine_s* self)
 {
     double torque_n_m = 0.0;
@@ -138,7 +138,7 @@ calc_engine_torque_n_m(struct engine_s* self)
     return torque_n_m;
 }
 
-double
+static double
 calc_engine_moment_of_inertia_kg_m2(struct engine_s* self)
 {
     double moment_of_inertia_kg_m2 = 0.0;
@@ -155,7 +155,7 @@ calc_engine_moment_of_inertia_kg_m2(struct engine_s* self)
     return moment_of_inertia_kg_m2;
 }
 
-void
+static void
 crank_engine(struct engine_s* self, struct sampler_s* sampler)
 {
     double torque_n_m = calc_engine_torque_n_m(self);
@@ -183,7 +183,7 @@ crank_engine(struct engine_s* self, struct sampler_s* sampler)
     maybe_limit_engine(&self->limiter, &self->crankshaft, &self->can_ignite);
 }
 
-void
+static void
 combust_engine_piston_chambers(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -200,7 +200,7 @@ combust_engine_piston_chambers(struct engine_s* self)
     }
 }
 
-void
+static void
 compress_engine_pistons(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -213,7 +213,7 @@ compress_engine_pistons(struct engine_s* self)
     }
 }
 
-void
+static void
 update_engine_nozzle_open_ratios(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -267,7 +267,7 @@ update_engine_nozzle_open_ratios(struct engine_s* self)
     }
 }
 
-void
+static void
 enable_engine_cfd(struct engine_s* self, bool use_cfd)
 {
     self->use_cfd = use_cfd;
@@ -281,7 +281,7 @@ enable_engine_cfd(struct engine_s* self, bool use_cfd)
     }
 }
 
-void
+static void
 reset_engine(struct engine_s* self)
 {
     analyze_engine(self);
@@ -296,7 +296,7 @@ reset_engine(struct engine_s* self)
     select_nodes(self->node, self->size, g_is_piston);
 }
 
-void
+static void
 flip_engine_waves(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -309,7 +309,7 @@ flip_engine_waves(struct engine_s* self)
     }
 }
 
-void
+static void
 launch_engine_waves(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -322,7 +322,7 @@ launch_engine_waves(struct engine_s* self)
     }
 }
 
-void
+static void
 wait_for_engine_waves(struct engine_s* self)
 {
     for(size_t i = 0; i < self->size; i++)
@@ -335,7 +335,7 @@ wait_for_engine_waves(struct engine_s* self)
     }
 }
 
-void
+static void
 sum_engine_waves(struct engine_s* self)
 {
     clear_wave_buffer();
@@ -349,7 +349,7 @@ sum_engine_waves(struct engine_s* self)
     }
 }
 
-void
+static void
 push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth, sampler_synth_t sampler_synth)
 {
     sum_engine_waves(self);
@@ -359,7 +359,7 @@ push_engine_wave_buffer_to_synth(struct engine_s* self, struct synth_s* synth, s
     }
 }
 
-void
+static void
 step_engine(
     struct engine_s* self,
     struct engine_time_s* engine_time,
@@ -385,7 +385,7 @@ step_engine(
     engine_time->thermo_time_ms += t3 - t2;
 }
 
-void
+static void
 run_engine_with_waves(
     struct engine_s* self,
     struct engine_time_s* engine_time,
@@ -410,7 +410,7 @@ run_engine_with_waves(
     }
 }
 
-void
+static void
 run_engine(
     struct engine_s* self,
     struct engine_time_s* engine_time,

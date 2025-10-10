@@ -8,7 +8,7 @@ struct sdl_scroll_s
     double y_p;
 };
 
-double
+static double
 scroll_by(struct sdl_scroll_s* self, double dy_p)
 {
     double y_p = self->y_p;
@@ -16,13 +16,13 @@ scroll_by(struct sdl_scroll_s* self, double dy_p)
     return y_p;
 }
 
-double
+static double
 newline(struct sdl_scroll_s* self)
 {
     return scroll_by(self, g_sdl_line_spacing_p);
 }
 
-double
+static double
 calc_scroll_newline_pixels_p(size_t newlines)
 {
     return newlines * g_sdl_char_size_p + newlines * g_sdl_line_spacing_p;

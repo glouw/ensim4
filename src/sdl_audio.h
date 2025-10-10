@@ -1,7 +1,7 @@
 SDL_AudioStream* g_sdl_audio_stream = nullptr;
 SDL_AudioSpec g_sdl_audio_spec = {};
 
-void
+static void
 init_sdl_audio()
 {
     g_sdl_audio_spec.channels = 1;
@@ -11,19 +11,19 @@ init_sdl_audio()
     SDL_ResumeAudioStreamDevice(g_sdl_audio_stream);
 }
 
-void
+static void
 exit_sdl_audio()
 {
     SDL_DestroyAudioStream(g_sdl_audio_stream);
 }
 
-size_t
+static size_t
 get_audio_buffer_size()
 {
     return SDL_GetAudioStreamQueued(g_sdl_audio_stream) / sizeof(float);
 }
 
-void
+static void
 buffer_audio(struct synth_s* synth)
 {
     SDL_PutAudioStreamData(g_sdl_audio_stream, synth->value, synth->index * sizeof(float));
