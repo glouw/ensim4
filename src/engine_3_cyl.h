@@ -1,5 +1,5 @@
 constexpr char g_engine_name[] = "Ford 1.0 L EcoBoost I3";
-constexpr double g_engine_sound_volume = 0.4;
+constexpr double g_engine_sound_volume = 0.8;
 constexpr double g_engine_radial_spacing = 3.0;
 constexpr double g_engine_source_sink_volume_m3 = 1.00e20;
 constexpr double g_engine_piston_diameter_m = 0.072;
@@ -48,7 +48,7 @@ constexpr double g_engine_crankshaft_mass_kg = 1.3;
 constexpr double g_engine_crankshaft_radius_m = 0.07;
 constexpr double g_engine_flywheel_mass_kg = 3.15;
 constexpr double g_engine_flywheel_radius_m = 0.23;
-constexpr double g_engine_limiter_cutoff_r_per_s = 1100.0;
+constexpr double g_engine_limiter_cutoff_r_per_s = 1300.0;
 constexpr double g_engine_limiter_relaxed_r_per_s = 100.0;
 constexpr double e_engine_starter_rated_torque_n_m = 70.0;
 constexpr double g_engine_starter_no_load_r_per_s = 700.0;

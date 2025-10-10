@@ -3,11 +3,11 @@
  */
 
 constexpr size_t g_wave_cells = 192;
-constexpr size_t g_wave_substeps = 10;
+constexpr size_t g_wave_substeps = 12;
 constexpr size_t g_flux_cells = g_wave_cells + 1;
 constexpr size_t g_wave_signal_cell_index = 0;
-constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
 constexpr size_t g_wave_ambient_cell_index = g_wave_cells - 1;
+constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;
 constexpr size_t g_wave_max_waves = 4;
 constexpr size_t g_wave_sample_rate_hz = g_std_audio_sample_rate_hz * g_wave_substeps;
 constexpr double g_wave_gamma = 1.31;
@@ -161,20 +161,27 @@ set_solver_wave_cell(struct wave_solver_s* self, size_t index, struct wave_prim_
     self->cons[index] = prim_to_cons(prim);
 }
 
+
+static struct wave_prim_s
+calc_ambient_cell(struct wave_solver_s* self)
+{
+    struct wave_prim_s last_interior_cell = self->prim[g_wave_last_interior_cell_index];
+    double c = sqrt(g_wave_gamma * last_interior_cell.p / last_interior_cell.r);
+    double u = last_interior_cell.u - (last_interior_cell.p - g_wave_ambient_cell.p) / (last_interior_cell.r * c);
+    double p = 0.5 * (last_interior_cell.p + g_wave_ambient_cell.p - last_interior_cell.r * c * (last_interior_cell.u - u));
+    return (struct wave_prim_s) {
+        .r = last_interior_cell.r,
+        .u = u,
+        .p = p,
+    };
+}
+
 static void
 step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, double gradient_s_per_m)
 {
     for(size_t i = 0; i < g_wave_substeps; i++)
     {
-        struct wave_prim_s last_interior_cell = self->prim[g_wave_last_interior_cell_index];
-        /*
-         * Assume subsonic exit boundary conditions.
-         */
-        struct wave_prim_s ambient_cell = {
-            .r = last_interior_cell.r,
-            .u = last_interior_cell.u,
-            .p = g_wave_ambient_cell.p,
-        };
+        struct wave_prim_s ambient_cell = calc_ambient_cell(self);
         set_solver_wave_cell(self, g_wave_signal_cell_index, signal_cell);
         set_solver_wave_cell(self, g_wave_ambient_cell_index, ambient_cell);
         compute_wave_flux(self);
@@ -185,7 +192,7 @@ step_solver_wave(struct wave_solver_s* self, struct wave_prim_s signal_cell, dou
 static double
 sample_solver_wave(struct wave_solver_s* self, double mic_position_ratio)
 {
-    size_t index = g_wave_last_interior_cell_index * mic_position_ratio;
+    size_t index = g_wave_ambient_cell_index * mic_position_ratio;
     return self->prim[index].p;
 }
 
