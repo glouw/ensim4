@@ -30,8 +30,6 @@ struct engine_time_s
     double (*get_ticks_ms)();
 };
 
-#define engine_is(engine) .node = engine, .size = len(engine)
-
 void
 analyze_engine(struct engine_s* self)
 {

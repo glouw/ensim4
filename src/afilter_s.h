@@ -1,4 +1,4 @@
-struct filter_s
+struct afilter_s
 {
     struct chamber_s chamber;
 };

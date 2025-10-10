@@ -2,8 +2,8 @@
  * One dimensional (pipe) computational fluid dynamics.
  */
 
-constexpr size_t g_wave_cells = 192;
-constexpr size_t g_wave_substeps = 10;
+constexpr size_t g_wave_cells = 128;
+constexpr size_t g_wave_substeps = 5;
 constexpr size_t g_flux_cells = g_wave_cells + 1;
 constexpr size_t g_wave_signal_cell_index = 0;
 constexpr size_t g_wave_last_interior_cell_index = g_wave_cells - 2;

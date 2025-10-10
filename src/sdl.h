@@ -11,7 +11,7 @@ constexpr double g_sdl_piston_scale_p_per_m = 400.0;
 constexpr double g_sdl_piston_space_p = 4.0;
 constexpr double g_sdl_zero_line_mix = 0.66;
 constexpr size_t g_sdl_flow_cycle_spinner_divisor = 2048;
-constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 4;
+constexpr size_t g_sdl_max_display_samples = g_sampler_max_samples / 16;
 constexpr size_t g_sdl_supported_widget_w_p = 192;
 
 constexpr SDL_FColor g_sdl_channel_color[] = {
@@ -396,7 +396,6 @@ draw_zero_line(struct SDL_FRect rect, struct normalized_s* normalized, SDL_FColo
     }
 }
 
-/* Gathers all sample plot points for one channel into a single array, then renders with one color. */
 void
 draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, bool use_plot_filter)
 {
@@ -407,15 +406,11 @@ draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, 
     SDL_FColor color = get_channel_color(channel);
     for(enum sample_name_e sample_name = 0; sample_name < g_sample_name_e_size; sample_name++)
     {
-        /* Less points can be rendered without loss of visual fidelity. */
         size_t step = 0;
         size_t sampler_size = sampler->size;
         copy_samples(samples, sampler->channel[channel][sample_name], sampler_size);
         sampler_size = down_sample_samples(samples, sampler_size, g_sdl_max_display_samples, &step);
         struct normalized_s normalized = normalize_samples(samples, sampler_size);
-
-        /* Noisy signals benefit from a low pass filter, though this requires disablement
-         * if phase and / or overlap needs to be studied. */
         if(use_plot_filter)
         {
             cleanup_samples(samples, sampler_size);
@@ -430,14 +425,11 @@ draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, 
             { "max: %+.3e", normalized.max_value },
             { "min: %+.3e", normalized.min_value },
             { "div: %3.3f", normalized.div_value },
-#if 0
-            /* These take up real estate, but can be flipped on for down sample debugging. */
+#if 1
             { "stp: %0.0f", step },
             { "avg: %+.3e", normalized.avg_value },
 #endif
         };
-
-        /* Plots only have space for one channel text display, so the last channel is used. */
         bool is_last_channel = channel == sampler->channel_index - 1;
         if(is_last_channel)
         {
@@ -451,8 +443,6 @@ draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, 
                 SDL_RenderDebugTextFormat(g_sdl_renderer, scroll.x_p, newline(&scroll), lines[i].name, lines[i].value);
             }
         }
-
-        /* No need to buffer zero-data plots. */
         if(normalized.is_success)
         {
             size_t data_rect_y_offset_p = calc_scroll_newline_pixels_p(len(lines));
@@ -460,7 +450,6 @@ draw_plot_channel(SDL_FRect rects[], size_t channel, struct sampler_s* sampler, 
                 rect.x, rect.y + data_rect_y_offset_p,
                 rect.w, rect.h - data_rect_y_offset_p,
             };
-            /* Zero lines allow for better flow direction study and comparison. Enabled for all channels. */
             draw_zero_line(data_rect, &normalized, color);
             for(size_t i = 0; i < sampler_size; i++)
             {
@@ -569,22 +558,25 @@ draw_time_panel_info(struct sdl_time_panel_s* self, struct sdl_scroll_s* scroll)
 }
 
 void
-draw_general_info(struct sdl_scroll_s* scroll)
+draw_general_info(struct engine_s* engine, struct sdl_scroll_s* scroll)
 {
+    SDL_FColor warning = get_channel_color(0);
+    SDL_FColor simple = g_sdl_text_color;
     struct
     {
         const char* name;
         double value;
+        SDL_FColor color;
     }
     lines[] = {
-        { "trigger_min_r_per_s: %.0f", g_sampler_min_angular_velocity_r_per_s },
-        { "monitor_hz: %.0f", g_std_monitor_refresh_rate },
-        { "g_engine_node_bytes: %.0f", sizeof(g_engine_node) },
-        { "supported_channels: %.0f", g_sampler_max_channels },
+        { "trigger_min_r_per_s: %.0f" , g_sampler_min_angular_velocity_r_per_s , engine->crankshaft.angular_velocity_r_per_s < g_sampler_min_angular_velocity_r_per_s ? warning : simple },
+        { "monitor_hz: %.0f"          , g_std_monitor_refresh_rate             , simple },
+        { "g_engine_node_bytes: %.0f" , sizeof(g_engine_node)                  , simple },
+        { "supported_channels: %.0f"  , g_sampler_max_channels                 , simple },
     };
     for(size_t i = 0; i < len(lines); i++)
     {
-        set_render_color(g_sdl_text_color);
+        set_render_color(lines[i].color);
         SDL_RenderDebugTextFormat(g_sdl_renderer, scroll->x_p, newline(scroll), lines[i].name, lines[i].value);
     }
 }
@@ -639,7 +631,7 @@ draw_left_info(
     draw_time_panel_info(engine_time_panel, &scroll);
     draw_time_panel_info(audio_buffer_time_panel, &scroll);
     draw_progress_bar_info(frames_per_sec_progress_bar, &scroll);
-    draw_general_info(&scroll);
+    draw_general_info(engine, &scroll);
 }
 
 void
@@ -919,7 +911,7 @@ handle_input(struct engine_s* engine, struct sampler_s* sampler)
                 break;
             case SDLK_I:
                 deselect_all_nodes(engine->node, engine->size);
-                select_nodes(engine->node, engine->size, g_is_filter);
+                select_nodes(engine->node, engine->size, g_is_afilter);
                 select_nodes(engine->node, engine->size, g_is_throttle);
                 select_nodes(engine->node, engine->size, g_is_iplenum);
                 select_nodes(engine->node, engine->size, g_is_irunner);

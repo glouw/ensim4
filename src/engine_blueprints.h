@@ -1,9 +1,25 @@
+/*
+ * For use in engine implementations, eg. engine_2_cyl.h, engine_8_cyl.h, etc.
+ */
+
 #define source_d(...) {                                                                            \
     .type = g_is_source,                                                                           \
     .as.source = {                                                                                 \
         .chamber = {                                                                               \
             .volume_m3 = g_engine_source_sink_volume_m3,                                           \
             .nozzle_max_flow_area_m2 = g_engine_source_max_flow_area_m2,                           \
+            .gas_momentum_damping_time_constant_s = g_engine_gas_momentum_damping_time_constant_s, \
+        },                                                                                         \
+    },                                                                                             \
+    .next = __VA_ARGS__                                                                            \
+}
+
+#define afilter_d(...) {                                                                           \
+    .type = g_is_afilter,                                                                          \
+    .as.afilter = {                                                                                \
+        .chamber = {                                                                               \
+            .volume_m3 = g_engine_afilter_volume_m3,                                               \
+            .nozzle_max_flow_area_m2 = g_engine_afilter_max_flow_area_m2,                          \
             .gas_momentum_damping_time_constant_s = g_engine_gas_momentum_damping_time_constant_s, \
         },                                                                                         \
     },                                                                                             \

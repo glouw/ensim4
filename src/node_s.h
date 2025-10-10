@@ -3,7 +3,7 @@ constexpr size_t g_nodes_node_children = 16;
 #define TYPES   \
     X(chamber)  \
     X(source)   \
-    X(filter)   \
+    X(afilter)  \
     X(throttle) \
     X(iplenum)  \
     X(injector) \

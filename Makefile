@@ -1,6 +1,6 @@
-ENGINE ?= ENGINE_3_CYL
+ENGINE ?= ENGINE_8_CYL
 
-ALLOWED_ENGINES := ENGINE_2_CYL ENGINE_3_CYL
+ALLOWED_ENGINES := ENGINE_2_CYL ENGINE_3_CYL ENGINE_8_CYL
 
 ifeq (,$(filter $(ENGINE),$(ALLOWED_ENGINES)))
 $(error Engines available: '$(ALLOWED_ENGINES)')
@@ -17,9 +17,9 @@ ifeq ($(MAKECMDGOALS),sanitize)
 CFLAGS += -fsanitize=address,undefined -g
 endif
 
-ifeq ($(MAKECMDGOALS),vector)
+ifeq ($(MAKECMDGOALS),simd)
 CFLAGS += -Rpass-missed=loop-vectorize
-SIMD_FILTER = 2>&1 | grep "loop not vectorized"
+SIMD_FILTER = 2>&1 | grep "loop not vectorized" | sort | uniq
 endif
 
 ifeq ($(MAKECMDGOALS),visualize)
@@ -49,7 +49,7 @@ size: all
 	@objdump -d -M intel $(BIN) > $(BIN).asm
 	@size $(BIN)
 
-vector: all
+simd: all
 
 visualize: all
 	@./$(BIN)
