@@ -1,5 +1,5 @@
 constexpr char g_engine_name[] = "inline 8";
-constexpr double g_engine_sound_volume = 0.9;
+constexpr double g_engine_sound_volume = 0.5;
 constexpr double g_engine_radial_spacing = 2.1;
 constexpr double g_engine_source_sink_volume_m3 = 1.00e20;
 constexpr double g_engine_piston_diameter_m = 0.065;
@@ -12,8 +12,8 @@ constexpr double g_engine_piston_head_clearance_height_m = 0.007;
 constexpr double g_engine_piston_dynamic_friction_n_m_s_per_r = 0.03;
 constexpr double g_engine_piston_static_friction_n_m_s_per_r = 0.90;
 constexpr double g_engine_gas_momentum_damping_time_constant_s = 0.53e-3;
-constexpr double g_engine_eplenum_wave_pipe_length_m = 1.2;
-constexpr double g_engine_mic_position_ratio = 0.1;
+constexpr double g_engine_eplenum_wave_pipe_length_m = 1.1;
+constexpr double g_engine_mic_position_ratio = 0.05;
 constexpr double g_engine_velocity_low_pass_cutoff_frequency_hz = 8000.0;
 constexpr double g_engine_chamber_volume_m3 = 2.1e-4;
 constexpr double g_engine_throttle_volume_m3 = 1.00 * g_engine_chamber_volume_m3;

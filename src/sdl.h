@@ -710,9 +710,9 @@ draw_right_info_waves(
                 double value;
             }
             lines[] = {
-                { "max_m_per_s %.1f", wave->max_wave_speed_m_per_s },
-                { "pipe_len_m %.2f", wave->pipe_length_m },
-                { "mic_position_ratio %.2f", wave->mic_position_ratio },
+                { "max_m_per_s %.1f", wave->solver.max_wave_speed_m_per_s },
+                { "pipe_len_m %.2f", wave->solver.pipe_length_m },
+                { "mic_position_ratio %.2f", wave->solver.mic_position_ratio },
             };
             for(size_t i = 0; i < len(lines); i++)
             {
