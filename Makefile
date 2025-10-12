@@ -30,6 +30,22 @@ ifeq ($(MAKECMDGOALS),perf)
 DFLAGS += -DENSIM4_PERF
 endif
 
+PERF_ARGS =\
+cpu-cycles,\
+instructions,\
+L1-dcache-loads,\
+L1-dcache-load-misses,\
+LLC-loads,\
+LLC-load-misses,\
+branch-instructions,\
+branch-misses,\
+dTLB-loads,\
+dTLB-load-misses,\
+dTLB-stores,\
+dTLB-store-misses,\
+iTLB-loads,\
+iTLB-load-misses
+
 BIN = ensim4
 SRC = src/main.c
 
@@ -56,16 +72,10 @@ visualize: all
 
 perf: all
 	@git log -1 --pretty=format:"%H %an %ad %s" >> perf.txt;
-	@perf stat -e\
-cpu-cycles,instructions,\
-L1-dcache-loads,L1-dcache-load-misses,\
-LLC-loads,LLC-load-misses,\
-branch-instructions,branch-misses,\
-dTLB-loads,dTLB-load-misses,\
-dTLB-stores,dTLB-store-misses,\
-iTLB-loads,iTLB-load-misses \
-./$(BIN) \
-&>> perf.txt
+	@perf stat -e $(PERF_ARGS) ./$(BIN) &>> perf.txt
+
+check:
+	@for eng in $(ALLOWED_ENGINES); do $(MAKE) ENGINE=$$eng; done
 
 clean:
 	rm -f visualize/*.txt

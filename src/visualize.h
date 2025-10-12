@@ -1,3 +1,4 @@
+[[maybe_unused]]
 static void
 visualize_gamma()
 {
@@ -68,6 +69,7 @@ visualize_gamma()
     fclose(file);
 }
 
+[[maybe_unused]]
 static void
 visualize_chamber_s()
 {
