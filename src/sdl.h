@@ -572,6 +572,7 @@ draw_general_info(struct engine_s* engine, struct sdl_scroll_s* scroll)
         { "trigger_min_r_per_s: %.0f" , g_sampler_min_angular_velocity_r_per_s , engine->crankshaft.angular_velocity_r_per_s < g_sampler_min_angular_velocity_r_per_s ? warning : simple },
         { "monitor_hz: %.0f"          , g_std_monitor_refresh_rate             , simple },
         { "g_engine_node_bytes: %.0f" , sizeof(g_engine_node)                  , simple },
+        { "g_engine_nodes: %.0f"      , len(g_engine_node)                     , simple },
         { "supported_channels: %.0f"  , g_sampler_max_channels                 , simple },
     };
     for(size_t i = 0; i < len(lines); i++)

@@ -18,8 +18,8 @@ CFLAGS += -fsanitize=address,undefined -g
 endif
 
 ifeq ($(MAKECMDGOALS),simd)
-CFLAGS += -Rpass-missed=loop-vectorize
-SIMD_FILTER = 2>&1 | grep "loop not vectorized" | sort | uniq
+CFLAGS += -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
+SIMD_FILTER = 2>&1
 endif
 
 ifeq ($(MAKECMDGOALS),visualize)
@@ -29,22 +29,7 @@ endif
 ifeq ($(MAKECMDGOALS),perf)
 DFLAGS += -DENSIM4_PERF
 endif
-
-PERF_ARGS =\
-cpu-cycles,\
-instructions,\
-L1-dcache-loads,\
-L1-dcache-load-misses,\
-LLC-loads,\
-LLC-load-misses,\
-branch-instructions,\
-branch-misses,\
-dTLB-loads,\
-dTLB-load-misses,\
-dTLB-stores,\
-dTLB-store-misses,\
-iTLB-loads,\
-iTLB-load-misses
+PERF_ARGS=cpu-cycles,instructions,L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses,branch-instructions,branch-misses,dTLB-loads,dTLB-load-misses,dTLB-stores,dTLB-store-misses,iTLB-loads,iTLB-load-misses
 
 BIN = ensim4
 SRC = src/main.c

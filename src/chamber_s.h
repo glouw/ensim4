@@ -1,3 +1,7 @@
+/*
+ * Chamber.
+ */
+
 constexpr double g_chamber_c8h18_heat_of_combustion_j_per_mol = 5.47e6;
 
 struct chamber_s
@@ -279,7 +283,7 @@ calc_mol_ratio(struct chamber_s* self)
 }
 
 /*
- *  c8h18 + 12.5 o2 -> 8 co2 + 9 h2o
+ * c8h18 + 12.5 o2 -> 8 co2 + 9 h2o
  */
 
 static void

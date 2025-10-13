@@ -112,6 +112,9 @@ main()
     init_sdl();
     init_sdl_audio();
 #ifdef ENSIM4_PERF
+    g_engine.starter.is_on = true;
+    g_engine.can_ignite = true;
+    g_engine.throttle_open_ratio = 1.0;
     size_t perf_max_cycles = 360;
     for(size_t cycle = 0; cycle < perf_max_cycles; cycle++)
 #else

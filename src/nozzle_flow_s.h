@@ -16,6 +16,7 @@ struct nozzle_flow_s
     bool is_success;
 };
 
+[[nodiscard("too computationally expensive to ignore return value")]]
 static struct nozzle_flow_s
 flow(struct chamber_s* x, struct chamber_s* y)
 {

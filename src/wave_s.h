@@ -13,7 +13,7 @@ constexpr size_t g_wave_ambient_cell_index = g_wave_cells - 1;
  * | signal_cell | <-> | first_interior_cell | <...> | last_interior_cell | <-> | ambient_cell |
  * +-------------+     +---------------------+       +--------------------+     +--------------+
  *
- * Subsonic flow always assumed.
+ * Boundary equations always assume subsonic flow.
  *
  */
 
