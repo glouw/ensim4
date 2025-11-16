@@ -8,6 +8,10 @@ pipe dynamics.
 
 `ensim4` generates audio, so crank up your headphones!
 
+For an audio sample:
+
+https://www.youtube.com/watch?v=fq1WPNeVXrI
+
 ### BUILD
 
 Requires a C23 compatible compiler.
