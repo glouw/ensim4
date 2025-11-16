@@ -1,42 +1,60 @@
-```
-░▒▓████████▓▒░▒▓███████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░▒▓██████████████▓▒░░▒▓█▓▒░░▒▓█▓▒░
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
-░▒▓██████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░
-░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░
-```
+## ENSIM4
 
-## BUILD
+![](img/ensim4.png)
+
+`ensim4` is a real-time inline combustion engine test-bed simulator that uses isentropic
+flow equations and one dimensional computational fluid dynamics to simulate exhaust gas
+pipe dynamics.
+
+`ensim4` generates audio, so crank up your headphones!
+
+### BUILD
+
+Requires a C23 compatible compiler.
 
 Dependencies:
 ```
 pacman -S sdl3
 ```
 
-Interact with ensim:
+### TYPICAL USE:
+
+Compile one of either built in engines:
+
 ```
-make vroom
+make ENGINE=ENGINE_3_CYL
+./ensim4
+```
+or
+```
+make ENGINE=ENGINE_8_CYL
+./ensim4
 ```
 
-Performance tuning via perf-stat. Logs to `perf.txt`:
-```
-make perf
-```
+Then, to start your engine:
 
-All invocations of `ensim4` output thermo-fluidic plots to `visualize/`.
-They take somewhat of an eye for mechanical engineering to both verify and validate.
+1. Hold `space` to engage your starter
+2. Tap `d` while holding `space` to ignite your spark plugs
+3. Manage your throttle with `h, j, k, l`
 
-## Control
+### CONTROL
 
 Engine nodes (volumes) can be toggled with the cursor.
 
-Keyboard:
+Otherwise, via the keyboard:
 ```
-    P: selects all piston nodes
-    I: selects all intake nodes
-    E: selects all exhaust nodes
-    C: clears selection
-    N: selects the next node(s) of the currently (only) selected node
+    p: Selects all piston nodes
+    i: Selects all intake nodes
+    e: Selects all exhaust nodes
+    c: Clears selection
+    n: Selects the next node(s) of the currently (only) selected node
+```
+
+The effects of 1D-CFD on audio can be enabled and disabled with the `y` key.
+
+#### OTHER
+
+Performance tuning is done via perf-stat. Logs to `perf.txt`, runs for a number of cycles.
+```
+make perf
 ```

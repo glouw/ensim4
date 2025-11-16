@@ -1,7 +1,3 @@
-/*
- * Chamber.
- */
-
 constexpr double g_chamber_c8h18_heat_of_combustion_j_per_mol = 5.47e6;
 
 struct chamber_s

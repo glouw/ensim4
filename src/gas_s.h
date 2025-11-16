@@ -187,17 +187,6 @@ calc_max_bulk_momentum_kg_m_per_s(struct gas_s* self)
     return m * a;
 }
 
-/*       w1 * x1 + w2 * x2
- * mix = -----------------
- *            w1 + w
- */
-
-static double
-calc_mix(double value1, double weight1, double value2, double weight2)
-{
-    return (value1 * weight1 + value2 * weight2) / (weight1 + weight2);
-}
-
 static void
 clamp_momentum(struct gas_s* self)
 {

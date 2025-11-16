@@ -37,3 +37,14 @@ calc_cylinder_volume_m3(double diameter_m, double depth_m)
 {
     return calc_circle_area_m2(diameter_m) * depth_m;
 }
+
+/*       w1 * x1 + w2 * x2
+ * mix = -----------------
+ *            w1 + w
+ */
+
+static double
+calc_mix(double value1, double weight1, double value2, double weight2)
+{
+    return (value1 * weight1 + value2 * weight2) / (weight1 + weight2);
+}

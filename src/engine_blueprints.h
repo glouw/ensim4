@@ -1,7 +1,3 @@
-/*
- * For use in engine implementations, eg. engine_2_cyl.h, engine_8_cyl.h, etc.
- */
-
 #define source_d(...) {                                                                            \
     .type = g_is_source,                                                                           \
     .as.source = {                                                                                 \
