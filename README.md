@@ -62,3 +62,7 @@ Performance tuning is done via perf-stat. Logs to `perf.txt`, runs for a number 
 ```
 make perf
 ```
+
+#### ATTRIBUTION
+
+Ange Yaghi for inspiration and impulse convolution (https://github.com/ange-yaghi/engine-sim).
